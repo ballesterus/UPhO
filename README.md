@@ -1,2 +1,2 @@
 # myScripts
-A collection of python scripts (work in progess) Im using  for my PhD thesis
+A collection of python scripts (work in progress) Im using for my PhD thesis
