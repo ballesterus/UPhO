@@ -1,0 +1,24 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+from sys import argv
+import re
+import os
+import sqlite3
+
+"""USAGE: This script finds clusters of similar sequences using NCBI blast. It provides the option of filtering groups using Salicos & Rokas (2011)  'r' parameter.
+"""
+
+#PART I: where we incorportate all soyce seqeunces into a sqlite3 database
+conn = sqlite3.connect('sequences.db')
+c = c.cursor()
+c.execute('''CREATE TABLE IF NOT EXIST sequences.trasncripts
+(transcriptID INTEGER PRIMARY KEY,
+sequence TEXT,
+trinity_identifier TEXT,
+len INT,
+path TEXT
+genus TEXT
+species TEXT
+tissue TEXT
+)'''
+        
