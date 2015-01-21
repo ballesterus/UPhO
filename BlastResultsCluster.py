@@ -62,12 +62,16 @@ def redundant(minTaxa):
 
 def retrieve_fasta(in_file):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
+        handle = open(in_file, 'r')
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in in_file:
                 OG_filename = "myOG_" + str(OG_number) + ".faa" 
                 OG_outfile = open('mult_seq_wr/' + OG_filename, 'w')
                 qlist = line.strip('\n').split(', ')
+                if qlist.length < 1:
+                        print "ERROR: no sequences in list, linenumber %d" % OG_number
+
                 for seqId in qlist:
                          SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
                 OG_number += 1
