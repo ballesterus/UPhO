@@ -62,28 +62,13 @@ def redundant(minTaxa):
 
 def retrieve_fasta(in_file):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
-        line_num=0 
-        for line in open(in_file, 'r'):
-                og_file = open ("OG" + str(line_num) + '.fa', 'a')
-                spp =  line.split(', ')
-                print "This is orthogroup %d and contains %d sequecnes" % (line_num, len(spp))
-                for sp in spp:
-                        print "looking for: %s"  % sp
-                        for record in SeqIO.parse(open('ALL_REFERENCE.faa'), "fasta"):
-                                if  record.id in sp:
-                                        SeqIO.write(record, og_file, "fasta")
-                                        print 'found!'
-                                        
-                line_num += 1
-                og_file.close()
-
-def new_groups():
-        og_number = 0
-        for line in:
-                
-def find_withID():
-        reference = SeqIO.parse(open('ALL_REFEREMCE'), 'fasta')
-        for record in erence:
-                if record.id == query:
-                        SeqIO.write(record, open(ogfile, 'a'), 'fasta')
-        
+        OG_number = 0
+        seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
+        for line in in_file:
+                OG_filename = "myOG_" + str(OG_number) + ".faa" 
+                OG_outfile = open('mult_seq_wr/' + OG_filename, 'w')
+                qlist = line.strip('\n').split(', ')
+                for seqId in qlist:
+                         SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
+                OG_number += 1
+                OG_outfile.close()
