@@ -1,18 +1,18 @@
 #! /usr/bin/env python
-
 import os
 import glob
 import re
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import ete2
-
-''' This script summarizes the distribution of orthologous by taxa'''
+from sys import argv
+#from matplotlib_venn import venn3, venn3_circles 
+'''This script summarizes the distribution of orthologous by taxa.
+ Usage: pythin sumor.py <> <> '''
 
 W_path = '.'
 P_attern = 'faa'
-Output = open('OGsummary.csv', 'w')   
-T = ete2.Tree('Forest_NR101.tre')
 
 def count_identifiers(file):
     Counter =0
@@ -37,12 +37,28 @@ def line_writer():
                Output.write(OutLine)
         Handle.close()
 
-def tree_plotter():
-    inFile = open('OGsummary.csv', 'r')
+def tree_ortho_annotator(summary, phylo):
+    inFile= open(summary, 'r')
+    T = ete2.Tree(phylo)
+    outgroup1 = 'H_pococki'
+    outgroup2= 'S_lineatus'
+    if T.get_leaves_by_name(outgroup1) != []:
+        T.set_outgroup(outgroup1)
+    else:
+        T.set_outgroup(outgroup2)
+    #Declare node name varaibles
+    Tetra = T.get_common_ancestor('L_venusta','T_kauensis', 'T_perreira', 'T_versicolor')
+    Tetra.add_feature('name', 'Tetragnathidae')
+    Aran=T.get_common_ancestor('M_gracilis', 'N_arabesca','G_hasselti')
+    Aran.add_feature('name','Araneidae')
+    Theri = T.get_common_ancestor('T_californicum','L_tredecimguttatus','T_sp')
+    Theri.add_feature('name','Theridiidae')
+    Araneoid = T.get_common_ancestor('Tetragnathidae', 'Araneidae', 'Theridiidae')
+    Araneoid.add_feature('name', 'Araneoidea')
     for node in T.traverse():
         node.add_feature('OgCompo', [])
     for line in inFile:
-        if re.search('^myOG', line):
+        if re.search('^myOG', line) or re.search('^CD_',line):
             items= line.split(',')
             Sp_Code = items[1]
             OG_num = items[0]
@@ -70,17 +86,53 @@ def tree_plotter():
             node.add_feature('OgCompo', Inter)
     for node in T.traverse():
         OG_count= len(node.OgCompo)
-           node.add_feature('Total', OG_count)
-    ts = TreeStyle()
-    ts.show_leaf_name = True
-    for n in T.traverse():
-        nstyle = NodeStyle()
-        nstyle["fgcolor"] = "red"
-        nstyle["size"] = n.Total
-        n.set_style(nstyle)
-    T.show(tree_style=ts)
-       # print 'The node %s has %s OGs' %(node.name, node.Total)
+        node.add_feature('Total', OG_count)
+    return T
 
+def CdsSets_by_Treatment(treat):
+    D1 = open(treat, 'r')
+    Set =[]
+    for line in D1:
+        if  not line.startswith('OGnumber'):
+            list=line.split(',')
+            element = list[1] + list[2]
+            Set.append(element)
+    return Set
+
+def get_orthoSet_by_node(Phylo, NodeName):
+    T = Phylo
+    N = T&NodeName
+    Set= N.OgCompo
+    return Set
+Ny
+def tree_plot(phylo):
+    T = phylo
+    ts = ete2.TreeStyle()
+    ts.show_leaf_name = False
+    for n in T.traverse():
+        if n.is_leaf():
+            Nlabel = ete2.AttrFace('name', fsize =14, ftype='Arial', fstyle='italic')
+            n.add_face(face =Nlabel,column=0, position ='aligned')
+        NOg = ete2.AttrFace('Total', fsize= 10, ftype='Arial') 
+        n.add_face(face=NOg,column=0, position =  'branch-bottom')
+        #Set custum node style
+        nstyle = ete2.NodeStyle()
+        nstyle["fgcolor"] = 'Red'
+        nstyle["shape"] = "circle"
+        nstyle["hz_line_color"]="Gray"
+        nstyle["hz_line_width"]=2
+        nstyle["vt_line_width"]=2
+        nstyle["vt_line_color"]="Gray"
+        nstyle["size"] = n.Total/100
+        n.set_style(nstyle)
+        #Custum style for specific nodes
+        Tetra = T&'Tetragnathidae'
+        Tetra.img_style["fgcolor"] = 'MediumAquaMarine'
+        Araneoid = T&'Araneoidea'
+        Araneoid.img_style["fgcolor"] = 'Blue'
+        L = T&'L_venusta'
+        L.img_style["fgcolor"] = 'Green'
+    T.show(tree_style=ts)
 
 #header_writer()
 #line_writer()
