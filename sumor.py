@@ -37,6 +37,24 @@ def line_writer():
                Output.write(OutLine)
         Handle.close()
 
+def Set_of_FastaID():
+    FilesUniqComsId = []
+    setsInspected = []
+    for file in glob.glob('*.%s' % P_attern):
+        Handle = open(file, 'r')
+        OrtG = file.strip('.%s' % P_attern)
+        for line in Handle:
+            IdsinFile=[]
+            if re.search (r'^>', line):
+                FastaId = line.strip('>')
+                IdsinFile.add(FastaId)
+            IdsFile = sort(IdsinFile)
+            if IdsInFile not in setsInspected:
+                UniqComsId.append(IdsinFile)
+                setsIspectec.add(IdsinFile)
+        Handle.close()
+        
+
 def tree_ortho_annotator(summary, phylo):
     inFile= open(summary, 'r')
     T = ete2.Tree(phylo)
