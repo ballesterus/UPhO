@@ -2,6 +2,7 @@
 import os
 import glob
 import re
+import shutil
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,8 +12,11 @@ from sys import argv
 '''This script summarizes the distribution of orthologous by taxa.
  Usage: pythin sumor.py <> <> '''
 
-W_path = '.'
-P_attern = 'faa'
+W_path = raw_input('Select the Path to process: ')
+P_attern = raw_input('Type the extension of files to process: ')
+os.chdir(W_path)
+Output = open('OG_summary.csv', 'w')
+
 
 def count_identifiers(file):
     Counter =0
@@ -22,14 +26,14 @@ def count_identifiers(file):
             Counter+= 1
     print counter
 
-os.chdir(W_path)
+
 def header_writer():
     Output.write('OGnumber,Species_code,counSeq_Id\n')
 
 def line_writer():
-    for file in glob.glob('*.%s' % P_attern):
+    for file in glob.glob('*%s' % P_attern):
         Handle = open(file, 'r')
-        OrtG = file.strip('.%s' % P_attern)
+        OrtG = file.strip('%s' % P_attern)
         for line in Handle:
             if re.search (r'^>', line):
                Div = re.sub('>','',line).split('|')
@@ -37,23 +41,36 @@ def line_writer():
                Output.write(OutLine)
         Handle.close()
 
-def Set_of_FastaID():
-    FilesUniqComsId = []
+def Set_of_FastaID(extension):
+    '''This fuction inspect iteratively acrooss the composition of sequence identifiers of all files in the current directoty  (fasta sequence list, alignements and trees). Fisrt ocurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitue then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequeces or topologies)   
+'''
+    Report = open('redundancyReport.txt', 'w')
+    UniqComsId = []
     setsInspected = []
-    for file in glob.glob('*.%s' % P_attern):
+    for file in glob.glob('*%s' % extension):
         Handle = open(file, 'r')
-        OrtG = file.strip('.%s' % P_attern)
+        IdsinFile=[]
         for line in Handle:
-            IdsinFile=[]
-            if re.search (r'^>', line):
+            if line.startswith('>'):
                 FastaId = line.strip('>')
-                IdsinFile.add(FastaId)
-            IdsFile = sort(IdsinFile)
-            if IdsInFile not in setsInspected:
-                UniqComsId.append(IdsinFile)
-                setsIspectec.add(IdsinFile)
+                FastaId = FastaId.replace('\n', '')
+                IdsinFile.append(FastaId)
+            elif line.startswith('('):
+                IdsinFile= re.findall(r'[A-Z]_[a-z]+\|[a-z , 0-9, _]+', Line)           
+        IdsinFile = sorted(IdsinFile)
+        if IdsinFile not in setsInspected:
+            UniqComsId.append(file)
+            setsInspected.append(IdsinFile)
+            shutil.copyfile(file, file + '.2')
+        else:
+            Index = setsInspected.index(IdsinFile)
+            AlreadySet = UniqComsId[Index]
+            Report.write('The FastaId compososition of %s is represented in file %s') % (file, AlreadySet)
+  
         Handle.close()
-        
+    Report.write('The are %d different groups') % len(UniqComsId)
+    Report.write(UniqComsId)
+
 
 def tree_ortho_annotator(summary, phylo):
     inFile= open(summary, 'r')
@@ -64,7 +81,7 @@ def tree_ortho_annotator(summary, phylo):
         T.set_outgroup(outgroup1)
     else:
         T.set_outgroup(outgroup2)
-    #Declare node name varaibles
+    #Declare node name variables
     Tetra = T.get_common_ancestor('L_venusta','T_kauensis', 'T_perreira', 'T_versicolor')
     Tetra.add_feature('name', 'Tetragnathidae')
     Aran=T.get_common_ancestor('M_gracilis', 'N_arabesca','G_hasselti')
@@ -122,7 +139,7 @@ def get_orthoSet_by_node(Phylo, NodeName):
     N = T&NodeName
     Set= N.OgCompo
     return Set
-Ny
+
 def tree_plot(phylo):
     T = phylo
     ts = ete2.TreeStyle()
