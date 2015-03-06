@@ -41,21 +41,29 @@ def non_redundant(reference, min_sp):
 
 	inFile = open(reference, 'rw')
 	outFile =open("non_redundantOG.txt", "w")
+        SetsInspected = []
         for line in inFile:
                 spp = re.findall(r'[A-Z]_[a-z]+', line)
+                SeqIds = line.strip('\n').split(', ')
                 nr = set(spp)
-                if len(spp) == len(nr) and len(spp) >= int(min_sp):
-				outFile.write(line)
+                if len(spp) == len(nr) and len(spp) >= int(min_sp) and sorted(SeqIds) not in SetsInspected:
+                        SetsInspected.append(sorted(SeqIds))
+                        outFile.write(line)
+        print SetsInspected
+        print len(SetsInspected)
         outFile.close()
 				
 def redundant(minTaxa):
         """"Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
         inFile = open("clusters.txt", "rw")
 	outFile =open("redundantsOG.txt", "w")
-	for line in inFile:
+        SetsInspected = []
+        for line in inFile:
                 spp = re.findall(r'[A-Z]_[a-z]+', line)
+                SeqIds = line.strip('\n').split(', ')
                 nr = set(spp)
-                if len(nr) >= int(minTaxa):
+                if len(nr) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
+                        SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
         outFile.close()
 
@@ -63,11 +71,16 @@ def redundant(minTaxa):
 def retrieve_fasta(in_file):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
+        Outdir = raw_input('Enter output dir name: ')
+        if not os.path.exists(Outdir):
+                os.makedirs(Outdir)
+        else:
+                print 'The output dir already exist!'
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in handle:
                 OG_filename = "myOG_" + str(OG_number) + ".faa" 
-                OG_outfile = open('mult_seq_wr/' + OG_filename, 'w')
+                OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                 qlist = line.strip('\n').split(', ')
                 for seqId in qlist:
                         SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
