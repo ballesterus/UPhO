@@ -126,8 +126,15 @@ def Is_NT_or_AA(String):
     ''' Returns AA is the sequence ismade of aminoacids, NT if is made of nucleotides'''
     NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N')
     AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X')
+    Comp = set(String)
+    if all([i in NT for i in Comp]):
+        return 'NT'
+    elif all([i in AA for i in Comp]):
+        return 'AA'
+    else:
+        return 'Not valid sequence'
     
-    
+        
 def Insert_CDS(File, SpId):
     Records = Fasta_Parser(File)
     for Key in Records.iterkeys():
