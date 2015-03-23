@@ -6,7 +6,7 @@ import re
 import os
 import sqlite3
 
-"""Creates, populates database for trasncritome-orthology pipeline.
+"""Creates, populates database for trasncriptome-orthology pipeline.
 """
 
 #PART I: Create new  SQLITE3 database & schema IF one does not exist.
@@ -16,7 +16,9 @@ c.execute("PRAGMA foreign_keys = ON;")
 c.execute('''CREATE TABLE IF NOT EXISTS Species
 (Species_ID INTEGER PRIMARY KEY UNIQUE,
 Genus TEXT,
-Species TEXT)''')
+Species TEXT,
+SpCode TEXT, 
+)''')
 
 c.execute('''CREATE TABLE IF NOT EXISTS Transcript
 (Transcript_ID  INTEGER PRIMARY KEY UNIQUE,
@@ -135,10 +137,10 @@ def Is_NT_or_AA(String):
         return 'Not valid sequence'
     
         
-def Insert_CDS(File, SpId):
+def Insert_CDS(File, SpCode):
     Records = Fasta_Parser(File)
     for Key in Records.iterkeys():
-        sql = "SELECT CDS_ID FROM CDS WHERE FastaHeader LIKE '%s'" % Key
+        sql = "SELECT CDS_ID FROM CDS WHERE FastaHeader = '%s' AND " % Key
         c.execute(sql)
         Check = c.fetchall()
         if len(Check) == 0: #The CDS is not in the Database. Enter CDS
@@ -157,7 +159,9 @@ def Insert_CDS(File, SpId):
                 break
         elif len(Check) ==1: # The CDS is in the DB. Proceed to Update SeqData
             Type = Is_NT_or_AA(Records[Key])
-            sql = "UPDATE CDS SET %sSeq =="
+            sql = "UPDATE CDS SET Seq%s = %s" % (Type, Records[Key])
+        else:
+            print "ERROR: THE CDS YOU REA TRYING TO ENTER HAS MORE THAN ONE OCURRENCE"
 
 for record in records:
     id = record[0]
