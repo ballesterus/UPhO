@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+import os
+from sys import argv
+
+Script=argv[0] 
+Codon=argv[1]
+argv.remove(Script)
+argv.remove(Codon)
+Targets=argv
+
+##FUNCTION DEFINITIONS
+
+
+def Is_NT_or_AA(String):
+    ''' Returns True  is the sequence is composed of Nucleotide symbols'''
+    NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N')
+    AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X')
+    Comp = set(String)
+    if all([i in NT for i in Comp]):
+        return 'NT'
+    elif all([i in AA for i in Comp]):
+        return 'AA'
+    else:
+        return 'UNKNOW'
+    
+
+
+class FastaRecord():
+    """Class for storing sequence records and related data"""
+    def __init__(self, IdLine):
+        self.SeqId = IdLine.replace('\n', '').strip('>')
+        self.OTU =self.SeqId.split(Delim)[0]
+        self.UniqId = self.SeqId.split(Delim)[1]
+
+def Fasta_Parser(File):
+    with open(File, 'r') as F:
+        Records = {}
+        Seq=''
+        for Line in F:
+            if is_ID(Line) and len(Seq) == 0:
+                OTU = Line.strip('>').split(Delim)[0]
+                Records[OTU] = FastaRecord(Line)
+            elif is_ID(Line) and len(Seq) > 0:
+                Records[OTU].Seq = Seq
+                Records[OTU].SeqLen = len(Seq)
+                Records[OTU].SeqGaps = Seq.count('-')
+                OTU = Line.strip('>').split(Delim)[0]
+                Seq = ''
+                Records[OTU]= FastaRecord(Line)
+            else:
+                Part=Line.replace('\n','')
+                Seq = Seq + Part
+        Records[OTU].Seq = Seq
+        Records[OTU].SeqLen = len(Seq)
+        Records[OTU].SeqGaps = Seq.count('-')
+    return Records
+    F.close()
+
+
+
+def made_consenus:
+    Consensus = ''    
+    for record in Records.iterkeys():
+        mySeq=Records[record].Seq
+        if len(Consensus)==0:
+            Consensus = mySeq
+        elif len(Consensus)==len(mySeq):
+        else:
+            print "ERROR this seqences are not alignend!
+            break
+        
