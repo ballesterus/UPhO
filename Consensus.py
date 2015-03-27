@@ -9,9 +9,10 @@ parser = argparse.ArgumentParser(description='This is a program, to write consen
 
 parser.add_argument('-t', action= 'store', dest = 'T', default = 1.0, type = float,  help='Specify frequency threshold' ) 
 parser.add_argument('-m', action = 'store', dest = 'M', default = 18, type = int, help='minimum lenght of good conserved regions' )
-parser.add_argument('-f', action = 'append', dest = 'targets', nargs='+', type = file, help = 'files to process(fasta alignment)')  
+parser.add_argument('-f', action = 'append', dest = 'targets',  help = 'files to process(fasta alignment)')  
 
 arguments= parser.parse_args()
+print arguments
 T = arguments.T
 M = arguments.M
 Files = arguments.targets
@@ -55,13 +56,20 @@ def make_Consensus(Dict, T):
             if site != '-':
                 compo.append(site)
         N = len(compo)
+        G = 0 
+        MFB = ''
         for base in set(compo):
             freq = compo.count(base)
-            if :
-                Consensus+= base
-                
+            if freq > G:
+                G = freq
+                MFB = base
+        if G/N >= T:
+            Consensus+=MFB
+        else:
+            
             Consensus+='-'
     return Consensus
+
 
 def Good_Blocks(Consensus, M):
     GoodBlocks =[]
@@ -70,5 +78,19 @@ def Good_Blocks(Consensus, M):
         if len(Block) >= M:
             GoodBlocks.append(Block)
 
+    return GoodBlocks
 
-            
+
+#####SHOWTIME######
+
+for File in Files:
+    F = Fasta_Parser(File)
+    FileName= File.split('.')
+    Out =open('Output.fasta', 'wb+')
+    Con = make_Consensus(F, T)
+    Out.write('>' + FileName[0] + '\n')
+    Out.write(Con)
+        
+
+
+
