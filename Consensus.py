@@ -1,33 +1,20 @@
 #!/usr/bin/env python
-import os
-from sys import argv
-
-Script=argv[0] 
-Codon=argv[1]
-argv.remove(Script)
-argv.remove(Codon)
-Targets=argv
+"""USAGE: python Consensus.py -t 0.5 -m 20 -f *.al """
 
 
+import argparse
+import re
 
-NT=['A','C','G','T']
-AA =['A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z']
+parser = argparse.ArgumentParser(description='This is a program, to write consensus sequences')
 
-##FUNCTION DEFINITIONS
+parser.add_argument('-t', action= 'store', dest = 'T', default = 1.0, type = float,  help='Specify frequency threshold' ) 
+parser.add_argument('-m', action = 'store', dest = 'M', default = 18, type = int, help='minimum lenght of good conserved regions' )
+parser.add_argument('-f', action = 'append', dest = 'targets', nargs='+', type = file, help = 'files to process(fasta alignment)')  
 
-
-def Is_NT_or_AA(String):
-    ''' Returns True  is the sequence is composed of Nucleotide symbols'''
-    NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N')
-    AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X')
-    Comp = set(String)
-    if all([i in NT for i in Comp]):
-        return 'NT'
-    elif all([i in AA for i in Comp]):
-        return 'AA'
-    else:
-        return 'UNKNOW'
-    
+arguments= parser.parse_args()
+T = arguments.T
+M = arguments.M
+Files = arguments.targets
 
 def is_ID(Line):
     """Evaluates if a string correspond to fasta identifier. herein broadly defined by starting with th e '>' symbol"""
@@ -58,49 +45,29 @@ def Fasta_Parser(File):
 
 
 
-def make_Consenus(Dict):
+def make_Consensus(Dict, T):
     '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a 100% consensus'''
+    Consensus=''
     for i in range(0, len(Dict[Dict.keys()[0]])):
-        Compo = {}
+        compo = []
         for seq in Dict.itervalues():
             site = seq[i]
-            if site  not in Compo:
-                Compo[site]=1
-            else:
-                Compo[site]+=1
-        print Compo
-    
-
-
-
-
-    for record in Records_Dict:
-        Consensus = ''
-        mySeq=Records_Dict[record]
-        NSeq=''
-        if len(Consensus)==0:
-            Consensus = mySeq
-        elif len(Consensus)==len(mySeq):
-            for i in range(0, len(mySeq)):
-                if mySeq[i] =='-' and Consensus[i] in NT:
-                    NSeq +=Consensus[i]
-                elif mySeq[i] in NT  and Consensus[i] == mySeq[i]:
-                    NSeq+=Consensus[i]
-                else:
-                    NSeq+='-'
-            Consensus = NSeq
-        else:
-            print "ERROR this seqences are not alignend!"
-            break
+            if site != '-':
+                compo.append(site)
+        N = len(compo)
+        for base in set(compo):
+            freq = compo.count(base)
+            if :
+                Consensus+= base
+                
+            Consensus+='-'
     return Consensus
 
-
-
-def Good_Blocks(Consensus):
+def Good_Blocks(Consensus, M):
     GoodBlocks =[]
     Blocks = re.split('-+', Consensus)
     for Block in Blocks:
-        if len(Block) >= 18:
+        if len(Block) >= M:
             GoodBlocks.append(Block)
 
 
