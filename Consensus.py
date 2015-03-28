@@ -4,18 +4,18 @@
 
 import argparse
 import re
-
+from sys import argv
 parser = argparse.ArgumentParser(description='This is a program, to write consensus sequences')
 
 parser.add_argument('-t', action= 'store', dest = 'T', default = 1.0, type = float,  help='Specify frequency threshold' ) 
 parser.add_argument('-m', action = 'store', dest = 'M', default = 18, type = int, help='minimum lenght of good conserved regions' )
-parser.add_argument('-f', action = 'append', dest = 'targets',  help = 'files to process(fasta alignment)')  
+parser.add_argument('-f', action = 'append', dest = 'targets', type = str, nargs= '+',  help = 'files to process(fasta alignment)')  
 
 arguments= parser.parse_args()
 print arguments
 T = arguments.T
 M = arguments.M
-Files = arguments.targets
+
 
 def is_ID(Line):
     """Evaluates if a string correspond to fasta identifier. herein broadly defined by starting with th e '>' symbol"""
@@ -72,24 +72,33 @@ def make_Consensus(Dict, T):
 
 
 def Good_Blocks(Consensus, M):
-    GoodBlocks =[]
-    Blocks = re.split('-+', Consensus)
-    for Block in Blocks:
-        if len(Block) >= M:
-            GoodBlocks.append(Block)
-
+    GoodBlocks =''
+    block = ''
+    for site in Consensus:
+        if site !='-':
+            block+=site
+        elif site =='-' and len(block)>0:
+            if len(block) >= M:
+                GoodBlocks += block + '-'
+                block = ''
+            else:
+                GoodBlocks += len(block) * '-' + '-'
+                block = ''
+        else:
+            GoodBlocks += '-'   
+    GoodBlocks+=block
     return GoodBlocks
 
 
 #####SHOWTIME######
-
-for File in Files:
-    F = Fasta_Parser(File)
-    FileName= File.split('.')
-    Out =open('Output.fasta', 'wb+')
-    Con = make_Consensus(F, T)
-    Out.write('>' + FileName[0] + '\n')
-    Out.write(Con)
+if len(argv) > 3:
+    for File in  arguments.targets:
+        F = Fasta_Parser(File)
+        FileName= File.split('.')
+        Out =open('Output.fasta', 'wb+')
+        Con = make_Consensus(F, T)
+        Out.write('>' + FileName[0] + '\n')
+        Out.write(Con)
         
 
 
