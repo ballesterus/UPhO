@@ -19,8 +19,9 @@ def plot_eval(blastout):
         plt.ylabel("Frequency")
         plt.show()
 
+
 def clusters(blastout, expectation):
-        """This function take two arguments: 1) the blast csv output, and 2) an E Value threshold for the formation of clusters. The output is text file with the identifiers of the sequenes clustered  on a single line"""
+        """This function take two arguments: 1) the blast csv output, and 2) an E Value threshold for the formation of clusters. The output is text file with the identifiers of the sequenes clustered  on a single line, a hidden parameter in this function is the alignment lenght, Im using 50 ut can be  modified."""
 	myOut = open("cluster_" +  str(expectation) + '.txt', 'w')
 	in_file = open(blastout, 'r')
 	n = 1
@@ -35,7 +36,20 @@ def clusters(blastout, expectation):
 				n += 1
 			else:
 				myOut.write(", " + subjectId)
-			
+
+
+def Intersect_Keep_Longest(ListA, ListB):
+""" Takes a two list  seqids  compares it with list already inspected, if the current list is a subset  of more than one element then the function returns the longest of this pair."""
+
+if len(set(ListA) and set(ListB)) == 0:
+        return List A
+else:
+        if len(ListA) > len (ListB):
+                reurn ListA
+        else:
+                return ListB
+
+
 def non_redundant(reference, min_sp):
         """This filters non species redundant orthoGroups, Takes as input a cluster file, like the one produces by the uction clusters, and a minimum number of different species"""
 
