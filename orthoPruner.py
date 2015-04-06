@@ -3,6 +3,15 @@
 import re
 import os
 from BlastResultsCluster import retrieve_fasta
+from sys import argv
+import argparse
+
+parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees')
+parser.add_argument('-t', dest = 'TreeFile', type = str, nargs= '+',  help = 'files to process(fasta alignment)')
+
+arguments = parser.parse_args()
+#print arguments
+
 
 class myPhylo():
     def __init__(self, N):
@@ -129,23 +138,24 @@ def reduce_inparalogues(Phylo):
                     Inpar[Otus[0]
 '''
 
-###########
 
-if argv > 3:
-    OrList = open('UPhO_Pruned.txt', 'w+')
+if argv >= 3:
+    OrList = open('UPhO_Pruned.txt', 'w')
     count = 0
-    for tree  in arg.trees:
-        with open(trees, 'r') as T:
-            for line in  tree:
-                if line.startswith('(') and line.endswitd(';'):
-                    T = myPhylo(line)
-                    ortho_prune(T, 5)
-                    for group in T.ortho:
-                        OrList.write(group + '\n')
-                        count += 1
+    for tree in arguments.TreeFile:
+        with open(tree, 'r') as T:
+            for line in  T:
+                P = myPhylo(line)
+                ortho_prune(P, 5)
+                for group in P.ortho:
+                    G = ','.join(group)
+                    OrList.write(G + '\n')
+                    count += 1
+        
+        T.close()
     OrList.close()
-    print "There are %d orthogroups from this collection of treea,"
+    print "There are %d orthogroups from this collection of treea," % count
     print "Proceeding to create a fasta file for each ortholog"
-    retrieve_fasta( 'UPh)_Prunned.txt', "UPho_seqs")
+    retrieve_fasta( 'UPhO_Pruned.txt', "UPho_seqs")
 
     

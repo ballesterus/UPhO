@@ -11,6 +11,7 @@
 # *gnu-parallel                                                                                                                                #      
 # *raxmlHPC                                                                                                                                    #
 # *trimal                                                                                                                                      #
+# *FastTre                                                                                                                                     #
 # *mafft                                                                                                                                       #
 ################################################################################################################################################
 
@@ -45,10 +46,10 @@ fi
 trees=`ls -1 *.tre 2>/dev/null | wc -l`
 if [ $trees = 0 ]
 then
-    if [ $Tree_estimator -eq 'F' ]
+    if [ $Tree_estimator == 'F' ]
     then
-	parallel -j+0 'fasttree -wag {} > {.}.tre' ::: *.fa
-    elif [ $Tree_estimator -eq 'X'  ]
+	parallel -j+0 'FastTreeMP {} > {.}.tre' ::: *.fa
+    elif [ $Tree_estimator == 'X'  ]
     then
 	parallel -j+0 'raxmlHPC-AVX -s {} -f a -p12345  -x12345 -#100 -m PROTGAMMAAUTO -n {.}.rxOUT' ::: *.fasta
     fi

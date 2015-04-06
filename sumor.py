@@ -30,11 +30,10 @@ def count_identifiers(file):
 def header_writer():
     Output.write('OGnumber,Species_code,counSeq_Id\n')
 
-def line_writer(Extension):
-    for Myfile in glob.glob('*%s' % Extension):
-        Handle = open(Myfile, 'r')
-        OrtGs = Myfile.split('.')
-        OrtG =OrtGs[0]
+def line_writer():
+    for file in glob.glob('*%s' % P_attern):
+        Handle = open(file, 'r')
+        OrtG = file.strip('%s' % P_attern)
         for line in Handle:
             if re.search (r'^>', line):
                Div = re.sub('>','',line).split('|')
@@ -45,11 +44,11 @@ def line_writer(Extension):
 def Set_of_FastaID(extension):
     '''This fuction inspect iteratively acrooss the composition of sequence identifiers of all files in the current directoty  (fasta sequence list, alignements and trees). Fisrt ocurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitue then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequeces or topologies)   
 '''
-    Report = open('redundancyReport.txt', 'ab')
+    Report = open('redundancyReport.txt', 'w')
     UniqComsId = []
     setsInspected = []
-    for Myfile in glob.glob('*%s' % extension):
-        Handle = open(Myfile, 'r')
+    for File in glob.glob('*%s' % extension):
+        Handle = open(File, 'r')
         IdsinFile=[]
         for line in Handle:
             if line.startswith('>'):
@@ -60,18 +59,16 @@ def Set_of_FastaID(extension):
                 IdsinFile= re.findall(r'[A-Z]_[a-z]+\|[a-z , 0-9, _]+', line)           
         IdsinFile = sorted(IdsinFile)
         if IdsinFile not in setsInspected:
-            UniqComsId.append(Myfile)
+            UniqComsId.append(File)
             setsInspected.append(IdsinFile)
-            shutil.copyfile(Myfile, Myfile + '.2')
+            shutil.copyfile(File, File + '.2')
         else:
             Index = setsInspected.index(IdsinFile)
             AlreadySet = UniqComsId[Index]
-            Report.write('The FastaId compososition of %s is represented in file %s\n' % (Myfile, AlreadySet))
-  
+            Report.write('The FastaId compososition of %r is represented in file %r' % (File, AlreadySet))
         Handle.close()
-    Report.write('The are %d different groups\n' % len(UniqComsId))
-    for I in UniqComsId:
-        Report.write(I + ', ')
+    Report.write('The are %d different groups' % len(UniqComsId))
+    Report.write(UniqComsId)
 
 
 def tree_ortho_annotator(summary, phylo):

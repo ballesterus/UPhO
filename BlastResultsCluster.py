@@ -73,8 +73,8 @@ def redundant(reference, minTaxa):
 	outFile =open("redundantsOG_%s.txt", "w" %reference)
         SetsInspected = []
         for line in inFile:
-                spp = re.findall(r'[A-Z]_[a-z]+', line)
-                SeqIds = line.strip('\n').split(', ')
+		spp = re.findall(r'[A-Z]_[a-z]+', line)
+		SeqIds = line.strip('\n').split(', ')
                 nr = set(spp)
                 if len(nr) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
                         SetsInspected.append(sorted(SeqIds))
@@ -86,7 +86,6 @@ def redundant(reference, minTaxa):
 def retrieve_fasta(in_file, Outdir, Type):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
-        Outdir = Outdir
         if not os.path.exists(Outdir):
                 os.makedirs(Outdir)
         else:
@@ -94,11 +93,14 @@ def retrieve_fasta(in_file, Outdir, Type):
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in handle:
-                
-                OG_filename = Type + "_" + str(OG_number) + ".faa" 
-                OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
-                qlist = line.strip('\n').split(', ')
-                for seqId in qlist:
-                        SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
-                OG_number += 1
-                OG_outfile.close()
+
+		if len(line) > 0:
+			OG_filename = Type + "_" + str(OG_number) + ".faa" 
+			OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
+			line = line.replace(' ', '' )
+			qlist = line.strip('\n').split(',')
+			for seqId in qlist:
+				SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
+			OG_number += 1
+			print "successfully created %s" % OG_filename 
+			OG_outfile.close()
