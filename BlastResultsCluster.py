@@ -37,9 +37,9 @@ def clusters(blastout, expectation):
 			else:
 				myOut.write(", " + subjectId)
 
-
+'''
 def Intersect_Keep_Longest(ListA, ListB):
-""" Takes a two list  seqids  compares it with list already inspected, if the current list is a subset  of more than one element then the function returns the longest of this pair."""
+        """ Takes a two list  seqids  compares it with list already inspected, if the current list is a subset  of more than one element then the function returns the longest of this pair."""
 
 if len(set(ListA) and set(ListB)) == 0:
         return List A
@@ -48,7 +48,7 @@ else:
                 reurn ListA
         else:
                 return ListB
-
+'''
 
 def non_redundant(reference, min_sp):
         """This filters non species redundant orthoGroups, Takes as input a cluster file, like the one produces by the uction clusters, and a minimum number of different species"""
@@ -67,9 +67,9 @@ def non_redundant(reference, min_sp):
         print len(SetsInspected)
         outFile.close()
 				
-def redundant(minTaxa):
+def redundant(reference, minTaxa):
         """"Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
-        inFile = open("clusters.txt", "rw")
+        inFile = open(reference, "rw")
 	outFile =open("redundantsOG.txt", "w")
         SetsInspected = []
         for line in inFile:
@@ -90,7 +90,6 @@ def retrieve_fasta(in_file, Outdir):
                 os.makedirs(Outdir)
         else:
                 print 'The output dir already exist!'
-                break
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in handle:
