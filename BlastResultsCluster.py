@@ -82,18 +82,19 @@ def redundant(minTaxa):
         outFile.close()
 
 
-def retrieve_fasta(in_file):
+def retrieve_fasta(in_file, Outdir):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
-        Outdir = raw_input('Enter output dir name: ')
+        Outdir = Outdir
         if not os.path.exists(Outdir):
                 os.makedirs(Outdir)
         else:
                 print 'The output dir already exist!'
+                break
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in handle:
-                OG_filename = "myOG_" + str(OG_number) + ".faa" 
+                OG_filename = "myUPhOG_" + str(OG_number) + ".faa" 
                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                 qlist = line.strip('\n').split(', ')
                 for seqId in qlist:

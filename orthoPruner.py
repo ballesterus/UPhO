@@ -2,18 +2,19 @@
 
 import re
 import os
-
+from BlastResultsCluster import retrieve_fasta
 
 class myPhylo():
     def __init__(self, N):
         self.leaves = get_leaves(N)
-        self.OTUs = []
+        self.Dict = {} # dicionary of OTU (keys), and the Unique identifiers in the newick
         self.splits = split_decomposition(N)
         self.ortho=[]
         self.newick = N
         for leaf in self.leaves:
-            if leaf.split('|')[0] not in self.OTUs:
-                self.OTUs.append(leaf.split('|')[0])
+            self.Dict[leaf.split('|')[0]] = [] 
+        for leaf in self.leaves:
+            self.Dict[leaf.split('|')[0]].append(leaf.split('|')[1])
 
 def get_leaves(String):
     Leaves =re.findall("[A-Z_a-z]+\|[0-9 A-Z a-z_]+", String)
@@ -108,4 +109,43 @@ def ortho_prune(Phylo, minTax):
     OrthoBranch = deRedundance(OrthoBranch)
     Phylo.ortho=OrthoBranch
                 
-        
+''' En construction        
+def reduce_inparalogues(Phylo):
+    NewSplits=[]
+    inPar = {}
+    Splits = Phylo.splits
+    for Split in Splits:
+        SplitsVecs = Split.split('&')
+         for Vec in SplitsVecs:
+             leaves = Vec.split(',')
+             Otus =[]
+             for leaf in leaves:
+                 Otus.append(leaf.split('|')[0])
+             if len(set(Otus) ==1 and len(Otus) > 1:
+                    Inpar = ''
+                    for leaf in leaves:
+                    inPar.append(leaf.split('|')[0])
+                    inpar.append(leaf.split('|')[1])
+                    Inpar[Otus[0]
+'''
+
+###########
+
+if argv > 3:
+    OrList = open('UPhO_Pruned.txt', 'w+')
+    count = 0
+    for tree  in arg.trees:
+        with open(trees, 'r') as T:
+            for line in  tree:
+                if line.startswith('(') and line.endswitd(';'):
+                    T = myPhylo(line)
+                    ortho_prune(T, 5)
+                    for group in T.ortho:
+                        OrList.write(group + '\n')
+                        count += 1
+    OrList.close()
+    print "There are %d orthogroups from this collection of treea,"
+    print "Proceeding to create a fasta file for each ortholog"
+    retrieve_fasta( 'UPh)_Prunned.txt', "UPho_seqs")
+
+    
