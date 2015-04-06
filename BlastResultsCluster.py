@@ -70,7 +70,7 @@ def non_redundant(reference, min_sp):
 def redundant(reference, minTaxa):
         """"Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
         inFile = open(reference, "rw")
-	outFile =open("redundantsOG.txt", "w")
+	outFile =open("redundantsOG_%s.txt", "w" %reference)
         SetsInspected = []
         for line in inFile:
                 spp = re.findall(r'[A-Z]_[a-z]+', line)
@@ -82,7 +82,7 @@ def redundant(reference, minTaxa):
         outFile.close()
 
 
-def retrieve_fasta(in_file, Outdir):
+def retrieve_fasta(in_file, Outdir,Type):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
         Outdir = Outdir
@@ -93,7 +93,7 @@ def retrieve_fasta(in_file, Outdir):
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in handle:
-                OG_filename = "myUPhOG_" + str(OG_number) + ".faa" 
+                OG_filename = Type  + str(OG_number) + ".faa" 
                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                 qlist = line.strip('\n').split(', ')
                 for seqId in qlist:
