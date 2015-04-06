@@ -39,17 +39,17 @@ def clusters(blastout, expectation):
 
 '''
 def Intersect_Keep_Longest(ListA, ListB):
-        """ Takes a two list  seqids  compares it with list already inspected, if the current list is a subset  of more than one element then the function returns the longest of this pair."""
+<<<<<<< HEAD
+	""" Takes a two list  seqids  compares it with list already inspected, if the current list is a subset  of more than one element then the function returns the longest of this pair."""
 
-if len(set(ListA) and set(ListB)) == 0:
-        return List A
-else:
-        if len(ListA) > len (ListB):
-                reurn ListA
-        else:
-                return ListB
-'''
-
+	if len(set(ListA) and set(ListB)) == 0:
+		return List A
+	else:
+		if len(ListA) > len (ListB):
+			return ListA
+		else:
+			return ListB
+'''	
 def non_redundant(reference, min_sp):
         """This filters non species redundant orthoGroups, Takes as input a cluster file, like the one produces by the uction clusters, and a minimum number of different species"""
 
@@ -82,7 +82,7 @@ def redundant(reference, minTaxa):
         outFile.close()
 
 
-def retrieve_fasta(in_file, Outdir):
+def retrieve_fasta(in_file, Outdir, Type):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
         Outdir = Outdir
@@ -93,7 +93,7 @@ def retrieve_fasta(in_file, Outdir):
         OG_number = 0
         seqSource = SeqIO.to_dict(SeqIO.parse(open('ALL_REFERENCE.faa'), 'fasta'))
         for line in handle:
-                OG_filename = "myUPhOG_" + str(OG_number) + ".faa" 
+                OG_filename = Type + "_" + str(OG_number) + ".faa" 
                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                 qlist = line.strip('\n').split(', ')
                 for seqId in qlist:
