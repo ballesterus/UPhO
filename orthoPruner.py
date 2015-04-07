@@ -155,4 +155,4 @@ if args.Trees != 'None':
     if args.Reference != 'None':
         from BlastResultsCluster import retrieve_fasta
         print "Proceeding to create a fasta file for each ortholog"    
-        retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho' args.Reference, )
+        retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)

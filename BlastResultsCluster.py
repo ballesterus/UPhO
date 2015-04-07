@@ -83,7 +83,7 @@ def redundant(reference, minTaxa):
 
 
 
-def retrieve_fasta(in_file, Outdir, Type, Refence):
+def retrieve_fasta(in_file, Outdir, Type, Reference):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
         if not os.path.exists(Outdir):
