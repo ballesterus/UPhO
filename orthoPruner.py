@@ -1,15 +1,15 @@
 #! /usr/bin/env python
-
 import re
 import os
-from BlastResultsCluster import retrieve_fasta
 from sys import argv
 import argparse
 
-parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees')
-parser.add_argument('-t', dest = 'TreeFile', type = str, nargs= '+',  help = 'files to process(fasta alignment)')
-
-arguments = parser.parse_args()
+parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input treesa re provided  as a single newick  file or a list of many input files')
+parser.add_argument('-t', dest = 'Trees', type = str, default= 'None', nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
+parser.add_argument('-iP', dest= 'inParalogs', type = bool, default= False, help ='When true, inparalogues will  be included as orthologues, default = False')
+parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthigroups')
+parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
+args = parser.parse_args()
 #print arguments
 
 
@@ -91,7 +91,7 @@ def split_decomposition(newick):
 
 
 def deRedundance(LoL):
-    '''Takes a list of list and returns a list wih unique not'''
+    '''Takes a list of list and returns a list where no list is a subset of the others'''
     NR =[]
     for L in LoL:
         score=0
@@ -105,57 +105,54 @@ def deRedundance(LoL):
 
 def ortho_prune(Phylo, minTax):
     OrthoBranch= []
+    Inpar = []
     Splits = Phylo.splits
     for Split in Splits:
         SplitsVecs = Split.split('&')
         for Vec in SplitsVecs:
             leaves = Vec.split(',')
-            Otus =[]
+            Otus = []
             for leaf in leaves:
                 Otus.append(leaf.split('|')[0])
+            if len(set(Otus)) == 1 and len(Otus) > 1:
+                for leaf in leaves:
+                    Inpar.append(leaf)
             if len(set(Otus))==len(Otus) and len(Otus) >= minTax:
-                OrthoBranch.append(leaves)
+                   OrthoBranch.append(leaves)
+    if args.inParalogs:
+        for Split in Splits:
+            SplitsVecs = Split.split('&')
+            for Vec in SplitsVecs:
+                leaves = Vec.split(',')
+                Otus = []
+                paralogues=0
+                for leaf in leaves:
+                    Otus.append(leaf.split('|')[0])
+                    if leaf in Inpar:
+                        paralogues +=1
+                cOtus= len(Otus)- paralogues + 1
+                if len(set(Otus))== cOtus  and cOtus >= minTax:
+                    OrthoBranch.append(leaves)
     OrthoBranch = deRedundance(OrthoBranch)
     Phylo.ortho=OrthoBranch
-                
-''' En construction        
-def reduce_inparalogues(Phylo):
-    NewSplits=[]
-    inPar = {}
-    Splits = Phylo.splits
-    for Split in Splits:
-        SplitsVecs = Split.split('&')
-         for Vec in SplitsVecs:
-             leaves = Vec.split(',')
-             Otus =[]
-             for leaf in leaves:
-                 Otus.append(leaf.split('|')[0])
-             if len(set(Otus) ==1 and len(Otus) > 1:
-                    Inpar = ''
-                    for leaf in leaves:
-                    inPar.append(leaf.split('|')[0])
-                    inpar.append(leaf.split('|')[1])
-                    Inpar[Otus[0]
-'''
 
 
-if argv >= 3:
+if args.Trees != 'None':
     OrList = open('UPhO_Pruned.txt', 'w')
     count = 0
-    for tree in arguments.TreeFile:
+    for tree in args.Trees:
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
-                ortho_prune(P, 5)
+                ortho_prune(P, args.Min)
                 for group in P.ortho:
                     G = ','.join(group)
                     OrList.write(G + '\n')
                     count += 1
-        
+        print " %d orthogroups were found in the tree %s" % (count, tree)
         T.close()
     OrList.close()
-    print "There are %d orthogroups from this collection of treea," % count
-    print "Proceeding to create a fasta file for each ortholog"
-    retrieve_fasta( 'UPhO_Pruned.txt', "UPho_seqs")
-
-    
+    if args.Reference != 'None':
+        from BlastResultsCluster import retrieve_fasta
+        print "Proceeding to create a fasta file for each ortholog"    
+        retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho' args.Reference, )
