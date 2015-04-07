@@ -118,7 +118,7 @@ def ortho_prune(Phylo, minTax):
                 for leaf in leaves:
                     Inpar.append(leaf)
             if len(set(Otus))==len(Otus) and len(Otus) >= minTax:
-                   OrthoBranch.append(leaves)
+                OrthoBranch.append(leaves)
     if args.inParalogs:
         for Split in Splits:
             SplitsVecs = Split.split('&')
@@ -139,18 +139,22 @@ def ortho_prune(Phylo, minTax):
 
 if args.Trees != 'None':
     OrList = open('UPhO_Pruned.txt', 'w')
-    count = 0
+    Total = 0
     for tree in args.Trees:
+        count = 0
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
                 ortho_prune(P, args.Min)
                 for group in P.ortho:
                     G = ','.join(group)
+                    G = G.strip(',')
                     OrList.write(G + '\n')
                     count += 1
+                    Total +=1
         print " %d orthogroups were found in the tree %s" % (count, tree)
         T.close()
+    print 'Total  orthogroups found: %d' % Total
     OrList.close()
     if args.Reference != 'None':
         from BlastResultsCluster import retrieve_fasta
