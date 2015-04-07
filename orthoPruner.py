@@ -139,8 +139,8 @@ def ortho_prune(Phylo, minTax):
 
 if args.Trees != 'None':
     OrList = open('UPhO_Pruned.txt', 'w')
-    count = 0
     for tree in args.Trees:
+        count = 0
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
