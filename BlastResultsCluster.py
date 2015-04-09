@@ -8,6 +8,19 @@ import pandas
 import matplotlib.pyplot as plt
 from Bio import SeqIO
 
+def mcl_abc(blastout, expectation):
+        outName = 'mcl_%s.abc' % str(expectation)
+	myOut = open(outName, 'w')
+	in_file = open(blastout, 'r')
+	for line in in_file:
+                (queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
+                if int(alnLength) >= 50 and float(eVal) <= float(expectation):
+                        string ="%s\t%s\t%s\n"%(queryId, subjectId, eVal)
+                        myOut.write(string)
+        in_file.close()
+        myOut.close()
+
+
 def plot_eval(blastout):
         """This fuction creates takes as an argument a file name (str) of a csv format  Blast+ output and creates a histogram of the frequency of eValues""
         """
@@ -29,7 +42,7 @@ def clusters(blastout, expectation):
 	for line in in_file:
 		(queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
 		current_query = queryId
-		if (current_query != subjectId) and (alnLength >= 50) and float(eVal) <= float(expectation):
+		if (current_query != subjectId) and (int(alnLength) >= 50) and float(eVal) <= float(expectation):
 			if previous_query != current_query:
 				myOut.write("\n"+current_query + ", " + subjectId)
 				previous_query = current_query
@@ -37,19 +50,6 @@ def clusters(blastout, expectation):
 			else:
 				myOut.write(", " + subjectId)
 
-'''
-def Intersect_Keep_Longest(ListA, ListB):
-<<<<<<< HEAD
-	""" Takes a two list  seqids  compares it with list already inspected, if the current list is a subset  of more than one element then the function returns the longest of this pair."""
-
-	if len(set(ListA) and set(ListB)) == 0:
-		return List A
-	else:
-		if len(ListA) > len (ListB):
-			return ListA
-		else:
-			return ListB
-'''	
 def non_redundant(reference, min_sp):
         """This filters non species redundant orthoGroups, Takes as input a cluster file, like the one produces by the uction clusters, and a minimum number of different species"""
 
