@@ -3,20 +3,18 @@ import os
 import glob
 import re
 import shutil
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import readline
+#import pandas as pd
+#import numpy as np
+#import matplotlib.pyplot as plt
 import ete2
 from sys import argv
 #from matplotlib_venn import venn3, venn3_circles 
+
 '''This script summarizes the distribution of orthologous by taxa.
  Usage: pythin sumor.py <> <> '''
 
-W_path = raw_input('Select the Path to process: ')
-P_attern = raw_input('Type the extension of files to process: ')
-os.chdir(W_path)
-Output = open('OG_summary.csv', 'w')
-
+readline.parse_and_bind("tab: complete")
 
 def count_identifiers(file):
     Counter =0
@@ -30,7 +28,7 @@ def count_identifiers(file):
 def header_writer():
     Output.write('OGnumber,Species_code,counSeq_Id\n')
 
-def line_writer():
+def line_writer(P_attern):
     for file in glob.glob('*%s' % P_attern):
         Handle = open(file, 'r')
         OrtG = file.strip('%s' % P_attern)
@@ -81,18 +79,18 @@ def tree_ortho_annotator(summary, phylo):
     else:
         T.set_outgroup(outgroup2)
     #Declare node name variables
-    Tetra = T.get_common_ancestor('L_venusta','T_kauensis', 'T_perreira', 'T_versicolor')
-    Tetra.add_feature('name', 'Tetragnathidae')
-    Aran=T.get_common_ancestor('M_gracilis', 'N_arabesca','G_hasselti')
-    Aran.add_feature('name','Araneidae')
-    Theri = T.get_common_ancestor('T_californicum','L_tredecimguttatus','T_sp')
-    Theri.add_feature('name','Theridiidae')
-    Araneoid = T.get_common_ancestor('Tetragnathidae', 'Araneidae', 'Theridiidae')
-    Araneoid.add_feature('name', 'Araneoidea')
+    #Tetra = T.get_common_ancestor('L_venusta','T_kauensis', 'T_perreira', 'T_versicolor')
+    #Tetra.add_feature('name', 'Tetragnathidae')
+    #Aran=T.get_common_ancestor('M_gracilis', 'N_arabesca','G_hasselti')
+    #Aran.add_feature('name','Araneidae')
+    #Theri = T.get_common_ancestor('T_californicum','L_tredecimguttatus','T_sp')
+    #Theri.add_feature('name','Theridiidae')
+    #Araneoid = T.get_common_ancestor('Tetragnathidae', 'Araneidae', 'Theridiidae')
+    #Araneoid.add_feature('name', 'Araneoidea')
     for node in T.traverse():
         node.add_feature('OgCompo', [])
     for line in inFile:
-        if re.search('^myOG', line) or re.search('^CD_',line):
+        if not re.search('^OGnumber', line):
             items= line.split(',')
             Sp_Code = items[1]
             OG_num = items[0]
@@ -139,7 +137,7 @@ def get_orthoSet_by_node(Phylo, NodeName):
     Set= N.OgCompo
     return Set
 
-def tree_plot(phylo):
+def tree_plot(phylo, Bsize = 1.0, Fig = False ):
     T = phylo
     ts = ete2.TreeStyle()
     ts.show_leaf_name = False
@@ -157,19 +155,55 @@ def tree_plot(phylo):
         nstyle["hz_line_width"]=2
         nstyle["vt_line_width"]=2
         nstyle["vt_line_color"]="Gray"
-        nstyle["size"] = n.Total/100
+        nstyle["size"] = n.Total * Bsize
         n.set_style(nstyle)
-        #Custum style for specific nodes
-        Tetra = T&'Tetragnathidae'
-        Tetra.img_style["fgcolor"] = 'MediumAquaMarine'
-        Araneoid = T&'Araneoidea'
-        Araneoid.img_style["fgcolor"] = 'Blue'
-        L = T&'L_venusta'
-        L.img_style["fgcolor"] = 'Green'
-    T.show(tree_style=ts)
+    if Fig == True:
+         T.render(OutName, tree_style = ts)
+    else:
+        T.show(tree_style=ts)
 
-#header_writer()
-#line_writer()
-#Output.close()
-# computing frequecies
+#####YEAH_SHOWDOWN######
+
+Q = raw_input("Run interatctively (y/n)? ")
+while Q == 'y':
+    print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs) .Select from the following options"
+    print """Select from the following options:
+    1) Create a OG_sumary file
+    2) Annotate and plot (see) the tree
+    3) Annotate and save the tree (PDF, SVG or PNG)
+    4) Store treatment compositions to ompare them later
+    5) EXIT
+    """
+    selection = raw_input("Enter your selection: ")
+    if selection  not in ['1','2','3','4', '5']:
+        print "ERROR type the number of your selection"
+    elif int(selection) == 1:
+        W_path = raw_input('Select the Path to process: ')
+        Pattern = raw_input('Type the extension of files to process: ')
+        os.chdir(W_path)
+        Output = open('OG_summary.csv', 'w')
+        header_writer()
+        line_writer(Pattern)
+        print "Orthology composition written to %s" % Output
+        Output.close()
+    elif int(selection) == 2:
+        Tree = raw_input('Input name of tree file (newick): ')
+        Summary = raw_input('Input OG_summary file: ')
+        T = tree_ortho_annotator(Summary, Tree)
+        B_size=  float(raw_input('Bubble ize factor: '))
+        tree_plot(T, B_size)
+
+    elif int(selection)== 3:
+        Tree = raw_input('Input name of tree file (newick): ')
+        Summary = raw_input('Input OG_summary file: ')
+        B_size=  float(raw_input('Bubble ize factor: '))
+        name = raw_input('Name of otput pdf file: ')
+        Type = raw_input('Type of file (pdf, svg, or  png: ')
+        OutName = name + '.' + Type
+        T = tree_ortho_annotator(Summary, Tree)
+        tree_plot(T, B_size, Fig=True)
+    elif int(selection)== 5:
+        Q = False
+
+#computing frequecies
 
