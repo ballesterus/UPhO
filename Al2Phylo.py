@@ -34,11 +34,13 @@ def Fasta_Parser_keepLongest(File):
                     Header =Line.replace('\n', '').strip('>')
                     Sp = Header.split('|')[0]
                     Records[Sp]=''
+                    Seq=''
                 else:
                     Records[Sp]=Seq
                     Header =Line.replace('\n', '').strip('>')
                     Sp = Header.split('|')[0]
                     Records[Sp]=''
+                    Seq=''
             else:
                 Part=Line.replace('\n','')
                 Seq = Seq + Part
