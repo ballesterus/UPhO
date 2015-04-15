@@ -4,15 +4,11 @@ import glob
 import re
 import shutil
 import readline
-#import pandas as pd
-#import numpy as np
-#import matplotlib.pyplot as plt
 import ete2
 from sys import argv
 #from matplotlib_venn import venn3, venn3_circles 
 
-'''This script summarizes the distribution of orthologous by taxa.
- Usage: pythin sumor.py <> <> '''
+'''This script summarizes the distribution of orthologous by taxa.'''
 
 readline.parse_and_bind("tab: complete")
 
@@ -58,7 +54,12 @@ def Set_of_FastaID(extension):
         IdsinFile = sorted(IdsinFile)
         if IdsinFile not in setsInspected:
             UniqComsId.append(File)
-            setsInspected.append(IdsinFile)
+            set
+
+
+
+
+sInspected.append(IdsinFile)
             shutil.copyfile(File, File + '.2')
         else:
             Index = setsInspected.index(IdsinFile)
@@ -78,26 +79,19 @@ def tree_ortho_annotator(summary, phylo):
         T.set_outgroup(outgroup1)
     else:
         T.set_outgroup(outgroup2)
-    #Declare node name variables
-    #Tetra = T.get_common_ancestor('L_venusta','T_kauensis', 'T_perreira', 'T_versicolor')
-    #Tetra.add_feature('name', 'Tetragnathidae')
-    #Aran=T.get_common_ancestor('M_gracilis', 'N_arabesca','G_hasselti')
-    #Aran.add_feature('name','Araneidae')
-    #Theri = T.get_common_ancestor('T_californicum','L_tredecimguttatus','T_sp')
-    #Theri.add_feature('name','Theridiidae')
-    #Araneoid = T.get_common_ancestor('Tetragnathidae', 'Araneidae', 'Theridiidae')
-    #Araneoid.add_feature('name', 'Araneoidea')
     for node in T.traverse():
-        node.add_feature('OgCompo', [])
-    for line in inFile:
+        node.add_feature('OgCompo', []) #initialize the OrthoGroup (OG) composition in each node
+    for line in inFile: #pasre the OG summary file and add the OG composition to each leaf
         if not re.search('^OGnumber', line):
             items= line.split(',')
             Sp_Code = items[1]
             OG_num = items[0]
-            CNode = T&Sp_Code
-            CCompo = CNode.OgCompo
-            CCompo.append(OG_num)
-            CNode.add_feature('OgCompo', CCompo)
+            CNode = T&Sp_Code #get leaf node
+            CCompo = CNode.OgCompo #access the list compositon of each leaf
+            if OG_num not in CCompo: # conditional to avoid count twice the same orthogroup per leaf, which occurs when there are inParalogs
+                CCompo.append(OG_num)
+                CNode.add_feature('OgCompo', CCompo)
+    I_node = 0 #initialize counter to use as node name
     for node in T.traverse():
         if node.is_leaf() == False and node.is_root() == False:
             Left = node.children[0]
@@ -116,6 +110,8 @@ def tree_ortho_annotator(summary, phylo):
                 Oun= set(Oun) | set(leaf.OgCompo)
             Inter = set(Lun) & set (Run) & set(Oun)
             node.add_feature('OgCompo', Inter)
+            node.add_feature('node_number', I_node)
+            I_node += 1
     for node in T.traverse():
         OG_count= len(node.OgCompo)
         node.add_feature('Total', OG_count)
@@ -131,13 +127,14 @@ def CdsSets_by_Treatment(treat):
             Set.append(element)
     return Set
 
-def get_orthoSet_by_node(Phylo, NodeName):
+def get_orthoSet_by_node(Phylo, NodeNumber):
     T = Phylo
-    N = T&NodeName
-    Set= N.OgCompo
-    return Set
+    N = T&NodeNumber
+    Compo = N.OgCompo
+    return Compo
 
-def tree_plot(phylo, Bsize = 1.0, Fig = False ):
+
+def tree_plot(phylo, Bsize = 1.0, Fig = False ):ls *
     T = phylo
     ts = ete2.TreeStyle()
     ts.show_leaf_name = False
@@ -162,17 +159,26 @@ def tree_plot(phylo, Bsize = 1.0, Fig = False ):
     else:
         T.show(tree_style=ts)
 
-#####YEAH_SHOWDOWN######
+##### YEAH_SHOWDOWN ######
 
 Q = raw_input("Run interatctively (y/n)? ")
+print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs) .Select from the following options"
+T = 0
 while Q == 'y':
-    print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs) .Select from the following options"
-    print """Select from the following options:
+    if T ==0:
+        print "No trees in the oven"
+    else:
+        print  T.get_ascii(attributes=["node_number"], show_internal=True)
+        
+     print """Select from the following options:
+    
+    0) Exit
     1) Create a OG_sumary file
-    2) Annotate and plot (see) the tree
-    3) Annotate and save the tree (PDF, SVG or PNG)
-    4) Store treatment compositions to ompare them later
-    5) EXIT
+    2) Annotate and plot (see) the tree.
+    3) Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
+    4) Query the composition on specific node (requires loaded tree).
+    5) Store treatment compositions to ompare them later.
+ 
     """
     selection = raw_input("Enter your selection: ")
     if selection  not in ['1','2','3','4', '5']:
@@ -194,16 +200,24 @@ while Q == 'y':
         tree_plot(T, B_size)
 
     elif int(selection)== 3:
-        Tree = raw_input('Input name of tree file (newick): ')
-        Summary = raw_input('Input OG_summary file: ')
-        B_size=  float(raw_input('Bubble ize factor: '))
-        name = raw_input('Name of otput pdf file: ')
-        Type = raw_input('Type of file (pdf, svg, or  png: ')
-        OutName = name + '.' + Type
-        T = tree_ortho_annotator(Summary, Tree)
-        tree_plot(T, B_size, Fig=True)
-    elif int(selection)== 5:
+        if T == 0:
+            Tree = raw_input('Input name of tree file (newick): ')
+            Summary = raw_input('Input OG_summary file: ')
+            B_size=  float(raw_input('Bubble ize factor: '))
+            name = raw_input('Name of otput image file: ')
+            Type = raw_input('Type of file (pdf, svg, or  png: ')
+            OutName = name + '.' + Type
+            T = tree_ortho_annotator(Summary, Tree) 
+            tree_plot(T, B_size, Fig=True)
+       else:
+            name = raw_input('Name of otput image file: ')
+            Type = raw_input('Type of file (pdf, svg, or  png: ')
+            OutName = name + '.' + Type
+            tree_plot(T, B_size, Fig=True)
+        elif int(selection)==4:
+            
+
+    elif int(selection)== 0:
         Q = False
 
-#computing frequecies
-
+#computing frequeciesls
