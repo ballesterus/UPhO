@@ -120,7 +120,7 @@ def tree_ortho_annotator(summary, phylo):
                 Oun= set(Oun) | set(leaf.OgCompo)
             Inter = set(Lun) & set (Run) & set(Oun)
             node.add_feature('OgCompo', Inter)
-            node.add_feature('node_number', I_node)
+            node.add_feature('name', I_node)
             I_node += 1
     for node in T.traverse():
         OG_count= len(node.OgCompo)
@@ -154,7 +154,7 @@ def tree_plot(phylo, Bsize = 1.0, Fig = False ):
             n.add_face(face =Nlabel,column=0, position ='aligned')
         NOg = ete2.AttrFace('Total', fsize= 10, ftype='Arial') 
         n.add_face(face=NOg,column=0, position =  'branch-bottom')
-        #Set custum node style
+        #Set node style
         nstyle = ete2.NodeStyle()
         nstyle["fgcolor"] = 'Red'
         nstyle["shape"] = "circle"
@@ -173,59 +173,61 @@ def tree_plot(phylo, Bsize = 1.0, Fig = False ):
 
 Q = raw_input("Run interatctively (y/n)? ")
 print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs) .Select from the following options"
-T = 0
+T = None
 while Q == 'y':
-    if T ==0:
+    if T == None:
         print "No trees in the oven"
     else:
-        print  T.get_ascii(attributes=["node_number"], show_internal=True)
+        print  T.get_ascii(attributes=["node_number", "name"], show_internal=True)
         
-        print """Select from the following options:
+    print """Select from the following options:
     
-        0) Exit
-        1) Create a OG_sumary file
-        2) Annotate and plot (see) the tree.
-        3) Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
-        4) Query the composition on specific node (requires loaded tree).
-        5) Store treatment compositions to ompare them later.
+        1: Create a OG_sumary file
+        2: Annotate and plot (see) the tree.
+        3: Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
+        4: Query the composition on specific node (requires loaded tree).
+        5: Store treatment compositions to ompare them later.
+
+        q: Exit
         
         """
-        selection = raw_input("Enter your selection: ")
-        if selection  not in ['1','2','3','4', '5']:
-            print "ERROR type the number of your selection"
-        elif int(selection) == 1:
-            W_path = raw_input('Select the Path to process: ')
-            Pattern = raw_input('Type the extension of files to process: ')
-            os.chdir(W_path)
-            Output = open('OG_summary.csv', 'w')
-            header_writer()
-            line_writer(Pattern)
-            print "Orthology composition written to %s" % Output
-            Output.close()
-        elif int(selection) == 2:
+    selection = raw_input("Enter your selection: ")
+    if selection  not in ['1','2','3','4', '5', 'q']:
+        print "ERROR type the number of your selection"
+    elif selection == '1':
+        W_path = raw_input('Select the Path to process: ')
+        Pattern = raw_input('Type the extension of files to process: ')
+        os.chdir(W_path)
+        Output = open('OG_summary.csv', 'w')
+        header_writer()
+        line_writer(Pattern)
+        print "Orthology composition written to %s" % Output
+        Output.close()
+    elif selection == '2':
+        Tree = raw_input('Input name of tree file (newick): ')
+        Summary = raw_input('Input OG_summary file: ')
+        T = tree_ortho_annotator(Summary, Tree)
+        B_size=  float(raw_input('Bubble ize factor: '))
+        tree_plot(T, B_size)
+        
+    elif selection== '3':
+        if T == 0:
             Tree = raw_input('Input name of tree file (newick): ')
             Summary = raw_input('Input OG_summary file: ')
-            T = tree_ortho_annotator(Summary, Tree)
             B_size=  float(raw_input('Bubble ize factor: '))
-            tree_plot(T, B_size)
-            
-        elif int(selection)== 3:
-            if T == 0:
-                Tree = raw_input('Input name of tree file (newick): ')
-                Summary = raw_input('Input OG_summary file: ')
-                B_size=  float(raw_input('Bubble ize factor: '))
-                name = raw_input('Name of otput image file: ')
-                Type = raw_input('Type of file (pdf, svg, or  png: ')
-                OutName = name + '.' + Type
-                T = tree_ortho_annotator(Summary, Tree) 
-                tree_plot(T, B_size, Fig=True)
-            else:
-                name = raw_input('Name of otput image file: ')
-                Type = raw_input('Type of file (pdf, svg, or  png: ')
-                OutName = name + '.' + Type
-                tree_plot(T, B_size, Fig=True)
-        elif int(selection)==4:
-            print "En consytruccion"
+            name = raw_input('Name of otput image file: ')
+            Type = raw_input('Type of file (pdf, svg, or  png: ')
+            OutName = name + '.' + Type
+            T = tree_ortho_annotator(Summary, Tree) 
+            tree_plot(T, B_size, Fig=True)
+        else:
+            name = raw_input('Name of otput image file: ')
+            Type = raw_input('Type of file (pdf, svg, or  png: ')
+            OutName = name + '.' + Type
+            tree_plot(T, B_size, Fig=True)
+    elif selection=='4':
+        print "En consytruccion"
 
-        elif int(selection)== 0:
-            Q = False
+    elif selection=='q':
+        Q = False
+    break
