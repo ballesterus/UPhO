@@ -21,6 +21,21 @@ def count_identifiers(file):
     print counter
 
 
+def min_leaves(infile, Quant):
+    '''takes a file with one or more trees and return as file with the trees that have more pr equal leaves than the minimum specified by Quant'''
+    with open(infile, 'r') as F:
+        OutName = infile.split('.')[0] + str(Quant) +'.' + infile.split('.')[1]
+        Out = open(OutName, 'w')
+        for Line in F:
+            #print Line
+            if Line.startswith('(') and Line.endswith(';\n'): #simple check if line looks like a
+                Leaves = re.findall(r"[A-Z_a-z]+", Line)
+                #print Leaves
+                if len(set(Leaves)) >= int(Quant):
+                    Out.write(Line)
+    F.close()
+    Out.close()
+
 def header_writer():
     Output.write('OGnumber,Species_code,counSeq_Id\n')
 
@@ -54,12 +69,7 @@ def Set_of_FastaID(extension):
         IdsinFile = sorted(IdsinFile)
         if IdsinFile not in setsInspected:
             UniqComsId.append(File)
-            set
-
-
-
-
-sInspected.append(IdsinFile)
+            setsInspected.append(IdsinFile)
             shutil.copyfile(File, File + '.2')
         else:
             Index = setsInspected.index(IdsinFile)
@@ -134,7 +144,7 @@ def get_orthoSet_by_node(Phylo, NodeNumber):
     return Compo
 
 
-def tree_plot(phylo, Bsize = 1.0, Fig = False ):ls *
+def tree_plot(phylo, Bsize = 1.0, Fig = False ):
     T = phylo
     ts = ete2.TreeStyle()
     ts.show_leaf_name = False
@@ -170,54 +180,52 @@ while Q == 'y':
     else:
         print  T.get_ascii(attributes=["node_number"], show_internal=True)
         
-     print """Select from the following options:
+        print """Select from the following options:
     
-    0) Exit
-    1) Create a OG_sumary file
-    2) Annotate and plot (see) the tree.
-    3) Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
-    4) Query the composition on specific node (requires loaded tree).
-    5) Store treatment compositions to ompare them later.
- 
-    """
-    selection = raw_input("Enter your selection: ")
-    if selection  not in ['1','2','3','4', '5']:
-        print "ERROR type the number of your selection"
-    elif int(selection) == 1:
-        W_path = raw_input('Select the Path to process: ')
-        Pattern = raw_input('Type the extension of files to process: ')
-        os.chdir(W_path)
-        Output = open('OG_summary.csv', 'w')
-        header_writer()
-        line_writer(Pattern)
-        print "Orthology composition written to %s" % Output
-        Output.close()
-    elif int(selection) == 2:
-        Tree = raw_input('Input name of tree file (newick): ')
-        Summary = raw_input('Input OG_summary file: ')
-        T = tree_ortho_annotator(Summary, Tree)
-        B_size=  float(raw_input('Bubble ize factor: '))
-        tree_plot(T, B_size)
-
-    elif int(selection)== 3:
-        if T == 0:
+        0) Exit
+        1) Create a OG_sumary file
+        2) Annotate and plot (see) the tree.
+        3) Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
+        4) Query the composition on specific node (requires loaded tree).
+        5) Store treatment compositions to ompare them later.
+        
+        """
+        selection = raw_input("Enter your selection: ")
+        if selection  not in ['1','2','3','4', '5']:
+            print "ERROR type the number of your selection"
+        elif int(selection) == 1:
+            W_path = raw_input('Select the Path to process: ')
+            Pattern = raw_input('Type the extension of files to process: ')
+            os.chdir(W_path)
+            Output = open('OG_summary.csv', 'w')
+            header_writer()
+            line_writer(Pattern)
+            print "Orthology composition written to %s" % Output
+            Output.close()
+        elif int(selection) == 2:
             Tree = raw_input('Input name of tree file (newick): ')
             Summary = raw_input('Input OG_summary file: ')
+            T = tree_ortho_annotator(Summary, Tree)
             B_size=  float(raw_input('Bubble ize factor: '))
-            name = raw_input('Name of otput image file: ')
-            Type = raw_input('Type of file (pdf, svg, or  png: ')
-            OutName = name + '.' + Type
-            T = tree_ortho_annotator(Summary, Tree) 
-            tree_plot(T, B_size, Fig=True)
-       else:
-            name = raw_input('Name of otput image file: ')
-            Type = raw_input('Type of file (pdf, svg, or  png: ')
-            OutName = name + '.' + Type
-            tree_plot(T, B_size, Fig=True)
-        elif int(selection)==4:
+            tree_plot(T, B_size)
             
+        elif int(selection)== 3:
+            if T == 0:
+                Tree = raw_input('Input name of tree file (newick): ')
+                Summary = raw_input('Input OG_summary file: ')
+                B_size=  float(raw_input('Bubble ize factor: '))
+                name = raw_input('Name of otput image file: ')
+                Type = raw_input('Type of file (pdf, svg, or  png: ')
+                OutName = name + '.' + Type
+                T = tree_ortho_annotator(Summary, Tree) 
+                tree_plot(T, B_size, Fig=True)
+            else:
+                name = raw_input('Name of otput image file: ')
+                Type = raw_input('Type of file (pdf, svg, or  png: ')
+                OutName = name + '.' + Type
+                tree_plot(T, B_size, Fig=True)
+        elif int(selection)==4:
+            print "En consytruccion"
 
-    elif int(selection)== 0:
-        Q = False
-
-#computing frequeciesls
+        elif int(selection)== 0:
+            Q = False
