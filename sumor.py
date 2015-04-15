@@ -66,7 +66,7 @@ def Set_of_FastaID(extension):
                 IdsinFile.append(FastaId)
             elif line.startswith('('):
                 IdsinFile= re.findall(r'[A-Z]_[a-z]+\|[a-z , 0-9, _]+', line)           
-        IdsinFile = sorted(IdsinFile)
+                IdsinFile = sorted(IdsinFile)
         if IdsinFile not in setsInspected:
             UniqComsId.append(File)
             setsInspected.append(IdsinFile)
