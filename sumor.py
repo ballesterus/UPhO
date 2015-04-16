@@ -5,12 +5,16 @@ import re
 import shutil
 import readline
 import ete2
-from sys import argv
-#from matplotlib_venn import venn3, venn3_circles 
 
-'''This script summarizes the distribution of orthologous by taxa.'''
+'''This script contains functions to summariz the distribution of orthologous on a tree.'''
 
 readline.parse_and_bind("tab: complete")
+#Global Variables. Modify if needed.
+
+Separator = '|'
+
+
+# Function definitions
 
 def count_identifiers(file):
     Counter =0
@@ -37,17 +41,19 @@ def min_leaves(infile, Quant):
     Out.close()
 
 def header_writer():
-    Output.write('OGnumber,Species_code,counSeq_Id\n')
+    Output.write('OGnumber,Species_code,Seq_Id\n')
 
 def line_writer(P_attern):
     for file in glob.glob('*%s' % P_attern):
         Handle = open(file, 'r')
         OrtG = file.strip('%s' % P_attern)
-        for line in Handle:
-            if re.search (r'^>', line):
-               Div = re.sub('>','',line).split('|')
-               OutLine = '%s,%s,%s' % (OrtG, Div[0], Div[1])
-               Output.write(OutLine)
+        for Line in Handle:
+            if re.search (r'^>', Line):
+                Line = Line.strip('\n')
+                Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not conatain spaces and this data will not be included in the annotation.
+                Div = re.sub('>','',Line).split(Separator)
+                OutLine = '%s,%s,%s' % (OrtG, Div[0], Div[1])
+                Output.write(OutLine)
         Handle.close()
 
 def Set_of_FastaID(extension):
@@ -78,7 +84,6 @@ def Set_of_FastaID(extension):
         Handle.close()
     Report.write('The are %d different groups' % len(UniqComsId))
     Report.write(UniqComsId)
-
 
 def tree_ortho_annotator(summary, phylo):
     inFile= open(summary, 'r')
@@ -129,20 +134,19 @@ def tree_ortho_annotator(summary, phylo):
 
 def CdsSets_by_Treatment(treat):
     D1 = open(treat, 'r')
-    Set =[]
+    Seqs =[]
     for line in D1:
         if  not line.startswith('OGnumber'):
             list=line.split(',')
-            element = list[1] + list[2]
+            element = list[1] + Separator + list[2]
             Set.append(element)
-    return Set
+    return set(Seqs)
 
 def get_orthoSet_by_node(Phylo, NodeNumber):
     T = Phylo
     N = T&"%s" % NodeNumber
     Compo = N.OgCompo
     return Compo
-
 
 def tree_plot(phylo, Bsize = 1.0):
     T = phylo
@@ -176,7 +180,7 @@ while Q == 'y':
     if T == None:
         print "No trees in the oven"
     else:
-        print  T.get_ascii(attributes=["node_number", "name"], show_internal=True)
+        print  T.get_ascii(attributes=["name"], show_internal=True)
         
     print """Select from the following options:
     
