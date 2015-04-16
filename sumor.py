@@ -120,7 +120,7 @@ def tree_ortho_annotator(summary, phylo):
                 Oun= set(Oun) | set(leaf.OgCompo)
             Inter = set(Lun) & set (Run) & set(Oun)
             node.add_feature('OgCompo', Inter)
-            node.add_feature('name', I_node)
+            node.add_feature('name', str(I_node))
             I_node += 1
     for node in T.traverse():
         OG_count= len(node.OgCompo)
@@ -139,12 +139,12 @@ def CdsSets_by_Treatment(treat):
 
 def get_orthoSet_by_node(Phylo, NodeNumber):
     T = Phylo
-    N = T&NodeNumber
+    N = T&"%s" % NodeNumber
     Compo = N.OgCompo
     return Compo
 
 
-def tree_plot(phylo, Bsize = 1.0, Fig = False ):
+def tree_plot(phylo, Bsize = 1.0):
     T = phylo
     ts = ete2.TreeStyle()
     ts.show_leaf_name = False
@@ -164,10 +164,8 @@ def tree_plot(phylo, Bsize = 1.0, Fig = False ):
         nstyle["vt_line_color"]="Gray"
         nstyle["size"] = n.Total * Bsize
         n.set_style(nstyle)
-    if Fig == True:
-         T.render(OutName, tree_style = ts)
-    else:
-        T.show(tree_style=ts)
+    return ts
+
 
 ##### YEAH_SHOWDOWN ######
 
@@ -208,8 +206,10 @@ while Q == 'y':
         Summary = raw_input('Input OG_summary file: ')
         T = tree_ortho_annotator(Summary, Tree)
         B_size=  float(raw_input('Bubble ize factor: '))
-        tree_plot(T, B_size)
-        
+        ts =tree_plot(T, B_size)
+        Quest = raw_input('Show tree now?(y/n): ')
+        if Quest == 'y':
+            T.show(tree_style=ts)
     elif selection== '3':
         if T == 0:
             Tree = raw_input('Input name of tree file (newick): ')
@@ -219,15 +219,20 @@ while Q == 'y':
             Type = raw_input('Type of file (pdf, svg, or  png: ')
             OutName = name + '.' + Type
             T = tree_ortho_annotator(Summary, Tree) 
-            tree_plot(T, B_size, Fig=True)
+            ts =tree_plot(T, B_size)
+            T.render(OutName, tree_style = ts)
         else:
             name = raw_input('Name of otput image file: ')
             Type = raw_input('Type of file (pdf, svg, or  png: ')
             OutName = name + '.' + Type
-            tree_plot(T, B_size, Fig=True)
+            ts = tree_plot(T, B_size)
+            T.render(OutName, tree_style = ts)
     elif selection=='4':
-        print "En consytruccion"
-
+        if T ==None:
+            print 'Error: first load a tree firts:' 
+        else:
+            NodeNum = raw_input('Select  a node number from the tree above?' )
+            Result = get_orthoSet_by_node(T, str(NodeNum))
+            print Result
     elif selection=='q':
         Q = False
-    break
