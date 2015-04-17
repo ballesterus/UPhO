@@ -40,13 +40,60 @@ def min_leaves(infile, Quant):
     F.close()
     Out.close()
 
-def header_writer():
-    Output.write('OGnumber,Species_code,Seq_Id\n')
+
+def deRedundance(LoL):
+    '''Takes a list of list and returns a list where no list is a subset of the others'''
+    NR =[]
+    for L in LoL:
+        score=0
+        for J in LoL:
+            if set(L).issubset(J):
+                score +=1
+        if score <2:
+            NR.append(L)
+    return NR
+
+def OGSummary_to_Dict(OGsum):
+    '''the anti fu nction of line_writter. TRasnform OG_summary file into a python Dict'''
+    Dict={}
+    with open(OGsum, 'r') as OgS:
+        for Line in Ogs:
+            Line = Line.strip('\n').split[',']
+            Og = Line[0]
+            IdSeq = Line[1] + Separator + Line[2]
+            if not Line.startswith('OGnumber'):
+                if Og not in Dict.keys():
+                    Dict[Og] = []
+                    Dict[Og].append(IdSeq)
+                else:
+                    Dict[Og].append(IdSeq)
+    return Dict
+
+def No_OG_subsets(Dict):
+    Log = open('OG_clean.log', 'w')
+    D={}
+    TotalSubsets=0
+    TotalInters=0
+    for k,v in Dict.iteritems():
+        score = 0
+        for i,f in Dict.iteritems():
+            if set(v).issubset(f):
+                Log.write('SUBSET: Ortho group %s s a subset of Orthogroup %s\n' %(k, i))
+                score +=1
+            elif len(set(v)&set(f)) > 0:
+                Log.write('ALERT: %s and %s share some seqs:\n\t%s' %(k, i, ','.join(set(v)&set(f))))
+                TotalInters += 1
+        if score < 2:
+            D[k] = v
+        else:
+            TotalSubsets = score - 1
+    return D
 
 def line_writer(P_attern):
     for file in glob.glob('*%s' % P_attern):
         Handle = open(file, 'r')
         OrtG = file.strip('%s' % P_attern)
+        Output.write('OGnumber,Species_code,Seq_Id\n')
         for Line in Handle:
             if re.search (r'^>', Line):
                 Line = Line.strip('\n')
@@ -169,74 +216,3 @@ def tree_plot(phylo, Bsize = 1.0):
         nstyle["size"] = n.Total * Bsize
         n.set_style(nstyle)
     return ts
-
-
-##### YEAH_SHOWDOWN ######
-
-Q = raw_input("Run interatctively (y/n)? ")
-print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs) .Select from the following options"
-T = None
-while Q == 'y':
-    if T == None:
-        print "No trees in the oven"
-    else:
-        print  T.get_ascii(attributes=["name"], show_internal=True)
-        
-    print """Select from the following options:
-    
-        1: Create a OG_sumary file
-        2: Annotate and plot (see) the tree.
-        3: Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
-        4: Query the composition on specific node (requires loaded tree).
-        5: Store treatment compositions to ompare them later.
-
-        q: Exit
-        
-        """
-    selection = raw_input("Enter your selection: ")
-    if selection  not in ['1','2','3','4', '5', 'q']:
-        print "ERROR type the number of your selection"
-    elif selection == '1':
-        W_path = raw_input('Select the Path to process: ')
-        Pattern = raw_input('Type the extension of files to process: ')
-        os.chdir(W_path)
-        Output = open('OG_summary.csv', 'w')
-        header_writer()
-        line_writer(Pattern)
-        print "Orthology composition written to %s" % Output
-        Output.close()
-    elif selection == '2':
-        Tree = raw_input('Input name of tree file (newick): ')
-        Summary = raw_input('Input OG_summary file: ')
-        T = tree_ortho_annotator(Summary, Tree)
-        B_size=  float(raw_input('Bubble ize factor: '))
-        ts =tree_plot(T, B_size)
-        Quest = raw_input('Show tree now?(y/n): ')
-        if Quest == 'y':
-            T.show(tree_style=ts)
-    elif selection== '3':
-        if T == 0:
-            Tree = raw_input('Input name of tree file (newick): ')
-            Summary = raw_input('Input OG_summary file: ')
-            B_size=  float(raw_input('Bubble ize factor: '))
-            name = raw_input('Name of otput image file: ')
-            Type = raw_input('Type of file (pdf, svg, or  png: ')
-            OutName = name + '.' + Type
-            T = tree_ortho_annotator(Summary, Tree) 
-            ts =tree_plot(T, B_size)
-            T.render(OutName, tree_style = ts)
-        else:
-            name = raw_input('Name of otput image file: ')
-            Type = raw_input('Type of file (pdf, svg, or  png: ')
-            OutName = name + '.' + Type
-            ts = tree_plot(T, B_size)
-            T.render(OutName, tree_style = ts)
-    elif selection=='4':
-        if T ==None:
-            print 'Error: first load a tree firts:' 
-        else:
-            NodeNum = raw_input('Select  a node number from the tree above?' )
-            Result = get_orthoSet_by_node(T, str(NodeNum))
-            print Result
-    elif selection=='q':
-        Q = False
