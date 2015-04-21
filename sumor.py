@@ -12,7 +12,8 @@ readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
 
 Separator = '|'
-
+outgroup1 = 'H_pococki'
+outgroup2= 'S_lineatus'
 
 # Function definitions
 
@@ -57,10 +58,11 @@ def OGSummary_to_Dict(OGsum):
     '''the anti fu nction of line_writter. TRasnform OG_summary file into a python Dict'''
     Dict={}
     with open(OGsum, 'r') as OgS:
-        for Line in Ogs:
-            Line = Line.strip('\n').split[',']
-            Og = Line[0]
-            IdSeq = Line[1] + Separator + Line[2]
+        for Line in OgS:
+            Line = Line.strip('\n')
+            Parts = Line.split(',')
+            Og = Parts[0]
+            IdSeq = Parts[1] + Separator + Parts[2]
             if not Line.startswith('OGnumber'):
                 if Og not in Dict.keys():
                     Dict[Og] = []
@@ -74,19 +76,23 @@ def No_OG_subsets(Dict):
     D={}
     TotalSubsets=0
     TotalInters=0
+    Pair_inspected=[]
     for k,v in Dict.iteritems():
         score = 0
         for i,f in Dict.iteritems():
             if set(v).issubset(f):
-                Log.write('SUBSET: Ortho group %s s a subset of Orthogroup %s\n' %(k, i))
-                score +=1
-            elif len(set(v)&set(f)) > 0:
-                Log.write('ALERT: %s and %s share some seqs:\n\t%s' %(k, i, ','.join(set(v)&set(f))))
+                if i != k:
+                    Log.write('SUBSET: Ortho group %s s a subset of Orthogroup %s\n' %(k, i))
+                    score +=1
+                    TotalSubsets+=1
+            elif set([k,i])not in Pair_inspected and len(set(v)&set(f)) > 0:
+                Log.write('ALERT: %s and %s share some seqs:\n\t%s\n' %(k, i, ','.join(set(v)&set(f))))
+                Pair_inspected.append([k,i])
                 TotalInters += 1
         if score < 2:
             D[k] = v
-        else:
-            TotalSubsets = score - 1
+    
+    Log.write(str(TotalSubsets)+'subsets  and ' + str(TotalInters))
     return D
 
 def line_writer(P_attern):
@@ -135,8 +141,6 @@ def Set_of_FastaID(extension):
 def tree_ortho_annotator(summary, phylo):
     inFile= open(summary, 'r')
     T = ete2.Tree(phylo)
-    outgroup1 = 'H_pococki'
-    outgroup2= 'S_lineatus'
     if T.get_leaves_by_name(outgroup1) != []:
         T.set_outgroup(outgroup1)
     else:
