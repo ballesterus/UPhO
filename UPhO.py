@@ -6,25 +6,34 @@ import argparse
 
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input treesa re provided  as a single newick  file or a list of many input files')
 parser.add_argument('-t', dest = 'Trees', type = str, default= 'None', nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
-parser.add_argument('-iP', dest= 'inParalogs', type = bool, default= False, help ='When true, inparalogues will  be included as orthologues, default = False')
-parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthigroups')
+parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When true, inparalogues will  be included as orthologues, default = False')
+parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 args = parser.parse_args()
-#print arguments
+print args
 
+#GLOBAL VARIABLE. MODIFY IF NEEDED
+sep = '|'
+
+
+
+#CLASS AND FUNTION DEFINITION
 
 class myPhylo():
+    '''A class for newick trees'''
     def __init__(self, N):
         self.leaves = get_leaves(N)
         self.Dict = {} # dicionary of OTU (keys), and the Unique identifiers in the newick
         self.splits = split_decomposition(N)
         self.ortho=[]
+        self.costs={}
         self.newick = N
         for leaf in self.leaves:
-            self.Dict[leaf.split('|')[0]] = [] 
+            self.Dict[leaf.split(sep)[0]] = [] 
+            self.costs[leaf] = 1.0
         for leaf in self.leaves:
-            self.Dict[leaf.split('|')[0]].append(leaf.split('|')[1])
-
+            self.Dict[leaf.split(sep)[0]].append(leaf.split(sep)[1])
+        
 def get_leaves(String):
     Leaves =re.findall("[A-Z_a-z]+\|[0-9 A-Z a-z_]+", String)
     return Leaves
@@ -71,9 +80,7 @@ def split_decomposition(newick):
             vecIns.append(sorted(coVec))
             vec.append('&')
             vec = vec + coVec
-            vec = (','.join(vec))
-            split = re.sub(',&,', '&', vec)
-            split = re.sub(',&', '&', vec)
+            split = (','.join(vec))
             splits.append(split)
     
     for leaf in leaves:
@@ -84,9 +91,7 @@ def split_decomposition(newick):
             vecIns.append(sorted(coVec))
             vec.append('&')
             vec = vec + coVec
-            vec = (','.join(vec))
-            split = re.sub(',&,', '&', vec)
-            split = re.sub(',&', '&', vec)
+            split = (','.join(vec))
             splits.append(split)
     return splits
 
@@ -106,42 +111,38 @@ def deRedundance(LoL):
 
 def ortho_prune(Phylo, minTax):
     OrthoBranch= []
-    Inpar = []
     Splits = Phylo.splits
     #print Splits
     for Split in Splits:
         SplitsVecs = Split.split('&')
         for Vec in SplitsVecs:
             leaves = Vec.split(',')
+            leaves.remove('')
             Otus = []
             for leaf in leaves:
-                Otus.append(leaf.split('|')[0])
-            if len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs
-                 for leaf in leaves:
-                    if leaf not in Inpar:
-                        Inpar.append(leaf)
-            if len(set(Otus))==len(Otus) and len(Otus) >= minTax:
+                Otus.append(leaf.split(sep)[0])
+            if len(set(Otus))==len(Otus) and len(Otus) >= minTax: # Eval oorthology without inparalogues
                 OrthoBranch.append(leaves)
+            if len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs
+                for leaf in leaves:
+                    ICost = 1.0/len(Otus)
+                    if ICost < Phylo.costs[leaf]:
+                        Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to te number of inparalohues involved. 
     #print Inpar
-    if args.inParalogs:
+    if  True:
         for Split in Splits:
             SplitsVecs = Split.split('&')
             for Vec in SplitsVecs:
                 leaves = Vec.split(',')
+                leaves.remove('')
                 Otus = []
-                paralogues=0
-                spIP = [] 
+                cCount = 0    
                 for leaf in leaves:
-                    Otu = leaf.split('|')[0]
-                    Otus.append(Otu)
-                    if leaf in Inpar:
-                        paralogues +=1
-                        if Otu not in spIP:
-                            spIP.append(Otu)
-                    #print paralogues
-                if paralogues > 0:            
-                    cOtus = len(Otus) - paralogues/len(spIP)
-                    if len(set(Otus)) == cOtus and cOtus >= minTax:
+                    Otus.append(leaf.split(sep)[0])
+                    cCount += Phylo.costs[leaf]
+                cCount = round(cCount, 2) # Fix floating point approximation by rounding up!
+                if len(set(Otus)) == cCount and cCount >= minTax:
+                    if leaves not in OrthoBranch:
                         OrthoBranch.append(leaves)
 #    print OrthoBranch
     OrthoBranch = deRedundance(OrthoBranch)
@@ -173,3 +174,4 @@ if args.Trees != 'None':
         from BlastResultsCluster import retrieve_fasta
         print "Proceeding to create a fasta file for each ortholog"    
         retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
+
