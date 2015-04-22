@@ -37,10 +37,9 @@ while Q == True:
         W_path = raw_input('Select the Path to process: ')
         Pattern = raw_input('Type the extension of files to process: ')
         os.chdir(W_path)
-        Output = open('OG_summary.csv', 'w')
         line_writer(Pattern)
-        print "Orthology composition written to %s" % Output
-        Output.close()
+        print "Orthology composition written to OG_summary.csv" 
+
     elif selection == '2':
         Tree = raw_input('Input name of tree file (newick): ')
         Summary = raw_input('Input OG_summary file: ')

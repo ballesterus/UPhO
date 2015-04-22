@@ -60,9 +60,9 @@ def split_decomposition(newick):
             P[idc].append(Pos)
             closed.append(idc)
         Pos+=1
-    #print P
+#    print P
     vecIns = []
-    for Key in P.iterkeys():
+    for Key in P.iterkeys():#Find splits inmplied bt the parenthesis in newick
         vec=newick[P[Key][0]: P[Key][1]]
         vec= get_leaves(vec)
         coVec = complement(vec,leaves)
@@ -73,10 +73,11 @@ def split_decomposition(newick):
             vec = vec + coVec
             vec = (','.join(vec))
             split = re.sub(',&,', '&', vec)
+            split = re.sub(',&', '&', vec)
             splits.append(split)
     
     for leaf in leaves:
-        vec=[]
+        vec=[leaf]
         coVec = complement(vec,leaves)
         if sorted(vec) not in vecIns and sorted(coVec) not in vecIns:
             vecIns.append(sorted(vec))
@@ -85,8 +86,8 @@ def split_decomposition(newick):
             vec = vec + coVec
             vec = (','.join(vec))
             split = re.sub(',&,', '&', vec)
+            split = re.sub(',&', '&', vec)
             splits.append(split)
-
     return splits
 
 
@@ -107,6 +108,7 @@ def ortho_prune(Phylo, minTax):
     OrthoBranch= []
     Inpar = []
     Splits = Phylo.splits
+    #print Splits
     for Split in Splits:
         SplitsVecs = Split.split('&')
         for Vec in SplitsVecs:
@@ -114,11 +116,13 @@ def ortho_prune(Phylo, minTax):
             Otus = []
             for leaf in leaves:
                 Otus.append(leaf.split('|')[0])
-            if len(set(Otus)) == 1 and len(Otus) > 1:
-                for leaf in leaves:
-                    Inpar.append(leaf)
+            if len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs
+                 for leaf in leaves:
+                    if leaf not in Inpar:
+                        Inpar.append(leaf)
             if len(set(Otus))==len(Otus) and len(Otus) >= minTax:
                 OrthoBranch.append(leaves)
+    #print Inpar
     if args.inParalogs:
         for Split in Splits:
             SplitsVecs = Split.split('&')
@@ -126,14 +130,22 @@ def ortho_prune(Phylo, minTax):
                 leaves = Vec.split(',')
                 Otus = []
                 paralogues=0
+                spIP = [] 
                 for leaf in leaves:
-                    Otus.append(leaf.split('|')[0])
+                    Otu = leaf.split('|')[0]
+                    Otus.append(Otu)
                     if leaf in Inpar:
                         paralogues +=1
-                cOtus= len(Otus)- paralogues + 1
-                if len(set(Otus))== cOtus  and cOtus >= minTax:
-                    OrthoBranch.append(leaves)
+                        if Otu not in spIP:
+                            spIP.append(Otu)
+                    #print paralogues
+                if paralogues > 0:            
+                    cOtus = len(Otus) - paralogues/len(spIP)
+                    if len(set(Otus)) == cOtus and cOtus >= minTax:
+                        OrthoBranch.append(leaves)
+#    print OrthoBranch
     OrthoBranch = deRedundance(OrthoBranch)
+#    print OrthoBranch
     Phylo.ortho=OrthoBranch
 
 
@@ -146,6 +158,7 @@ if args.Trees != 'None':
             for line in  T:
                 P = myPhylo(line)
                 ortho_prune(P, args.Min)
+                #print P.ortho
                 for group in P.ortho:
                     G = ','.join(group)
                     G = G.strip(',')

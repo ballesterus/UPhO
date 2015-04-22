@@ -96,18 +96,20 @@ def No_OG_subsets(Dict):
     return D
 
 def line_writer(P_attern):
+    Output = open('OG_summary.csv', 'w')
+    Output.write('OGnumber,Species_code,Seq_Id\n')
     for file in glob.glob('*%s' % P_attern):
         Handle = open(file, 'r')
         OrtG = file.strip('%s' % P_attern)
-        Output.write('OGnumber,Species_code,Seq_Id\n')
         for Line in Handle:
             if re.search (r'^>', Line):
                 Line = Line.strip('\n')
                 Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not conatain spaces and this data will not be included in the annotation.
                 Div = re.sub('>','',Line).split(Separator)
-                OutLine = '%s,%s,%s' % (OrtG, Div[0], Div[1])
+                OutLine = '%s,%s,%s\n' % (OrtG, Div[0], Div[1])
                 Output.write(OutLine)
         Handle.close()
+    Output.close()
 
 def Set_of_FastaID(extension):
     '''This fuction inspect iteratively acrooss the composition of sequence identifiers of all files in the current directoty  (fasta sequence list, alignements and trees). Fisrt ocurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitue then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequeces or topologies)   
