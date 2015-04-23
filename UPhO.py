@@ -104,7 +104,8 @@ def deRedundance(LoL):
         for J in LoL:
             if set(L).issubset(J):
                 score +=1
-        if score <2:
+        #print score
+        if score < 2:
             NR.append(L)
     return NR
 
@@ -121,15 +122,14 @@ def ortho_prune(Phylo, minTax):
             Otus = []
             for leaf in leaves:
                 Otus.append(leaf.split(sep)[0])
-            if len(set(Otus))==len(Otus) and len(Otus) >= minTax: # Eval oorthology without inparalogues
+            if len(set(Otus))==len(Otus) and len(Otus) >= minTax: # Eval orthologous split without inparalogues
                 OrthoBranch.append(leaves)
             if len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs
                 for leaf in leaves:
                     ICost = 1.0/len(Otus)
                     if ICost < Phylo.costs[leaf]:
-                        Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to te number of inparalohues involved. 
-    #print Inpar
-    if  True:
+                        Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to te number of inparalogues involved. 
+    if  args.inParalogs == 'True':
         for Split in Splits:
             SplitsVecs = Split.split('&')
             for Vec in SplitsVecs:
@@ -144,9 +144,8 @@ def ortho_prune(Phylo, minTax):
                 if len(set(Otus)) == cCount and cCount >= minTax:
                     if leaves not in OrthoBranch:
                         OrthoBranch.append(leaves)
-#    print OrthoBranch
     OrthoBranch = deRedundance(OrthoBranch)
-#    print OrthoBranch
+    #print OrthoBranch
     Phylo.ortho=OrthoBranch
 
 
@@ -174,4 +173,3 @@ if args.Trees != 'None':
         from BlastResultsCluster import retrieve_fasta
         print "Proceeding to create a fasta file for each ortholog"    
         retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
-
