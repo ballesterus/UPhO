@@ -95,17 +95,17 @@ def retrieve_fasta(in_file, Outdir, Type, Reference):
         seqSource = SeqIO.to_dict(SeqIO.parse(open(Reference), 'fasta'))
         for line in handle:
 		if len(line) > 0: # do not process empty lines
-			line = line.replace(' ', '' ) # remove white spaces
+                        line = line.replace(' ', '' ) # remove white spaces
 			qlist = line.strip('\n').split(',')
                         if line.startswith('#'):
                                 Name = qlist.pop(0)
-                                OutFileName = Name.strip('#') + '.fasta'
-                                OG_out_file = open(Outdir+ '/' + OutFileName, 'w')
+                                OG_filename = Name.strip('#') + '.faa'
+                                OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                         else:
                                 OG_filename = Type + "_" + str(OG_number) + ".faa" 
                                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
+                                OG_number += 1
 			for seqId in qlist:
-                        SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
-			OG_number += 1
+                                SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
 			print "successfully created %s" % OG_filename 
 			OG_outfile.close()
