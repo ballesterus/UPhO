@@ -54,46 +54,34 @@ def deRedundance(LoL):
             NR.append(L)
     return NR
 
-def OGSummary_to_Dict(OGsum):
-    '''the anti fu nction of line_writter. TRasnform OG_summary file into a python Dict'''
-    Dict={}
-    with open(OGsum, 'r') as OgS:
-        for Line in OgS:
-            Line = Line.strip('\n')
-            Parts = Line.split(',')
-            Og = Parts[0]
-            IdSeq = Parts[1] + Separator + Parts[2]
-            if not Line.startswith('OGnumber'):
-                if Og not in Dict.keys():
-                    Dict[Og] = []
-                    Dict[Og].append(IdSeq)
-                else:
-                    Dict[Og].append(IdSeq)
-    return Dict
 
-def No_OG_subsets(Dict):
+
+def No_OG_subsets(File):
     Log = open('OG_clean.log', 'w')
-    D={}
+    Out = open('OG_cleaned.txt', 'w')
+    M_List = open(File).readlines()
+    F = open(File, 'r')
     TotalSubsets=0
-    TotalInters=0
-    Pair_inspected=[]
-    for k,v in Dict.iteritems():
-        score = 0
-        for i,f in Dict.iteritems():
-            if set(v).issubset(f):
-                if i != k:
-                    Log.write('SUBSET: Ortho group %s s a subset of Orthogroup %s\n' %(k, i))
-                    score +=1
-                    TotalSubsets+=1
-            elif set([k,i])not in Pair_inspected and len(set(v)&set(f)) > 0:
-                Log.write('ALERT: %s and %s share some seqs:\n\t%s\n' %(k, i, ','.join(set(v)&set(f))))
-                Pair_inspected.append([k,i])
-                TotalInters += 1
-        if score < 2:
-            D[k] = v
-    
-    Log.write(str(TotalSubsets)+'subsets  and ' + str(TotalInters))
-    return D
+    print 'Master list contains %d elements' % len(M_List)
+    F = open(File, 'r')
+    for Line in F:
+        Score = 0
+        A = Line.strip('\n').split(',')
+        Aid = A.pop(0)
+        for B in M_List: 
+            B = B.strip('\n').split(',')
+            Bid = B.pop(0)
+            #print B
+            if set(A).issubset(B) and A != B:
+                Log.write('SUBSET: Ortho group %s is a subset of Orthogroup %s\n' %(Aid, Bid))
+                Score +=1
+                TotalSubsets += 1
+        if Score < 1:
+            Out.write(Line)
+    Log.write(str(TotalSubsets)+'subsets processed')
+    Log.close()
+    Out.close()
+    F.close()
 
 def line_writer(P_attern):
     Output = open('OG_summary.csv', 'w')
