@@ -42,6 +42,20 @@ def min_leaves(infile, Quant):
     Out.close()
 
 
+def RemoveDupSpecies(Tree):
+    '''This function takes a tree gene tree with many genes copies per species, and returns one species tree. retaining only one sequence per species'''
+    Sps=[]
+    T = ete2.Tree(Tree) 
+    for leaf in T.iter_leaves():
+        sp, seq = leaf.name.split(Separator)
+        if sp not in Sps:
+            Sps.append(sp)
+            leaf.name = sp
+        else:
+            leaf.delete()            
+    return T
+
+
 def deRedundance(LoL):
     '''Takes a list of list and returns a list where no list is a subset of the others'''
     NR =[]
