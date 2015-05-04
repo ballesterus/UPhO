@@ -44,16 +44,39 @@ def min_leaves(infile, Quant):
 
 def RemoveDupSpecies(Tree):
     '''This function takes a tree gene tree with many genes copies per species, and returns one species tree. retaining only one sequence per species'''
-    Sps=[]
-    T = ete2.Tree(Tree) 
-    for leaf in T.iter_leaves():
-        sp, seq = leaf.name.split(Separator)
-        if sp not in Sps:
-            Sps.append(sp)
-            leaf.name = sp
-        else:
-            leaf.delete()            
-    return T
+    Out = open('all_ready','w')
+    with open(Tree, 'r') as F:
+        for line in F:
+            Sps=[]
+            T = ete2.Tree(Tree) 
+            for leaf in T.iter_leaves():
+                sp, seq = leaf.name.split(Separator)
+                if sp not in Sps:
+                    Sps.append(sp)
+                    leaf.name = sp
+                else:
+                    leaf.delete()
+            Out.write(T.write()+ '\n')
+
+
+def MakeAstralSpeciesMap(All):
+    with open(All, 'r') as F:
+        Sps={}
+        for L in F:
+            T = ete2.Tree(Tree) 
+            for leaf in T.iter_leaves():
+                sp, seq = leaf.name.split(Separator)
+                if sp not in Sps.dickeys():
+                    Sps[sp]=[leaf.name]
+                    leaf.name = sp
+                else:
+                    Sps.append(leaf.name)
+    Out = open('Species_map.txt', 'w')
+    for k in Sps.iterkeys():
+        Out.write(k + ': ' + ','.join(Sps[k]) + '\n')
+
+        
+
 
 
 def deRedundance(LoL):
