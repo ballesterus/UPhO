@@ -74,7 +74,6 @@ def MakeAstralSpeciesMap(All):
                     Sps[sp].append(leaf.name)
     Out = open('Species_map.txt', 'w')
     for k in Sps.iterkeys():
-        Sps[k]= set(Sps[k])
         Out.write(k + ': ' + ','.join(Sps[k]) + '\n')
 
         
