@@ -49,14 +49,15 @@ def RemoveDupSpecies(Tree):
         for line in F:
             Sps=[]
             T = ete2.Tree(line)
+            T.unroot()
             for leaf in T.iter_leaves():
                 sp, seq = leaf.name.split(Separator)
                 if sp not in Sps:
                     Sps.append(sp)
                     leaf.name = sp
                 else:
-                    leaf.delete()
-            Tn = T.write()
+                    leaf.delete(prevent_nondicotomic=True)
+            Tn = T.write(format=5)
             Out.write(Tn + '\n')
 
 
@@ -74,6 +75,7 @@ def MakeAstralSpeciesMap(All):
                     Sps[sp].append(leaf.name)
     Out = open('Species_map.txt', 'w')
     for k in Sps.iterkeys():
+        Sps[k]= set(Sps[k])
         Out.write(k + ': ' + ','.join(Sps[k]) + '\n')
 
         

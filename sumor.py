@@ -46,19 +46,18 @@ def RemoveDupSpecies(Tree):
     '''This function takes a tree gene tree with many genes copies per species, and returns one species tree. retaining only one sequence per species'''
     Out = open('all_ready.tre','w')
     with open(Tree, 'r') as F:
-        for line in F:
-            Sps=[]
-            T = ete2.Tree(line)
+        for line in F:                                                                          
+            Sps=[]                                                                             
+            T = ete2.Tree(line)                                                        
+            T.unroot()                                                                         
             for leaf in T.iter_leaves():
-                sp, seq = leaf.name.split(Separator)
+                sp, iD = leaf.name.split('|')
                 if sp not in Sps:
-                    Sps.append(sp)
-                    leaf.name = sp
-                else:
-                    leaf.delete()
-            Tn = T.write()
+                    leaf.name=sp
+                    Sps.append(sp)                                                                
+            T.prune(Sps)
+            Tn=T.write()
             Out.write(Tn + '\n')
-
 
 def MakeAstralSpeciesMap(All):
     with open(All, 'r') as F:
