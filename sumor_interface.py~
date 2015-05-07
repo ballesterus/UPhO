@@ -71,7 +71,7 @@ while Q == True:
             print "ERROR: load a summary and a tree first."
         else:
             print "Loading Ortholgs and sequence compostion"
-            Ogs = OGSummary_to_Dict(Summaryo)
+            Ogs = OGSummary_to_Dict(Summary)
             nOgs= No_OG_subsets(Ogs)
             while selection =='6':
                 print "Redundancies esolved and log file written to OG_clean.log"

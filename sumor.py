@@ -60,6 +60,7 @@ def RemoveDupSpecies(Tree):
             Out.write(Tn + '\n')
 
 def MakeAstralSpeciesMap(All):
+    '''Creates a list of species and its gene copies for Astral. Note: as for May 2015, this fuction produces as seemingly correct map[ file, however it fails to run in astral. Maybe memmory leak in Astral4.4.7'''
     with open(All, 'r') as F:
         Sps={}
         for L in F:
@@ -77,9 +78,6 @@ def MakeAstralSpeciesMap(All):
         Out.write(k + ': ' + ','.join(Sps[k]) + '\n')
 
         
-
-
-
 def deRedundance(LoL):
     '''Takes a list of list and returns a list where no list is a subset of the others'''
     NR =[]
@@ -93,8 +91,8 @@ def deRedundance(LoL):
     return NR
 
 
-
 def No_OG_subsets(File):
+    '''Takes a OG_summary file.csv, see linw_writer. It writes a similar formated file with one Orthologs per line but with out-subsets '''
     Log = open('OG_clean.log', 'w')
     Out = open('OG_cleaned.txt', 'w')
     M_List = open(File).readlines()
