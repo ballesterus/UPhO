@@ -6,7 +6,7 @@ import shutil
 import readline
 import ete2
 
-'''This script contains functions to summariz the distribution of orthologous on a tree.'''
+'''This script contains auxiliary functions to summarize the distribution of orthologous on a tree. This can be acceeesed with the accompanying script sumor_interface.py'''
 
 readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
@@ -43,18 +43,18 @@ def min_leaves(infile, Quant):
 
 
 def RemoveDupSpecies(Tree):
-    '''This function takes a tree gene tree with many genes copies per species, and returns one species tree. retaining only one sequence per species'''
+    '''This function takes a tree gene tree with many genes copies per species, and returns a tree with one leaf per  species. Retaining only one sequence per species'''
     Out = open('all_ready.tre','w')
     with open(Tree, 'r') as F:
-        for line in F:                                                                          
-            Sps=[]                                                                             
-            T = ete2.Tree(line)                                                        
-            T.unroot()                                                                         
+        for line in F:
+            Sps=[]
+            T = ete2.Tree(line)
+            T.unroot()         
             for leaf in T.iter_leaves():
                 sp, iD = leaf.name.split('|')
                 if sp not in Sps:
                     leaf.name=sp
-                    Sps.append(sp)                                                                
+                    Sps.append(sp)
             T.prune(Sps)
             Tn=T.write()
             Out.write(Tn + '\n')

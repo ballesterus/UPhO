@@ -4,7 +4,7 @@ from sumor import *
 
 ##### YEAH_SHOWDOWN ######
 
-print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs) .Select from the following options"
+print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs). Select from the following options"
 T = None
 Summary= None
 NodeS= None
@@ -65,6 +65,16 @@ while Q == True:
             Result = get_orthoSet_by_node(T, str(NodeNum))
             NodeS = [NodeNum, Result]
             print NodeS
+            In = open(raw_input('Orthogroups text file:'), 'r')
+            Out = open('compo_node%s.txt', 'w' % NodeNum)
+            for Line in In:
+                Q=Line.split(',')
+                if Q[0] in Result:
+                    Out.write(Line)
+            from BlastResultsCluster.py import retrieve_fasta
+           
+ retrieve_fasta('compo_node_%s.txt', 'Node%s_NTS', None, 'ALL_NTS.fst')
+            
 
     elif selection == '6':
         if Summary == None:
