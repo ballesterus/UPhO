@@ -15,7 +15,7 @@ Separator = '|'
 outgroup1 = 'H_pococki'
 outgroup2= 'S_lineatus'
 
-# Function definitions
+#Function definitions
 
 def count_identifiers(file):
     Counter =0
