@@ -69,7 +69,7 @@ def non_redundant(reference, min_sp):
         outFile.close()
 				
 def redundant(reference, minTaxa):
-        """"Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
+        """Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
         inFile = open(reference, "rw")
 	outFile =open("redundantsOG_%s.txt", "w" %reference)
         SetsInspected = []
@@ -81,7 +81,6 @@ def redundant(reference, minTaxa):
                         SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
         outFile.close()
-
 
 
 def retrieve_fasta(in_file, Outdir, Type, Reference):
