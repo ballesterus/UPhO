@@ -120,6 +120,7 @@ def No_OG_subsets(File):
     F.close()
 
 def line_writer(P_attern):
+    '''Creates OG summary file, for Tree orthology annotation'''
     Output = open('OG_summary.csv', 'w')
     Output.write('OGnumber,Species_code,Seq_Id\n')
     for file in glob.glob('*%s' % P_attern):

@@ -20,8 +20,59 @@ print args
 sep = '|'
 
 
+def No_OG_subsets(File):
+    '''Takes a UPho_Pruned.txt. It writes a similar formated file with one Orthologs per line but with out-subsets '''
+    Log = open('OG_clean.log', 'w')
+    Out = open('OG_cleaned.txt', 'w')
+    M_List = open(File).readlines()
+    F = open(File, 'r')
+    TotalSubsets=0
+    print 'Master list contains %d elements' % len(M_List)
+    F = open(File, 'r')
+    for Line in F:
+        Score = 0
+        A = Line.strip('\n').split(',')
+        Aid = A.pop(0)
+        for B in M_List:
+            B = B.strip('\n').split(',')
+            Bid = B.pop(0)
+            #print B
+            if set(A).issubset(B) and A != B:
+                Log.write('SUBSET: Ortho group %s is a subset of Orthogroup %s\n' %(Aid, Bid))
+                Score +=1
+                TotalSubsets += 1
+        if Score < 1:
+            Out.write(Line)
+    Log.write(str(TotalSubsets)+'subsets processed')
+    Log.close()
+    Out.close()
+    F.close()
 
-def retrieve_fasta(in_file, Outdir, Type, Reference):
+
+def No_Same_OG_Intesec(File):
+	Current =''
+	Testing  = []
+	for Line in File:
+		This = re.findall("#[a-zA-Z0-9]+_[0-9]+",Line)
+		if This == Current
+			Testing.apped(Line.remove(Line[0]))
+		elif This != Current and Current != '':
+			cOrtho =[]
+			AA = Testing
+			BB = Testing
+			for A in AA:
+				for B in BB:
+					if A!=B and len(set(A)&set(B)) > 0:
+						Winner= max([A,B], key=len)
+						Out.write(Winner)
+					elif A!=B and :
+						
+						
+						
+			Current = This
+			Testing = [] # reinitialize variables
+
+def Retrieve_Fasta(in_file, Outdir, Type, Reference):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
         if not os.path.exists(Outdir):
@@ -39,9 +90,9 @@ def retrieve_fasta(in_file, Outdir, Type, Reference):
                                 OG_filename = Name.strip('#') + '.fasta'
                                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                         else:
-                                OG_filename = Type + "_" + str(OG_number) + ".fasta" 
+                                OG_filename = Type + "_" + str(Counter) + ".fasta" 
                                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
-                                OG_number += 1
+                                Counter += 1
 			for seqId in qlist:
                                 SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
 			print "successfully created %s" % OG_filename 

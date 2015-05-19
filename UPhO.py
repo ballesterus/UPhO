@@ -32,19 +32,6 @@ class myPhylo():
             self.costs[leaf] = 1.0
         for leaf in self.leaves:
             self.Dict[leaf.split(sep)[0]].append(leaf.split(sep)[1])
-    def No_overlap(self):
-        cOrtho =[]
-        AA = self.ortho
-        BB = self.ortho
-        print AA
-        print BB
-        inspected = []
-        for A in AA:
-            for B in BB:
-                if A !=B and len(set(A)&set(B)) > 0:
-                    Winner= max([A,B], key=len)
-                        cOrtho.append(Winner)
-        self.ortho = cOrtho
 
 def get_leaves(String):
     Leaves =re.findall("[A-Z_a-z]+\|[0-9 A-Z a-z_]+", String)
@@ -68,7 +55,6 @@ def split_decomposition(newick):
     idc =0
     Pos =0
     closed = []
-    
     for l in newick:
         if l == '(':
             id +=1
