@@ -12,6 +12,8 @@ parser.add_argument('-o', dest= 'outdir', type =str, default= '.', help ='Name o
 parser.add_argument('-p', dest= 'prefix', type = str, default= 'Group', help ='Prefix to use whe no group name is provided')
 parser.add_argument('-r', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-c', dest= 'clean', type = str, default= 'False', help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
+parser.add_argument('-i', dest= 'index', type = str, default= None, help ='When provided , redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
+
 
 args = parser.parse_args()
 print args
@@ -48,30 +50,36 @@ def No_OG_subsets(File):
     Out.close()
     F.close()
 
-
 def No_Same_OG_Intesec(File):
-	Current =''
-	Testing  = []
-	for Line in File:
-		This = re.findall("#[a-zA-Z0-9]+_[0-9]+",Line)
-		if This == Current
-			Testing.apped(Line.remove(Line[0]))
-		elif This != Current and Current != '':
-			cOrtho =[]
-			AA = Testing
-			BB = Testing
-			for A in AA:
-				for B in BB:
-					if A!=B and len(set(A)&set(B)) > 0:
-						Winner= max([A,B], key=len)
-						Out.write(Winner)
-					elif A!=B and :
-						
-						
-						
-			Current = This
-			Testing = [] # reinitialize variables
-
+    Log = open('OG_clean_I.log', 'w')
+    Out = open('OG_cleaned_I.txt', 'w')
+    F = open(File, 'r')
+    Current =''
+    Independent = []
+    for Line in F:
+        A = Line.strip('\n').split(',')  
+        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+_",A[0])
+        if Pattern == Current:
+            for i in Independent:
+                if A  not in Independent:
+                    if len(set(A)&set(i)) > 0:
+                        Independent.remove(i)
+                        Winner= max([A,i], key=len)
+                        Independent.append(Winner)
+                        Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
+                        print Log_st
+                        Log.write(Log_st)
+                        
+                    else:
+                        Independent.append(A)
+        else:
+            print 'The independent set derived from tree %s has %d seqsIds' % (Current, len(Independent))
+            for i in Independent:
+                Out.write(','.join(i) + '\n')
+            Current = Pattern
+            Independent = []
+            Independent.append(A)
+                                                                               
 def Retrieve_Fasta(in_file, Outdir, Type, Reference):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
