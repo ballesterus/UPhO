@@ -1,12 +1,14 @@
 #! /usr/bin/env python
 import os
+from joblib import Parallel, delayed  
+import multiprocessing
 import glob
 import re
 import shutil
 import readline
 import ete2
 
-'''This script contains functions to summariz the distribution of orthologous on a tree.'''
+'''This script contains functions to summarize the distribution of orthologous on a tree and auziliary fuction. These fuctions can be imported into the interpreted and ran interactively or through a helper script.'''
 
 readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
@@ -46,15 +48,15 @@ def RemoveDupSpecies(Tree):
     '''This function takes a tree gene tree with many genes copies per species, and returns one species tree. retaining only one sequence per species'''
     Out = open('all_ready.tre','w')
     with open(Tree, 'r') as F:
-        for line in F:                                                                          
-            Sps=[]                                                                             
-            T = ete2.Tree(line)                                                        
-            T.unroot()                                                                         
+        for line in F:
+            Sps=[]
+            T = ete2.Tree(line)
+            T.unroot()
             for leaf in T.iter_leaves():
                 sp, iD = leaf.name.split('|')
                 if sp not in Sps:
                     leaf.name=sp
-                    Sps.append(sp)                                                                
+                    Sps.append(sp)
             T.prune(Sps)
             Tn=T.write()
             Out.write(Tn + '\n')
@@ -92,13 +94,14 @@ def deRedundance(LoL):
 
 
 def No_OG_subsets(File):
-    '''Takes a OG_summary file.csv, see linw_writer. It writes a similar formated file with one Orthologs per line but with out-subsets '''
+    '''Takes a text file with orthogroups per line as a list comma ',' sepearated list  of sequence identifiers and OG name per line. It writes a similar formated file with one Orthologs per line but with out-subsets '''
     Log = open('OG_clean.log', 'w')
     Out = open('OG_cleaned.txt', 'w')
     M_List = open(File).readlines()
     F = open(File, 'r')
     TotalSubsets=0
     print 'Master list contains %d elements' % len(M_List)
+    num_cores= multiprocessing.cpu_count()
     F = open(File, 'r')
     for Line in F:
         Score = 0
@@ -220,11 +223,14 @@ def CdsSets_by_Treatment(treat):
             Set.append(element)
     return set(Seqs)
 
-def get_orthoSet_by_node(Phylo, NodeNumber):
+def get_orthoSet_by_node(Phylo, NodeNumber, Ref):
     T = Phylo
-    N = T&"%s" % NodeNumber
+    N = T&"%s"% NodeNumber
     Compo = N.OgCompo
-    return Compo
+    for Line in Ref:
+        if Line.splilt(',')[0] in Compo:
+            Out.write(Line)
+
 
 def tree_plot(phylo, Bsize = 1.0):
     T = phylo
