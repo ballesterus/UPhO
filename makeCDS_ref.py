@@ -53,4 +53,4 @@ def faa_2_cds(FAA, FST_comb):
 			else:
                                 Probl.write(str(qId) + '\n')
                                 
-faa_2_cds('F_communis_nr.pep', 'F_communis.combined2.cds')
+faa_2_cds('T_perreirai_nr1.pep', 'T_perreira.combined2.cds')
