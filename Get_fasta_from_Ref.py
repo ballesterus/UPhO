@@ -49,7 +49,6 @@ def No_OG_subsets(File):
     Log.close()
     Out.close()
     F.close()
-
 def No_Same_OG_Intesec(File):
     Log = open('OG_clean_I.log', 'w')
     Out = open('OG_cleaned_I.txt', 'w')
@@ -79,7 +78,8 @@ def No_Same_OG_Intesec(File):
             Current = Pattern
             Independent = []
             Independent.append(A)
-                                                                               
+                                 
+                                              
 def Retrieve_Fasta(in_file, Outdir, Type, Reference):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
@@ -105,3 +105,5 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
                                 SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
 			print "successfully created %s" % OG_filename 
 			OG_outfile.close()
+
+

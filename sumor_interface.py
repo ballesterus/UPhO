@@ -66,15 +66,11 @@ while Q == True:
             NodeS = [NodeNum, Result]
             print NodeS
             In = open(raw_input('Orthogroups text file:'), 'r')
-            Out = open('compo_node%s.txt', 'w' % NodeNum)
+            Out = open('compo_node_%s.txt' %NodeNum, 'w' )
             for Line in In:
                 Q=Line.split(',')
-                if Q[0] in Result:
+                if Q[0].strip('#') in Result:
                     Out.write(Line)
-            from BlastResultsCluster.py import retrieve_fasta
-           
- retrieve_fasta('compo_node_%s.txt', 'Node%s_NTS', None, 'ALL_NTS.fst')
-            
 
     elif selection == '6':
         if Summary == None:

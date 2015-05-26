@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import os
-from joblib import Parallel, delayed  
-import multiprocessing
+#from joblib import Parallel, delayed  
+#import multiprocessing
 import glob
 import re
 import shutil
@@ -92,16 +92,45 @@ def deRedundance(LoL):
             NR.append(L)
     return NR
 
+def No_Same_OG_Intesec(File):
+    Log = open('OG_clean_I.log', 'w')
+    Out = open('OG_cleaned_I.txt', 'w')
+    F = open(File, 'r')
+    Current =''
+    Independent = []
+    for Line in F:
+        A = Line.strip('\n').split(',')  
+        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+_",A[0])
+        if Pattern == Current:
+            for i in Independent:
+                if A  not in Independent:
+                    if len(set(A)&set(i)) > 0:
+                        Independent.remove(i)
+                        Winner= max([A,i], key=len)
+                        Independent.append(Winner)
+                        Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
+                        print Log_st
+                        Log.write(Log_st)
+                        
+                    else:
+                        Independent.append(A)
+        else:
+            print 'The independent set derived from tree %s has %d seqsIds' % (Current, len(Independent))
+            for i in Independent:
+                Out.write(','.join(i) + '\n')
+            Current = Pattern
+            Independent = []
+            Independent.append(A)
+                                 
 
 def No_OG_subsets(File):
     '''Takes a text file with orthogroups per line as a list comma ',' sepearated list  of sequence identifiers and OG name per line. It writes a similar formated file with one Orthologs per line but with out-subsets '''
-    Log = open('OG_clean.log', 'w')
-    Out = open('OG_cleaned.txt', 'w')
+    Log = open('OG_clean_II.log', 'w')
+    Out = open('OG_cleaned_II.txt', 'w')
     M_List = open(File).readlines()
     F = open(File, 'r')
     TotalSubsets=0
     print 'Master list contains %d elements' % len(M_List)
-    num_cores= multiprocessing.cpu_count()
     F = open(File, 'r')
     for Line in F:
         Score = 0
@@ -223,13 +252,11 @@ def CdsSets_by_Treatment(treat):
             Set.append(element)
     return set(Seqs)
 
-def get_orthoSet_by_node(Phylo, NodeNumber, Ref):
+def get_orthoSet_by_node(Phylo, NodeNumber):
     T = Phylo
     N = T&"%s"% NodeNumber
     Compo = N.OgCompo
-    for Line in Ref:
-        if Line.splilt(',')[0] in Compo:
-            Out.write(Line)
+    return Compo
 
 
 def tree_plot(phylo, Bsize = 1.0):
