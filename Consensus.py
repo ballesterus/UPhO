@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""USAGE: python Consensus.py -t 0.5 -m 20 -f *.al """
 
+"""USAGE: python Consensus.py -t 0.5 -m 20 -f *.al """
 
 import argparse
 import re
@@ -18,7 +18,7 @@ M = arguments.M
 
 
 def is_ID(Line):
-    """Evaluates if a string correspond to fasta identifier. herein broadly defined by starting with th e '>' symbol"""
+    """Evaluates if a string correspond to fasta identifier. Herein broadly defined by starting with th e '>' symbol"""
     if Line.startswith('>'):
         return True
     else:
@@ -100,6 +100,3 @@ if len(argv) > 3:
         Out.write('>' + FileName[0] + '\n')
         Out.write(Con)
         
-
-
-
