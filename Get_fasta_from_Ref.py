@@ -107,3 +107,5 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
 			OG_outfile.close()
 
 
+
+Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
