@@ -249,9 +249,9 @@ def CdsSets_by_Treatment(treat):
         if  not line.startswith('OGnumber'):
             list=line.split(',')
             element = list[1] + Separator + list[2]
-            Set.append(element)
+            Seqs.append(element)
     return set(Seqs)
-
+x
 def get_orthoSet_by_node(Phylo, NodeNumber):
     T = Phylo
     N = T&"%s"% NodeNumber
