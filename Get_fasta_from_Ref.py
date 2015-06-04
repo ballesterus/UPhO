@@ -105,7 +105,6 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
 			print "successfully created %s" % OG_filename 
 			OG_outfile.close()
 
-
 #RUNNING OPERATIONS
 if args.clean == 'True':
     print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
@@ -118,4 +117,3 @@ elif args.clean == 'False':
     Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
 else:
     print "Error: use 'True' or 'False' for the -c flag "
-    

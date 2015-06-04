@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ################################################################################################################################################
 #paMATRAX_F: My bash script for parallel  alignmenty (mafft), trimming (TRimal) and tree-estimation (raxml or fastree)                         #
 #USAGE:                                                                                                                                        #
@@ -39,7 +39,7 @@ if [ $trims = 0 ]
 then
     parallel -j+0 'trimal -in {} -out {.}.fa -fasta -gappyout' ::: *.al;
 else
-  echo "There are $trims trimed aligment files (*.fa) in the working folder. Will procede with trimming"
+  echo "There are $trims trimed aligment files (*.fa) in the working folder. Will procede with tree estimation"
 fi
 
 #Test if trees exist in the WD
@@ -51,8 +51,8 @@ then
 	parallel -j+0 'FastTreeMP {} > {.}.tre' ::: *.fa
     elif [ $Tree_estimator == 'X'  ]
     then
-	parallel -j+0 'raxmlHPC-AVX -s {} -f a -p12345  -x12345 -#100 -m PROTGAMMAAUTO -n {.}.rxOUT' ::: *.fasta
-    fi
+	parallel -j+0 'raxmlHPC-AVX -s {} -f a -p12345  -x12345 -#1000 -m PROTGAMMAAUTO -n {.}.rxOUT' ::: *.fa
+    foi
 else
    echo "There are $trees tree files (*.tre) in the working folder"
    echo "Nothing else to do. Good Bye"
