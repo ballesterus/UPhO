@@ -5,7 +5,7 @@ from sys import argv
 import argparse
 
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input treesa re provided  as a single newick  file or a list of many input files')
-parser.add_argument('-t', dest = 'Trees', type = str, default= 'None', nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
+parser.add_argument('-t', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When true, inparalogues will  be included as orthologues, default = False')
 parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
@@ -16,7 +16,7 @@ print args
 #GLOBAL VARIABLE. MODIFY IF NEEDED
 sep = '|'
 
-#CLASS AND FUNTION DEFINITION
+#CLASS AND FUNCTION DEFINITIONS
 
 class myPhylo():
     '''A class for newick trees'''
@@ -146,8 +146,8 @@ def ortho_prune(Phylo, minTax):
     #print OrthoBranch
     Phylo.ortho=OrthoBranch
 
-
-if args.Trees != 'None':
+#PROGRAM BEGINS HERE
+if args.Trees != None:
     OrList = open('UPhO_Pruned.txt', 'w')
     Total = 0
     for tree in args.Trees:
@@ -178,3 +178,5 @@ if args.Trees != 'None':
         from BlastResultsCluster import retrieve_fasta
         print "Proceeding to create a fasta file for each ortholog"    
         retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
+else:
+    print 'ERROR: Trees are needed.'
