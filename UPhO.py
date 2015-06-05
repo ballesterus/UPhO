@@ -9,7 +9,6 @@ parser.add_argument('-t', dest = 'Trees', type = str, default= None, nargs= '+',
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When true, inparalogues will  be included as orthologues, default = False')
 parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
-parser.add_argument('-O', dest= 'Overlaps', type = str, default= 'False', help ='When true the pruned ortholgs do not overlap in any of the leaves.')
 args = parser.parse_args()
 print args
 
@@ -159,9 +158,6 @@ if args.Trees != None:
                 ortNum=0
                 ortho_prune(P, args.Min)
                 #print P.ortho
-                if args.Overlaps == 'True':
-                    P.No_overlap()
-                    print P.ortho
                 for group in P.ortho:
                     FName= '#%s_%d,' %(name,ortNum)
                     G = ','.join(group)
