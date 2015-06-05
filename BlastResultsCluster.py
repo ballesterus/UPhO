@@ -71,7 +71,7 @@ def non_redundant(reference, min_sp):
 def redundant(reference, minTaxa):
         """Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
         inFile = open(reference, "rw")
-	outFile =open("redundantsOG_%s.txt", "w" %reference)
+	outFile =open("redundantsOG_%s.txt" %reference, 'w')
         SetsInspected = []
         for line in inFile:
 		spp = re.findall(r'[A-Z]_[a-z]+', line)
