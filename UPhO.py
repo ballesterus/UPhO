@@ -68,7 +68,7 @@ def split_decomposition(newick):
         Pos+=1
 #    print P
     vecIns = []
-    for Key in P.iterkeys():#Find splits inmplied bt the parenthesis in newick
+    for Key in P.iterkeys():#Find splits implied by the parenthesis grouping in newick
         vec=newick[P[Key][0]: P[Key][1]]
         vec= get_leaves(vec)
         coVec = complement(vec,leaves)
