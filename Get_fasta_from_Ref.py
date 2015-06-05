@@ -21,7 +21,7 @@ args = parser.parse_args()
 sep = '|'
 
 #Function definitions
-def 
+def No_OG_subsets (File):
     '''Takes a UPho_Pruned.txt. It writes a similar formated file with one Orthologs per line but with out-subsets '''
     Log = open('OG_clean_II.log', 'w')
     Out = open('OG_cleaned_II.txt', 'w')
