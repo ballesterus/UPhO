@@ -70,11 +70,11 @@ def non_redundant(reference, min_sp):
 				
 def redundant(reference, minTaxa):
         """Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
-        inFile = open(reference, "rw")
+        inFile = open(reference, "r")
 	outFile =open("redundantsOG_%s.txt" %reference, 'w')
         SetsInspected = []
         for line in inFile:
-		spp = re.findall(r'[A-Z]_[a-z]+', line)
+		spp = re.findall(r'[A-Z0-9_a-z]+', line)
 		SeqIds = line.strip('\n').split(', ')
                 nr = set(spp)
                 if len(nr) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
