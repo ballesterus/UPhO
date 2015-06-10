@@ -52,7 +52,7 @@ def clusters(blastout, expectation):
 				myOut.write(", " + subjectId)
 
 def non_redundant(reference, min_sp):
-        """This filters non species redundant orthoGroups, Takes as input a cluster file, like the one produces by the uction clusters, and a minimum number of different species"""
+        """This function filters out clusters with redundant species. Takes as input a cluster file, like the one produces by the fuction clusters, and a minimum number of different species"""
 
 	inFile = open(reference, 'rw')
 	outFile =open("non_redundantOG.txt", "w")
@@ -69,7 +69,7 @@ def non_redundant(reference, min_sp):
         outFile.close()
 				
 def redundant(reference, minTaxa):
-        """Proudeces Orthogroups with at least N different OTU's, allowing redundancy but removing orthogroups made of exclusively one OTU """
+        """Proudeces homolog-groups with at least N different OTU's, allowing redundancy but removing groups made of exclusively one OTU """
         inFile = open(reference, "rw")
 	outFile =open("redundantsOG_%s.txt", "w" %reference)
         SetsInspected = []
