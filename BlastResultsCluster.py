@@ -7,7 +7,17 @@ import re
 import pandas
 import matplotlib.pyplot as plt
 from Bio import SeqIO
+#Global variables
 
+sep='|'
+
+if sep in ["|", "^", ".", "$", "\", '?', '+', '*']:
+	re_sep = '\\' + sep
+else:
+	re_sep = sep
+
+
+#Function definitions
 def mcl_abc(blastout, expectation):
         """Create input file abc for mcl,from a csv blast out and a expectation file """
         outName = 'mcl_%s.abc' % str(expectation)
@@ -51,7 +61,7 @@ def clusters(blastout, expectation):
 			else:
 				myOut.write(", " + subjectId)
 
-def non_redundant(reference, min_sp):
+def non_redundant(reference, minTaxa):
         """This function filters out clusters with redundant species. Takes as input a cluster file, like the one produces by the fuction clusters, and a minimum number of different species"""
 
 	inFile = open(reference, 'rw')
@@ -61,7 +71,7 @@ def non_redundant(reference, min_sp):
                 spp = re.findall(r'[A-Z]_[a-z]+', line)
                 SeqIds = line.strip('\n').split(', ')
                 nr = set(spp)
-                if len(spp) == len(nr) and len(spp) >= int(min_sp) and sorted(SeqIds) not in SetsInspected:
+                if len(spp) == len(nr) and len(spp) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
                         SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
         print SetsInspected
@@ -72,9 +82,10 @@ def redundant(reference, minTaxa):
         """Proudeces homolog-groups with at least N different OTU's, allowing redundancy but removing groups made of exclusively one OTU """
         inFile = open(reference, "rw")
 	outFile =open("redundantsOG_%s.txt", "w" %reference)
+
         SetsInspected = []
         for line in inFile:
-		spp = re.findall(r'[A-Z]_[a-z]+', line)
+		spp = re.findall(r'[A-Z0-9_a-z]+' + re_sep, line)
 		SeqIds = line.strip('\n').split(', ')
                 nr = set(spp)
                 if len(nr) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
@@ -99,10 +110,10 @@ def retrieve_fasta(in_file, Outdir, Type, Reference):
                         if line.startswith('#'):
                                 Name = qlist.pop(0)
                                 OG_filename = Name.strip('#') + '.faa'
-                                OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
+                                OG_outfile = open(Outdir + '/' + OG_filename, 'w')
                         else:
                                 OG_filename = Type + "_" + str(OG_number) + ".faa" 
-                                OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
+                                OG_outfile = open(Outdir + '/' + OG_filename, 'w')
                                 OG_number += 1
 			for seqId in qlist:
                                 SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')

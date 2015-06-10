@@ -21,8 +21,8 @@ args = parser.parse_args()
 sep = '|'
 
 #Function definitions
-def 
-    '''Takes a UPho_Pruned.txt. It writes a similar formated file with one Orthologs per line but with out-subsets '''
+def No_OG_subsets(File):
+    '''Takes a UPho_Pruned.txt. It writes a similar formated file with one Orthologs per line but with out-subsets'''
     Log = open('OG_clean_II.log', 'w')
     Out = open('OG_cleaned_II.txt', 'w')
     M_List = open(File).readlines()
@@ -108,9 +108,9 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
 #RUNNING OPERATIONS
 if args.clean == 'True':
     print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
-    No_Same_OG_Intesec(File):
+    No_Same_OG_Intesec(File)
     print 'Done cleaning type I, proceeding to clean subsets'
-    No_OG_subsets(File):
+    No_OG_subsets(File)
     print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
     Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
 elif args.clean == 'False':
