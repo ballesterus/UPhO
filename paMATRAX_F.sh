@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/sh
 ######################################################################
 # paMATRAX_F: A shell script for sequentially execute parallel alignment 
 # (mafft), trimming (TRimal) and tree-estimation (raxml or fastree).
@@ -37,7 +37,7 @@ fi
 
 #Test if trimmed als exits in the wd 
 trims=`ls -1 *.fa 2>/dev/null | wc -l` 
-if [ $trims = 0 ] 
+if [ $trims = 0 ]
 then parallel -j+0 'trimal -in {} -out {.}.fa -fasta -gappyout' ::: *.al; 
 else 
 echo "There are $trims trimed aligment files (*.fa) in the working folder. Will procede with tree estimation" 
