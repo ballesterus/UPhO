@@ -33,7 +33,8 @@ class myPhylo():
             self.Dict[leaf.split(sep)[0]].append(leaf.split(sep)[1])
 
 def get_leaves(String):
-    Leaves =re.findall("[A-Z_a-z]+\|[0-9 A-Z a-z_]+", String)
+    pattern = "[A-Z_a-z]+" + sep + "[0-9 A-Z a-z_]"+
+    Leaves =re.findall(pattern, String)
     return Leaves
 
 

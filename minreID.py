@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-
-"""Usage: python minreID file SP_CODE """
+"""Usage: python minreID file SP_CODE  Separator"""
 import os
 import re
 from sys import argv
 
-script, infile, SP_code  = argv
+script, infile, SP_code, sep  = argv
 
 inp_F = open(infile, 'r')
 out_name = SP_code + "_withid.fst"
@@ -18,10 +17,10 @@ counter = 1
 for line in inp_F:
     id_Line= re.search(r'^>', line)
     idNum = format(counter, '06d')
-    unique_id= '>' + SP_code +'|' + idNum
+    unique_id= '>' + SP_code + sep + idNum
     if id_Line:
-        nl0=re.sub(r'cds\.', '', line)
-        nl1 = re.sub(r'\|.+', '', nl0)
+        nl0=re.sub(r'cds\.', '', line) # remove cds prefix
+        nl1 = re.sub(r'\|.+', '', nl0) # remove additional annotations
         nl2 = re.sub(r'^>', unique_id, nl1) # add unique identifier 
         out_F.write(nl2)
         counter += 1 

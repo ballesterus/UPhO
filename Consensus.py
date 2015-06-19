@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='This is a program, to write consen
 
 parser.add_argument('-t', action= 'store', dest = 'T', default = 1.0, type = float,  help='Specify frequency threshold' ) 
 parser.add_argument('-m', action = 'store', dest = 'M', default = 18, type = int, help='minimum lenght of good conserved regions' )
-parser.add_argument('-f', action = 'append', dest = 'targets', type = str, nargs= '+',  help = 'files to process(fasta alignment)')  
+parser.add_argument('-f', action = 'append', dest = 'targets', type = str, nargs= '*',  default = None,  help = 'files to process(fasta alignment)')  
 
 arguments= parser.parse_args()
 print arguments
@@ -47,7 +47,7 @@ def Fasta_Parser(File):
 
 
 def make_Consensus(Dict, T):
-    '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a 100% consensus'''
+    '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a T% consensus'''
     Consensus=''
     for i in range(0, len(Dict[Dict.keys()[0]])):
         compo = []
@@ -66,12 +66,11 @@ def make_Consensus(Dict, T):
         if G/N >= T:
             Consensus+=MFB
         else:
-            
             Consensus+='-'
     return Consensus
 
-
 def Good_Blocks(Consensus, M):
+    '''Rhis funcion takes as inputs a consensus sequence and returns blocks of M contibuos base pairs in that consensus (Conserved sites of  a given length)'''
     GoodBlocks =''
     block = ''
     for site in Consensus:
@@ -89,14 +88,14 @@ def Good_Blocks(Consensus, M):
     GoodBlocks+=block
     return GoodBlocks
 
-
-#####SHOWTIME######
-if len(argv) > 3:
-    for File in  arguments.targets:
+###SHOWTIME###
+if arguments.targets != None:
+    for File in  arguments.targets[0]:
         F = Fasta_Parser(File)
         FileName= File.split('.')
-        Out =open('Output.fasta', 'wb+')
+        Out =open('Output.fasta', 'a')
         Con = make_Consensus(F, T)
+        Res = Good_Blocks(Con, M) 
         Out.write('>' + FileName[0] + '\n')
-        Out.write(Con)
-        
+        Out.write(Res + '\n')
+    Out.close()
