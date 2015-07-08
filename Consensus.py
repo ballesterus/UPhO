@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-"""USAGE: python Consensus.py -t 0.5 -m 20 -f *.al """
-
 import argparse
 import re
 from sys import argv
@@ -23,7 +21,6 @@ def is_ID(Line):
         return True
     else:
         return False
-
                 
 def Fasta_Parser(File):
     """This function returns a dictionary containing FastaId(key) and Seqs"""
@@ -44,8 +41,6 @@ def Fasta_Parser(File):
     return Records
     F.close()
 
-
-
 def make_Consensus(Dict, T):
     '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a T% consensus'''
     Consensus=''
@@ -53,8 +48,7 @@ def make_Consensus(Dict, T):
         compo = []
         for seq in Dict.itervalues():
             site = seq[i]
-            if site != '-':
-                compo.append(site)
+            compo.append(site)
         N = len(compo)
         G = 0 
         MFB = ''
@@ -63,39 +57,46 @@ def make_Consensus(Dict, T):
             if freq > G:
                 G = freq
                 MFB = base
-        if G/N >= T:
+        if float(G)/N >= T:
             Consensus+=MFB
         else:
-            Consensus+='-'
+            Consensus+='N'
     return Consensus
 
 def Good_Blocks(Consensus, M):
-    '''Rhis funcion takes as inputs a consensus sequence and returns blocks of M contibuos base pairs in that consensus (Conserved sites of  a given length)'''
+    '''This funcion takes as inputs a consensus sequence and returns blocks of M contibuos base pairs in that consensus (Conserved sites of  a given length)'''
     GoodBlocks =''
     block = ''
     for site in Consensus:
-        if site !='-':
+        if site not in  ['-','N']:
             block+=site
-        elif site =='-' and len(block)>0:
+        elif site in ['-','N' ] and len(block)>0:
             if len(block) >= M:
-                GoodBlocks += block + '-'
+                GoodBlocks += block.upper() + site
                 block = ''
             else:
-                GoodBlocks += len(block) * '-' + '-'
+                GoodBlocks += block.lower() + site
                 block = ''
         else:
-            GoodBlocks += '-'   
-    GoodBlocks+=block
+            GoodBlocks += site
+            block = ''
+    GoodBlocks+=block.lower()
     return GoodBlocks
 
-###SHOWTIME###
+###MAIN###
 if arguments.targets != None:
+    Out =open('Output.fasta', 'w')
     for File in  arguments.targets[0]:
         F = Fasta_Parser(File)
         FileName= File.split('.')
-        Out =open('Output.fasta', 'a')
         Con = make_Consensus(F, T)
+#        print Con
         Res = Good_Blocks(Con, M) 
-        Out.write('>' + FileName[0] + '\n')
-        Out.write(Res + '\n')
+#        print Res
+        if re.search(r'[ACGT]+', Res):
+            print 'Consensus from orthogroup %s have conserevd regions' % FileName[0]
+            Out.write('>' + FileName[0] + '\n')
+            Out.write(Res + '\n')
+        else:
+            print 'Consensus from orthogroup %s does not look promissing' % FileName[0]
     Out.close()
