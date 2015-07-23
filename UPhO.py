@@ -8,7 +8,6 @@ import argparse
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When True, inparalogues will  be included as orthologues, default = False')
->>>>>>> 974fcb1d408c42c3246a62f8168bbac4af940d94
 parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
@@ -21,8 +20,7 @@ sep = '|'
 gsep = sep
 if sep in ['|', ':', '^', '?', '*']:
     gsep = '\\' + sep 
-    print gsep
-
+    #print gsep
 
 
 #CLASS AND FUNTION DEFINITION
