@@ -7,7 +7,7 @@ import argparse
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When True, inparalogues will  be included as orthologues, default = False')
-parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthogroups')
+parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimum number of taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
 #parser.add_argument('-t'. dest= 'Chopper', type = str, default = 'True', help ='When True orthologous branches are written to a newick file with the same topology and annogations than the original source tree.')
@@ -131,7 +131,7 @@ def ortho_prune(Phylo, minTax):
                 Otus.append(leaf.split(sep)[0])
             if len(set(Otus))==len(Otus) and len(Otus) >= minTax: # Eval orthologous split without inparalogues
                 OrthoBranch.append(leaves)
-            if len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs
+            if len(set(Otus)) == 1 and len(Otus) > 1: #find in-paralogs splits
                 for leaf in leaves:
                     ICost = 1.0/len(Otus)
                     if ICost < Phylo.costs[leaf]:
@@ -155,7 +155,7 @@ def ortho_prune(Phylo, minTax):
     #print OrthoBranch
     Phylo.ortho=OrthoBranch
 
-#PROGRAM BEGINS HERE
+#MAIN
 if __name__ == "__main__":
     if args.Trees == None:
         print 'ERROR: Trees are needed.'
