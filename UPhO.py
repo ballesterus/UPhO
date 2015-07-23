@@ -4,16 +4,24 @@ import os
 from sys import argv
 import argparse
 
-parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input treesa re provided  as a single newick  file or a list of many input files')
-parser.add_argument('-t', dest = 'Trees', type = str, default= 'None', nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
-parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When true, inparalogues will  be included as orthologues, default = False')
+
+parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
+parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
+parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When True, inparalogues will  be included as orthologues, default = False')
+>>>>>>> 974fcb1d408c42c3246a62f8168bbac4af940d94
 parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimus taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
+parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
+#parser.add_argument('-t'. dest= 'Chopper', type = str, default = 'True', help ='When True orthologous branches are written to a newick file with the same topology and annogations than the original source tree.')
 args = parser.parse_args()
 print args
 
 #GLOBAL VARIABLE. MODIFY IF NEEDED
 sep = '|'
+gsep = sep
+if sep in ['|', ':', '^', '?', '*']:
+    gsep = '\\' + sep 
+    print gsep
 
 
 
@@ -23,19 +31,24 @@ class myPhylo():
     '''A class for newick trees'''
     def __init__(self, N):
         self.leaves = get_leaves(N)
-        self.Dict = {} # dicionary of OTU (keys), and the Unique identifiers in the newick
+        self.Dict = {} # dictionary of OTU (keys), and the Unique identifiers in the newick
         self.splits = split_decomposition(N)
         self.ortho=[]
-        self.costs={}
+        self.costs={} # Dictionary of cost for inparalog evaluation'
         self.newick = N
         for leaf in self.leaves:
-            self.Dict[leaf.split(sep)[0]] = [] 
+            otu =leaf.split(sep)[0]
+            uid =leaf.split(sep)[1]
+            if otu not in self.Dict:
+                self.Dict[otu] = [] 
+            self.Dict[otu].append( uid )
             self.costs[leaf] = 1.0
-        for leaf in self.leaves:
-            self.Dict[leaf.split(sep)[0]].append(leaf.split(sep)[1])
-        
+
+
 def get_leaves(String):
-    Leaves =re.findall("[A-Z_a-z]+\|[0-9 A-Z a-z_]+", String)
+    pattern = r"[A-Z_a-z]+" + gsep + r"[0-9 A-Z a-z_]+"
+    Leaves =re.findall(pattern, String)
+
     return Leaves
 
 
@@ -128,7 +141,7 @@ def ortho_prune(Phylo, minTax):
                 for leaf in leaves:
                     ICost = 1.0/len(Otus)
                     if ICost < Phylo.costs[leaf]:
-                        Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to te number of inparalogues involved. 
+                        Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved. 
     if  args.inParalogs == 'True':
         for Split in Splits:
             SplitsVecs = Split.split('&')
