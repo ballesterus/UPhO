@@ -156,33 +156,34 @@ def ortho_prune(Phylo, minTax):
     Phylo.ortho=OrthoBranch
 
 #PROGRAM BEGINS HERE
-if args.Trees != None:
-    OrList = open('UPhO_Pruned.txt', 'w')
-    Total = 0
-    for tree in args.Trees:
-        name=tree.split('.')[0]
-        count = 0
-        with open(tree, 'r') as T:
-            for line in  T:
-                P = myPhylo(line)
-                ortNum=0
-                ortho_prune(P, args.Min)
-                #print P.ortho
-                for group in P.ortho:
-                    FName= '#%s_%d,' %(name,ortNum)
-                    G = ','.join(group)
-                    G = G.strip(',')
-                    OrList.write(FName + G + '\n')
-                    count += 1
-                    Total += 1
-                    ortNum += 1
-        print " %d orthogroups were found in the tree %s" % (count, tree)
-        T.close()
-    print 'Total  orthogroups found: %d' % Total
-    OrList.close()
-    if args.Reference != 'None':
-        from BlastResultsCluster import retrieve_fasta
-        print "Proceeding to create a fasta file for each ortholog"    
-        retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
-else:
-    print 'ERROR: Trees are needed.'
+if __name__ == "__main__":
+    if args.Trees == None:
+        print 'ERROR: Trees are needed.'
+    else:
+        OrList = open('UPhO_Pruned.txt', 'w')
+        Total = 0
+        for tree in args.Trees:
+            name=tree.split('.')[0]
+            count = 0
+            with open(tree, 'r') as T:
+                for line in  T:
+                    P = myPhylo(line)
+                    ortNum=0
+                    ortho_prune(P, args.Min)
+                    print P.ortho
+                    for group in P.ortho:
+                        FName= '#%s_%d,' %(name,ortNum)
+                        G = ','.join(group)
+                        G = G.strip(',')
+                        OrList.write(FName + G + '\n')
+                        count += 1
+                        Total += 1
+                        ortNum += 1
+            print " %d orthogroups were found in the tree %s" % (count, tree)
+            T.close()
+        print 'Total  orthogroups found: %d' % Total
+        OrList.close()
+        if args.Reference != 'None':
+            from BlastResultsCluster import retrieve_fasta
+            print "Proceeding to create a fasta file for each ortholog"    
+            retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
