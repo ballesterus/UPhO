@@ -4,6 +4,7 @@ import os
 from sys import argv
 import argparse
 
+
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'False', help ='When True, inparalogues will  be included as orthologues, default = False')
@@ -19,9 +20,10 @@ sep = '|'
 gsep = sep
 if sep in ['|', ':', '^', '?', '*']:
     gsep = '\\' + sep 
-    print gsep
+    #print gsep
 
-#CLASS AND FUNCTION DEFINITIONS
+
+#CLASS AND FUNTION DEFINITION
 
 class myPhylo():
     '''A class for newick trees'''
@@ -44,6 +46,7 @@ class myPhylo():
 def get_leaves(String):
     pattern = r"[A-Z_a-z]+" + gsep + r"[0-9 A-Z a-z_]+"
     Leaves =re.findall(pattern, String)
+
     return Leaves
 
 
@@ -64,6 +67,7 @@ def split_decomposition(newick):
     idc =0
     Pos =0
     closed = []
+    
     for l in newick:
         if l == '(':
             id +=1
@@ -78,7 +82,7 @@ def split_decomposition(newick):
         Pos+=1
 #    print P
     vecIns = []
-    for Key in P.iterkeys():#Find splits implied by the parenthesis grouping in newick
+    for Key in P.iterkeys():#Find splits inmplied bt the parenthesis in newick
         vec=newick[P[Key][0]: P[Key][1]]
         vec= get_leaves(vec)
         coVec = complement(vec,leaves)
@@ -155,6 +159,7 @@ def ortho_prune(Phylo, minTax):
     #print OrthoBranch
     Phylo.ortho=OrthoBranch
 
+<<<<<<< HEAD
 #MAIN
 if __name__ == "__main__":
     if args.Trees == None:
