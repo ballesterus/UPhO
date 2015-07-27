@@ -23,7 +23,7 @@ if sep in ['|', ':', '^', '?', '*']:
     #print gsep
 
 
-#CLASS AND FUNTION DEFINITION
+#CLASS AND FUNCTION DEFINITIONS
 
 class myPhylo():
     '''A class for newick trees'''
@@ -67,7 +67,6 @@ def split_decomposition(newick):
     idc =0
     Pos =0
     closed = []
-    
     for l in newick:
         if l == '(':
             id +=1
@@ -93,8 +92,7 @@ def split_decomposition(newick):
             vec = vec + coVec
             split = (','.join(vec))
             splits.append(split)
-    
-    for leaf in leaves:
+    for leaf in leaves:#Leaf splits
         vec=[leaf]
         coVec = complement(vec,leaves)
         if sorted(vec) not in vecIns and sorted(coVec) not in vecIns:
@@ -159,7 +157,7 @@ def ortho_prune(Phylo, minTax):
     #print OrthoBranch
     Phylo.ortho=OrthoBranch
 
-<<<<<<< HEAD
+
 #MAIN
 if __name__ == "__main__":
     if args.Trees == None:
@@ -192,3 +190,4 @@ if __name__ == "__main__":
             from BlastResultsCluster import retrieve_fasta
             print "Proceeding to create a fasta file for each ortholog"    
             retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
+B
