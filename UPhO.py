@@ -46,9 +46,7 @@ class myPhylo():
 def get_leaves(String):
     pattern = r"[A-Z_a-z]+" + gsep + r"[0-9 A-Z a-z_]+"
     Leaves =re.findall(pattern, String)
-
     return Leaves
-
 
 def complement(Sub, Whole):
     complement=[]
@@ -56,7 +54,6 @@ def complement(Sub, Whole):
         if i not in Sub:
             complement.append(i)
     return complement
-
 
 def split_decomposition(newick):
     'returns a list of splits'
@@ -104,7 +101,6 @@ def split_decomposition(newick):
             splits.append(split)
     return splits
 
-
 def deRedundance(LoL):
     '''Takes a list of list and returns a list where no list is a subset of the others'''
     NR =[]
@@ -117,7 +113,6 @@ def deRedundance(LoL):
         if score < 2:
             NR.append(L)
     return NR
-
 
 def ortho_prune(Phylo, minTax):
     OrthoBranch= []
@@ -157,7 +152,6 @@ def ortho_prune(Phylo, minTax):
     #print OrthoBranch
     Phylo.ortho=OrthoBranch
 
-
 #MAIN
 if __name__ == "__main__":
     if args.Trees == None:
@@ -190,4 +184,3 @@ if __name__ == "__main__":
             from BlastResultsCluster import retrieve_fasta
             print "Proceeding to create a fasta file for each ortholog"    
             retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
-B
