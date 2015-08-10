@@ -56,7 +56,7 @@ def complement(Sub, Whole):
     complement=[]
     for i in Whole:
         if i not in Sub:
-            complement.append(i)
+            complemeexnt.append(i)
     return complement
 
 def split_decomposition(Tree):
@@ -116,6 +116,7 @@ def split_decomposition(Tree):
                 print 'The terminal: %s  occurs %d times in the tree' % (leaf, len (BranchVals))
             Tree.splits.append(mySplits)
 
+            
 def LargestBox(LoL):
     '''Takes a list of list and returns a list where no list is a subset of the others, retaining only the largest'''
     NR =[]
@@ -124,7 +125,6 @@ def LargestBox(LoL):
         for J in LoL:
             if set(L).issubset(J):
                 score +=1
-        #print score
         if score < 2:
             NR.append(L)
     return NR
@@ -155,6 +155,8 @@ def ortho_prune(Phylo, minTax):
                         OrthoBranch.append(ob)
                 #print OrthoBranch
     Phylo.ortho=OrthoBranch
+
+
 #MAIN
 if __name__ == "__main__":
     OrList = open('UPhO_Pruned.txt', 'w')
