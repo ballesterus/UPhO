@@ -8,10 +8,9 @@ import argparse
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'True', help ='When True, inparalogues will  be included as orthologues, default = False')
-parser.add_argument('-m', dest= 'Min', type = int, default= '0', help ='Specify the minimum number of taxa to include in orthogroups')
+parser.add_argument('-m', dest= 'minTaxa', type = int, default= '0', help ='Specify the minimum number of taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
-parser.add_argument('-S', dest= 'Support', type = float, default = None, help='Specify a minimum support value for the ortholog split.')
-#parser.add_argument('-t'. dest= 'Chopper', type = str, default = 'True', help ='When True orthologous branches are written to a newick file with the same topology and annogations than the original source tree.')
+parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
 args = parser.parse_args()
 #print args
 
@@ -48,15 +47,14 @@ def get_leaves(String):
 
 def spp_in_list(alist):
     '''return the species from a list of sequece identifiers'''
-    spp = []
-    map((lambda x: spp.append(x.split(sep)[0])), alist )
+    spp = re.findall('([A-Z_a-z0-9]+)%s' %gsep , (',').join(alist))
     return spp
     
 def complement(Sub, Whole):
     complement=[]
     for i in Whole:
         if i not in Sub:
-            complemeexnt.append(i)
+            complement.append(i)
     return complement
 
 def split_decomposition(Tree):
@@ -115,7 +113,6 @@ def split_decomposition(Tree):
             else:
                 print 'The terminal: %s  occurs %d times in the tree' % (leaf, len (BranchVals))
             Tree.splits.append(mySplits)
-
             
 def LargestBox(LoL):
     '''Takes a list of list and returns a list where no list is a subset of the others, retaining only the largest'''
@@ -129,68 +126,53 @@ def LargestBox(LoL):
             NR.append(L)
     return NR
 
-def ortho_prune(Phylo, minTax):
+def ortho_prune(Phylo, minTaxa):
     OrthoBranch = []
-    for S in Phylo.splits:       
-        for i_split in [S.vec, S.covec]:
-            Otus = spp_in_list(i_split)
-            #print Otus
-            if len(set(Otus))==len(Otus) and len(Otus) >= minTax: # Eval orthologous split without inparalogues
-                ob = [i_split , S.support]
-                if ob not in OrthoBranch:
-                    OrthoBranch.append(ob)
-            if len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
-                for leaf in i_split:
-                    ICost = 1.0/len(Otus)
-                    if ICost < Phylo.costs[leaf]:
-                        Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved.
+    for S in Phylo.splits:
+        if S.support == None or S.support == '' or float(S.support) >= args.Support:
+            for i_split in [S.vec, S.covec]:
+                Otus = spp_in_list(i_split)
+                if len(set(Otus))==len(Otus) and len(set(Otus)) >= minTaxa: # Eval orthologous split without inparalogues
+                    if i_split not in OrthoBranch:
+                        OrthoBranch.append(i_split)
+                if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
+                    for leaf in i_split:
+                        ICost = 1.0/len(Otus)
+                        if ICost < Phylo.costs[leaf]:
+                            Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved.
     if  args.inParalogs == 'True':
         for S in Phylo.splits:
-            for i_split in [S.vec, S.covec]:
-                Otus =spp_in_list(i_split)
-                cCount = fsum(Phylo.costs[i] for i in i_split)
-                if len(set(Otus)) == cCount and cCount >= minTax:
-                    ob = [i_split, S.support]
-                    if ob not in OrthoBranch:
-                        OrthoBranch.append(ob)
-                #print OrthoBranch
-    Phylo.ortho=OrthoBranch
-
+            if S.support == None or S.support == '' or float(S.support) >= args.Support:
+                for i_split in [S.vec, S.covec]:
+                    Otus = spp_in_list(i_split)
+                    cCount = fsum(Phylo.costs[i] for i in i_split)
+                    if len(set(Otus)) == cCount and cCount >= minTaxa:
+                        if i_split not in OrthoBranch:
+                            OrthoBranch.append(i_split)
+    orthos = LargestBox(OrthoBranch)
+    Phylo.ortho=orthos
 
 #MAIN
 if __name__ == "__main__":
     OrList = open('UPhO_Pruned.txt', 'w')
     Total = 0
     for tree in args.Trees:
-        T = open(tree, 'r')
         name=tree.split('.')[0]
         count = 0
-        for line in  T:
-            P = myPhylo(line)
-            orthos= []
-            ortNum=0
-            ortho_prune(P, args.Min)
-            if args.Support != None:
-                for co in P.ortho:
-                     if co[1] == None or float(co[1]) >= args.Support:
-                         print '%r > %f' %(co[1], args.Support)
-                         orthos.append(co[0])
-                     else:
-                        print 'split rejected due to low support: %s' %co[1]
-            else:
-                for co in P.ortho:
-                    orthos.append(co[0])
-            orthos=LargestBox(orthos)               
-            for group in orthos:
-                FName= '#%s_%d,' %(name,ortNum)
-                G = ','.join(group)
-                G = G.strip(',')
-                OrList.write(FName + G + '\n')
-                count += 1
-                Total += 1
-                ortNum += 1
-            print " %d orthogroups were found in the tree %s" % (count, tree)
-        T.close()
+        with open(tree, 'r') as T:
+            for line in  T:
+                P = myPhylo(line)
+                ortho_prune(P, args.minTaxa)
+                ortNum=0
+                for group in P.ortho:
+                    FName= '#%s_%d,' %(name,ortNum)
+                    G = ','.join(group)
+                    G = G.strip(',')
+                    OrList.write(FName + G + '\n')
+                    count += 1
+                    Total += 1
+                    ortNum += 1
+        print " %d orthogroups were found in the tree %s" % (count, tree)
     print 'Total  orthogroups found: %d' % Total
     OrList.close()
     if args.Reference != 'None':
