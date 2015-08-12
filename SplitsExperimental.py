@@ -84,8 +84,8 @@ def split_decomposition(Tree):
     Inspected= []
     for Key in P.iterkeys():
         r_vec=newick[P[Key][0]: P[Key][1]]
-        vec = get_leaves(r_vec)
-        covec = complement(vec, Tree.leaves)
+        vec = sorted(get_leaves(r_vec))
+        covec = sorted(complement(vec, Tree.leaves))
         if vec not in Inspected or covec not in Inspected:
             mySplits = split()
             mySplits.vec = vec
@@ -98,11 +98,9 @@ def split_decomposition(Tree):
             Tree.splits.append(mySplits)
             Inspected.append(vec)
             Inspected.append(covec)
-        else:
-            print 'split already recognized'
     for leaf in leaves:
         vec=leaf
-        covec = complement(vec,leaves)
+        covec = sorted(complement(vec,leaves))
         if leaf not in Inspected:
             mySplits =split()
             mySplits.vec = [vec]
@@ -114,7 +112,7 @@ def split_decomposition(Tree):
             elif len(BranchVal) == 0:
                 print 'The input tree h[as no branch values'
             else:
-                print 'The terminal: %s  occurs %d times in the tree' % (leaf, len (BranchVals))
+                print 'Alert: The terminal: %s  occurs %d times in the tree' % (leaf, len (BranchVals))
             Tree.splits.append(mySplits)
             
 def LargestBox(LoL):
@@ -141,13 +139,13 @@ def orthologs(Phylo, minTaxa):
                         if ICost < Phylo.costs[leaf]:
                             Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved.
     for S in Phylo.splits:
-        if S.support == None or S.support == '' or float(S.support) >= args.Support:
+        if S.support in [None, ''] or float(S.support) >= args.Support:
             for i_split in [S.vec, S.covec]:
-                Otus = spp_in_list(i_split)
-                cCount = fsum(Phylo.costs[i] for i in i_split)
-                if len(set(Otus)) == cCount and cCount >= minTaxa:
-                    if i_split not in OrthoBranch:
-                        OrthoBranch.append(i_split)
+                    Otus = spp_in_list(i_split)
+                    cCount = fsum(Phylo.costs[i] for i in i_split)
+                    if len(set(Otus)) == cCount and cCount >= minTaxa:
+                        if i_split not in OrthoBranch:
+                            OrthoBranch.append(i_split)
     orthos = LargestBox(OrthoBranch)
     Phylo.ortho=orthos
     
