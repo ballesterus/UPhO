@@ -81,11 +81,12 @@ def split_decomposition(Tree):
         Pos+=1
 #    print P
 #Part II: Where we use regex and to identify components of each split.
+    Inspected= []
     for Key in P.iterkeys():
         r_vec=newick[P[Key][0]: P[Key][1]]
         vec = get_leaves(r_vec)
         covec = complement(vec, Tree.leaves)
-        if not any (sorted(vec) == sorted(S.vec) or sorted(vec) == sorted(S.covec) for S in Tree.splits):
+        if vec not in Inspected or covec not in Inspected:
             mySplits = split()
             mySplits.vec = vec
             mySplits.covec = covec
@@ -95,12 +96,14 @@ def split_decomposition(Tree):
                 mySplits.branch_length = BranchVal[0].split(':')[1]
                 mySplits.support = BranchVal[0].split(':')[0]
             Tree.splits.append(mySplits)
+            Inspected.append(vec)
+            Inspected.append(covec)
         else:
             print 'split already recognized'
     for leaf in leaves:
         vec=leaf
         covec = complement(vec,leaves)
-        if not any (leaf == S.vec or leaf == S.covec for S in Tree.splits):
+        if leaf not in Inspected:
             mySplits =split()
             mySplits.vec = [vec]
             mySplits.covec = covec
@@ -126,6 +129,28 @@ def LargestBox(LoL):
             NR.append(L)
     return NR
 
+def orthologs(Phylo, minTaxa):
+    OrthoBranch=[]
+    if args.inParalogs=='True':
+        for S in Phylo.splits:
+            for i_split in [S.vec, S.covec]:
+                Otus = spp_in_list(i_split)
+                if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
+                    for leaf in i_split:
+                        ICost = 1.0/len(Otus)
+                        if ICost < Phylo.costs[leaf]:
+                            Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved.
+    for S in Phylo.splits:
+        if S.support == None or S.support == '' or float(S.support) >= args.Support:
+            for i_split in [S.vec, S.covec]:
+                Otus = spp_in_list(i_split)
+                cCount = fsum(Phylo.costs[i] for i in i_split)
+                if len(set(Otus)) == cCount and cCount >= minTaxa:
+                    if i_split not in OrthoBranch:
+                        OrthoBranch.append(i_split)
+    orthos = LargestBox(OrthoBranch)
+    Phylo.ortho=orthos
+    
 def ortho_prune(Phylo, minTaxa):
     OrthoBranch = []
     for S in Phylo.splits:
@@ -162,7 +187,8 @@ if __name__ == "__main__":
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
-                ortho_prune(P, args.minTaxa)
+                #ortho_prune(P, args.minTaxa)
+                orthologs(P, args.minTaxa)
                 ortNum=0
                 for group in P.ortho:
                     FName= '#%s_%d,' %(name,ortNum)
