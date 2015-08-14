@@ -21,12 +21,14 @@ gsep=re.escape(sep)
 #CLASS DEFINITIONS
 class split():
     def __init__(self):
-        self.vec =None
-        self.covec=None
+        self.vecs=None
         self.branch_length=None
         self.support=None
         self.name=None
         
+    def vecs(self):
+        return [self.vec, self.covec]
+    
 class myPhylo():
     '''A class for newick trees'''
     def __init__(self, N):
@@ -38,6 +40,7 @@ class myPhylo():
         for leaf in self.leaves:
              self.costs[leaf] = 1.0
         split_decomposition(self)   
+
 #FUNCTION DEFINITIONS
 
 def get_leaves(String):
@@ -79,8 +82,7 @@ def split_decomposition(Tree):
             P[idc].append(Pos)
             closed.append(idc)
         Pos+=1
-#    print P
-#Part II: Where we use regex and to identify components of each split.
+#Part II: Where we use string operations  and to identify components parts of each split.
     Inspected= []
     for Key in P.iterkeys():
         r_vec=newick[P[Key][0]: P[Key][1]]
@@ -88,8 +90,7 @@ def split_decomposition(Tree):
         covec = sorted(complement(vec, Tree.leaves))
         if vec not in Inspected or covec not in Inspected:
             mySplits = split()
-            mySplits.vec = vec
-            mySplits.covec = covec
+            mySplits.vecs = [vec, covec]
             exp = re.escape(r_vec) + r'\)([0-9\.]+\:[0-9\.]+)'
             BranchVal=re.findall(exp, Tree.newick)
             if len(BranchVal) == 1:
@@ -99,12 +100,12 @@ def split_decomposition(Tree):
             Inspected.append(vec)
             Inspected.append(covec)
     for leaf in leaves:
-        vec=leaf
+        vec=[leaf]
         covec = sorted(complement(vec,leaves))
         if leaf not in Inspected:
+            Inspected.append(leaf)
             mySplits =split()
-            mySplits.vec = [vec]
-            mySplits.covec = covec
+            mySplits.vecs = [vec, covec]
             exp = re.escape(leaf) + r'\:([0-9\.]+)'
             BranchVal =  re.findall(exp, Tree.newick)
             if len(BranchVal) == 1:
@@ -131,7 +132,7 @@ def orthologs(Phylo, minTaxa):
     OrthoBranch=[]
     if args.inParalogs=='True':
         for S in Phylo.splits:
-            for i_split in [S.vec, S.covec]:
+            for i_split in S.vecs:
                 Otus = spp_in_list(i_split)
                 if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
                     for leaf in i_split:
@@ -140,12 +141,12 @@ def orthologs(Phylo, minTaxa):
                             Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved.
     for S in Phylo.splits:
         if S.support in [None, ''] or float(S.support) >= args.Support:
-            for i_split in [S.vec, S.covec]:
-                    Otus = spp_in_list(i_split)
-                    cCount = fsum(Phylo.costs[i] for i in i_split)
-                    if len(set(Otus)) == cCount and cCount >= minTaxa:
-                        if i_split not in OrthoBranch:
-                            OrthoBranch.append(i_split)
+            for i_split in S.vecs:
+                Otus = spp_in_list(i_split)
+                cCount = fsum(Phylo.costs[i] for i in i_split)
+                if len(set(Otus)) == cCount and cCount >= minTaxa:
+                    if i_split not in OrthoBranch:
+                        OrthoBranch.append(i_split)
     orthos = LargestBox(OrthoBranch)
     Phylo.ortho=orthos
     
@@ -153,7 +154,7 @@ def ortho_prune(Phylo, minTaxa):
     OrthoBranch = []
     for S in Phylo.splits:
         if S.support == None or S.support == '' or float(S.support) >= args.Support:
-            for i_split in [S.vec, S.covec]:
+            for i_split in S.vecs:
                 Otus = spp_in_list(i_split)
                 if len(set(Otus))==len(Otus) and len(set(Otus)) >= minTaxa: # Eval orthologous split without inparalogues
                     if i_split not in OrthoBranch:
@@ -175,6 +176,17 @@ def ortho_prune(Phylo, minTaxa):
     orthos = LargestBox(OrthoBranch)
     Phylo.ortho=orthos
 
+
+    
+def subNewick(alist, myPhylo):
+ '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
+    splits = set()
+    map(splits.add,[split for  split in myPhylo.split[i].vecs for i in range(0,len(myPhylo.splits))])
+    [splits.add(myPhylo.splits[].vecs[])H]
+      filter(set.issubset(alist), x =  )
+    
+
+    
 #MAIN
 if __name__ == "__main__":
     OrList = open('UPhO_Pruned.txt', 'w')
