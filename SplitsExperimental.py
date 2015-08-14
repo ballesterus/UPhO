@@ -177,14 +177,14 @@ def ortho_prune(Phylo, minTaxa):
     Phylo.ortho=orthos
 
 
-    
+"""   
 def subNewick(alist, myPhylo):
  '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
     splits = set()
     map(splits.add,[split for  split in myPhylo.split[i].vecs for i in range(0,len(myPhylo.splits))])
     [splits.add(myPhylo.splits[].vecs[])H]
       filter(set.issubset(alist), x =  )
-    
+   """
 
     
 #MAIN
