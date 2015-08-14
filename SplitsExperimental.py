@@ -8,7 +8,7 @@ import argparse
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'True', help ='When True, inparalogues will  be included as orthologues, default = False')
-parser.add_argument('-m', dest= 'minTaxa', type = int, default= '0', help ='Specify the minimum number of taxa to include in orthogroups')
+parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa to include in orthogroups')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
 args = parser.parse_args()
@@ -177,19 +177,15 @@ def ortho_prune(Phylo, minTaxa):
     Phylo.ortho=orthos
 
 
-"""   
+"""
 def subNewick(alist, myPhylo):
- '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
-    splits = set()
-    map(splits.add,[split for  split in myPhylo.split[i].vecs for i in range(0,len(myPhylo.splits))])
-    [splits.add(myPhylo.splits[].vecs[])H]
-      filter(set.issubset(alist), x =  )
-   """
-
+    '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
+    result = ''
+"""
     
 #MAIN
 if __name__ == "__main__":
-    OrList = open('UPhO_Pruned.txt', 'w')
+    OrList = open('UPhO_Pruned.csv', 'w')
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
@@ -202,8 +198,7 @@ if __name__ == "__main__":
                 ortNum=0
                 for group in P.ortho:
                     FName= '#%s_%d,' %(name,ortNum)
-                    G = ','.join(group)
-                    G = G.strip(',')
+                    G = ','.join(group).strip(',')
                     OrList.write(FName + G + '\n')
                     count += 1
                     Total += 1
