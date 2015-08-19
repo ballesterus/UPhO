@@ -44,7 +44,7 @@ class myPhylo():
 #FUNCTION DEFINITIONS
 
 def get_leaves(String):
-    pattern = r"[(,]([A-Z _ a-z 0-9]+" + gsep + r"[0-9 A-Z a-z _ ]+)[:,)]"
+    pattern = "[A-Za-z0-9_]+%s[A-Za-z0-9_]+" %gsep
     Leaves =re.findall(pattern, String)
     return Leaves
 
@@ -88,10 +88,10 @@ def split_decomposition(Tree):
         r_vec=newick[P[Key][0]: P[Key][1]]
         vec = sorted(get_leaves(r_vec))
         covec = sorted(complement(vec, Tree.leaves))
-        if vec not in Inspected or covec not in Inspected:
+        if vec not in Inspected and covec not in Inspected:
             mySplits = split()
             mySplits.vecs = [vec, covec]
-            exp = re.escape(r_vec) + r'\)([0-9\.]+\:[0-9\.]+)'
+            exp = re.escape(r_vec) + r'\)([0-9\.]*:[0-9\.]+)'
             BranchVal=re.findall(exp, Tree.newick)
             if len(BranchVal) == 1:
                 mySplits.branch_length = BranchVal[0].split(':')[1]
@@ -151,40 +151,39 @@ def orthologs(Phylo, minTaxa):
                         OrthoBranch.append(i_split)
     orthos = LargestBox(OrthoBranch)
     Phylo.ortho=orthos
-    
-def ortho_prune(Phylo, minTaxa):
-    OrthoBranch = []
-    for S in Phylo.splits:
-        if S.support == None or S.support == '' or float(S.support) >= args.Support:
-            for i_split in S.vecs:
-                Otus = spp_in_list(i_split)
-                if len(set(Otus))==len(Otus) and len(set(Otus)) >= minTaxa: # Eval orthologous split without inparalogues
-                    if i_split not in OrthoBranch:
-                        OrthoBranch.append(i_split)
-                if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
-                    for leaf in i_split:
-                        ICost = 1.0/len(Otus)
-                        if ICost < Phylo.costs[leaf]:
-                            Phylo.costs[leaf] = ICost #Reduce count value of inparlogue copies in poportion to the number of inparalogs involved.
-    if  args.inParalogs == 'True':
-        for S in Phylo.splits:
-            if S.support == None or S.support == '' or float(S.support) >= args.Support:
-                for i_split in [S.vec, S.covec]:
-                    Otus = spp_in_list(i_split)
-                    cCount = fsum(Phylo.costs[i] for i in i_split)
-                    if len(set(Otus)) == cCount and cCount >= minTaxa:
-                        if i_split not in OrthoBranch:
-                            OrthoBranch.append(i_split)
-    orthos = LargestBox(OrthoBranch)
-    Phylo.ortho=orthos
 
+def aggregate_splits(small,large):
+    aggregate=large
+    contents = get_leaves(small)
+    placeholder= contents.pop()
+    for i in contents:
+        aggregate=aggregate.replace(i+',', "")
+    aggregate = aggregate.replace(placeholder, small)
+    return aggregate
 
-"""
 def subNewick(alist, myPhylo):
     '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
-    result = ''
-"""
-    
+    relevant = []
+    root =''
+    for split in myPhylo.splits:
+        for vec in split.vecs:
+            if set(vec).issubset(set(alist)) and len(vec) > 0:
+                if  len (vec) == len(alist):
+                    root =  "(%s)%s:%s" %(','.join(vec), str(split.support), str(split.branch_length))
+                    break
+                elif  len (vec) == 1:
+                    rep = '%s:%s' %(vec[0], str(split.branch_length))
+                else:
+                    rep =  "(%s)%s:%s" %(','.join(vec), str(split.support), str(split.branch_length))
+                relevant.append(rep)
+    print relevant
+    partial = root
+    for e in relevant:
+            partial = aggregate_splits(e, partial)
+    partial = re.sub('None:', ':', partial)
+    partial = re.sub(':None', ':1', partial)
+    return partial
+ 
 #MAIN
 if __name__ == "__main__":
     OrList = open('UPhO_Pruned.csv', 'w')
