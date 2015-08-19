@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(description='This script to prune orthologs fro
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'True', help ='When True, inparalogues will  be included as orthologues, default = False')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa to include in orthogroups')
+parser.add_argument('-t', dest='trees', type=str, default ='False', help ='toggle true to produce a newick file with the orthobranches in newick format')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
 args = parser.parse_args()
@@ -157,27 +158,27 @@ def aggregate_splits(small,large):
     contents = get_leaves(small)
     placeholder= contents.pop()
     for i in contents:
-        aggregate=aggregate.replace(i+',', "")
+        aggregate=aggregate.replace(i + ',', "")
     aggregate = aggregate.replace(placeholder, small)
     return aggregate
 
 def subNewick(alist, myPhylo):
     '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
     relevant = []
-    root =''
+    seed =''
     for split in myPhylo.splits:
         for vec in split.vecs:
             if set(vec).issubset(set(alist)) and len(vec) > 0:
                 if  len (vec) == len(alist):
-                    root =  "(%s)%s:%s" %(','.join(vec), str(split.support), str(split.branch_length))
-                    break
+                    seed =  "(%s)%s:%s;" %(','.join(vec), str(split.support), str(split.branch_length))
                 elif  len (vec) == 1:
                     rep = '%s:%s' %(vec[0], str(split.branch_length))
+                    relevant.append(rep)
                 else:
                     rep =  "(%s)%s:%s" %(','.join(vec), str(split.support), str(split.branch_length))
-                relevant.append(rep)
-    print relevant
-    partial = root
+                    relevant.append(rep)
+    partial = seed
+    relevant = sorted(relevant, key=len, reverse=True) # order is important
     for e in relevant:
             partial = aggregate_splits(e, partial)
     partial = re.sub('None:', ':', partial)
@@ -186,7 +187,8 @@ def subNewick(alist, myPhylo):
  
 #MAIN
 if __name__ == "__main__":
-    OrList = open('UPhO_Pruned.csv', 'w')
+    OrtList = open('UPhO_orthogroups.csv', 'w')
+    OrtBranch=open('UPhO_branches.tre', 'w')
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
@@ -200,13 +202,16 @@ if __name__ == "__main__":
                 for group in P.ortho:
                     FName= '#%s_%d,' %(name,ortNum)
                     G = ','.join(group).strip(',')
-                    OrList.write(FName + G + '\n')
+                    OrtList.write(FName + G + '\n')
+                    branch = subNewick(group, P)
+                    OrtBranch.write(branch + '\n')
                     count += 1
                     Total += 1
                     ortNum += 1
         print " %d orthogroups were found in the tree %s" % (count, tree)
     print 'Total  orthogroups found: %d' % Total
-    OrList.close()
+    OrtList.close()
+    OrtBranch.close()
     if args.Reference != 'None':
         from BlastResultsCluster import retrieve_fasta
         print "Proceeding to create a fasta file for each ortholog"    
