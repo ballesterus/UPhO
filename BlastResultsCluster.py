@@ -8,10 +8,10 @@ import glob
 parser = argparse.ArgumentParser(description='This scrip produces clusters of homologs from a csv formatted blast output file.')
 parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Blast output file to process, if no input is provided the program will try to process a file with extension "csv" in the working diretory.')
 parser.add_argument('-s', dest= 'separator', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
-parser.add_argument('-t', dest= 'type',  type =str, default= 'r', help ='Specify teh type cluster to form, option are to create  clusters wit redundancy in OTUs (r) or find only single copy clusters(sc).')
+parser.add_argument('-t', dest= 'type',  type =str, default= 'r', help ='Specify the type cluster to form, option are to create  clusters wit redundancy in OTUs (r) or find only single copy clusters(sc).')
 parser.add_argument('-mcl', dest= 'mcl', type = str, default= 'False', help = 'When true, a "abc" file is produce for use in mcl.')
-parser.add_argument('-e', dest='expectation', type=str, default = '1e-5', help ='Additional expectation value trhreshold, default 1e-5')
-parser.add_argument('-m', dest='minTaxa', type=str, default = '4', help = 'minimum number of different taxa to keep in each cluster')
+parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value trhreshold, default 1e-5')
+parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different taxa to keep in each cluster')
 parser.add_argument('-R', dest='reference', type=str, default = 'All.fasta', help= 'Name of the master file from where to extract fastas into cluster files, if non is provided thi is asumed to be a file named "All.fasta" in the working directory')
 args = parser.parse_args()
 
@@ -55,27 +55,24 @@ def clusters(blastout, expectation):
 			else:
 				myOut.write(", " + subjectId)
 
-def non_redundant(reference, minTaxa):
+def non_redundant(cluster, minTaxa):
         """This function filters out clusters with redundant species. Takes as input a cluster file, like the one produces by the fuction clusters, and a minimum number of different species"""
 
-	inFile = open(reference, 'rw')
-	outFile =open("non_redundants.txt", "w")
+	inFile = open(cluster, 'rw')
+	outFile =open("ClustNR_m%d.txt" %minTaxa, "w")
         SetsInspected = []
         for line in inFile:
                 spp = re.findall(r'([A-Z_a-z0-9]+)%s' %gsep, line)
                 SeqIds = line.strip('\n').split(', ')
-                nr = set(spp)
-                if len(spp) == len(nr) and len(spp) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
+                if len(spp) == len(set(spp)) and len(spp) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
                         SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
-        print SetsInspected
-        print len(SetsInspected)
         outFile.close()
 				
-def redundant(reference, minTaxa):
+def redundant(cluster, minTaxa):
         """Proudeces homolog-groups with at least N different OTU's, allowing redundancy but removing groups made of exclusively one OTU """
-        inFile = open(reference, "rw")
-	outFile =open("redundants.txt", "w" )
+        inFile = open(cluster, "rw")
+	outFile =open("ClustR_m%d.txt" %minTaxa, "w" )
         SetsInspected = []
         for line in inFile:
 		spp = re.findall(r'([A-Z0-9_a-z]+)%s' % gsep, line )
@@ -121,9 +118,9 @@ if __name__ == "__main__":
 		csvs=glob.glob("*.csv")
 		if len(csvs) > 0:
 			csv = csvs[0]
-			print 'No blast provided the file %s in the wd will be tried' % csv
+			print 'No blast output  provided the file %s in the wd will be tried' % csv
 		else:
-			print 'Error: A blast output file is required to produce clusters. None provided!'
+			print 'Error: A blast output file is required to produce clusters. None available!'
 	else:
 		csv = args.input
 	if args.mcl == 'True':
@@ -139,6 +136,6 @@ if __name__ == "__main__":
 			retrieve_fasta('redundants.txt','ClusteRs', 'bcl', args.reference )
 		
 		elif args.type =='sc':
-			non_redundant(clustFile, args.minTaxa,'nr', args.expectation)
+			non_redundant(clustFile, args.minTaxa)
 			retrieve_fasta('non_redundants.txt','ClusteRs', 'bcl', arg.reference )
 
