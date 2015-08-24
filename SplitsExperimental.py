@@ -6,11 +6,11 @@ from math import fsum
 import argparse
 
 parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
-parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
-parser.add_argument('-iP', dest= 'inParalogs', type =str, default= 'True', help ='When True, inparalogues will  be included as orthologues, default = False')
+parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False', required = True)
+parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When the flag is present, inparalogues will  be included as orthologues, default = False')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa to include in orthogroups')
-parser.add_argument('-t', dest='trees', type=str, default ='False', help ='toggle true to produce a newick file with the orthobranches in newick format')
-parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
+parser.add_argument('-ouT', dest='outtrees', action = 'store_true', default =False, help ='When this flag is present pruned orthogroups will be witten to a file with the orthobranches in newick format')
+parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
 args = parser.parse_args()
 #print args
@@ -26,10 +26,7 @@ class split():
         self.branch_length=None
         self.support=None
         self.name=None
-        
-    def vecs(self):
-        return [self.vec, self.covec]
-    
+
 class myPhylo():
     '''A class for newick trees'''
     def __init__(self, N):
@@ -94,9 +91,8 @@ def split_decomposition(Tree):
             mySplits.vecs = [vec, covec]
             exp = re.escape(r_vec) + r'\)([0-9\.]*:[0-9\.]+)'
             BranchVal=re.findall(exp, Tree.newick)
-            if len(BranchVal) == 1:
-                mySplits.branch_length = BranchVal[0].split(':')[1]
-                mySplits.support = BranchVal[0].split(':')[0]
+            mySplits.branch_length = BranchVal[0].split(':')[1]
+            mySplits.support = BranchVal[0].split(':')[0]
             Tree.splits.append(mySplits)
             Inspected.append(vec)
             Inspected.append(covec)
@@ -109,12 +105,7 @@ def split_decomposition(Tree):
             mySplits.vecs = [vec, covec]
             exp = re.escape(leaf) + r'\:([0-9\.]+)'
             BranchVal =  re.findall(exp, Tree.newick)
-            if len(BranchVal) == 1:
-                mySplits.branch_length = BranchVal[0]
-            elif len(BranchVal) == 0:
-                print 'The input tree h[as no branch values'
-            else:
-                print 'Alert: The terminal: %s  occurs %d times in the tree' % (leaf, len (BranchVals))
+            mySplits.branch_length = BranchVal[0]
             Tree.splits.append(mySplits)
             
 def LargestBox(LoL):
@@ -132,7 +123,7 @@ def LargestBox(LoL):
 def orthologs(Phylo, minTaxa):
     OrthoBranch=[]
     #if in paralogs are to be included, update cost parameter per terminals. 
-    if args.inParalogs=='True':
+    if args.inParalogs:
         for S in Phylo.splits:
             if S.support in [None, ''] or float(S.support) >= args.Support:
                 for i_split in S.vecs:
@@ -185,10 +176,7 @@ def subNewick(alist, myPhylo):
     partial = re.sub(':None', ':1', partial)
     return partial
  
-#MAIN
-if __name__ == "__main__":
-    OrtList = open('UPhO_orthogroups.csv', 'w')
-    OrtBranch=open('UPhO_branches.tre', 'w')
+def main_wTrees ():
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
@@ -196,23 +184,53 @@ if __name__ == "__main__":
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
-                #ortho_prune(P, args.minTaxa)
+                orthologs(P, args.minTaxa)
+                ortNum=0
+                for group in P.ortho:
+                    FName= '#%s_%d,' %(name,ortNum)
+                    OrtBranch=open('%s_%s.tre' %(name,ortNum), 'w')
+                    G = ','.join(group).strip(',')
+                    OrtList.write(FName + G + '\n')
+                    branch = subNewick(group, P)
+                    OrtBranch.write(branch + '\n')
+                    print "subtree  written to: %s_%s.tre" %(name,ortNum)
+                    count += 1
+                    Total += 1
+                    ortNum += 1
+                    OrtBranch.close()
+
+        print "%d orthogroups were found in the tree file %s" % (count, tree)
+    print 'Total  orthogroups found: %d' % Total
+                            
+def main():
+    Total = 0
+    for tree in args.Trees:
+        name=tree.split('.')[0]
+        count = 0
+        with open(tree, 'r') as T:
+            for line in  T:
+                P = myPhylo(line)
                 orthologs(P, args.minTaxa)
                 ortNum=0
                 for group in P.ortho:
                     FName= '#%s_%d,' %(name,ortNum)
                     G = ','.join(group).strip(',')
                     OrtList.write(FName + G + '\n')
-                    branch = subNewick(group, P)
-                    OrtBranch.write(branch + '\n')
                     count += 1
                     Total += 1
                     ortNum += 1
-        print " %d orthogroups were found in the tree %s" % (count, tree)
-    print 'Total  orthogroups found: %d' % Total
+        print "%d orthogroups were found in the tree file %s" % (count, tree)
+
+#MAIN
+if __name__ == "__main__":
+    print  "Begining orthology assesment. Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 
+    OrtList = open('UPhO_orthogroups.csv', 'w')
+    if not args.outtrees:
+        main()
+    else:
+        main_wTrees()
     OrtList.close()
-    OrtBranch.close()
-    if args.Reference != 'None':
+    if args.Reference != None:
         from BlastResultsCluster import retrieve_fasta
         print "Proceeding to create a fasta file for each ortholog"    
         retrieve_fasta( 'UPhO_Pruned.txt','uPhOrthogs','upho', args.Reference)
