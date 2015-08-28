@@ -5,7 +5,7 @@ from sys import argv
 from math import fsum
 import argparse
 
-parser = argparse.ArgumentParser(description='This script to prune orthologs from gene trees. Input trees are provided  as a single newick file with one or more trees or a list of many input files')
+parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using unrooted phylogenetic orthology criterion. Input trees are provided as a newick file with one or more trees or a list of many input files.')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False', required = True)
 parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When the flag is present, inparalogues will  be included as orthologues, default = False')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa to include in orthogroups')
@@ -35,7 +35,7 @@ class myPhylo():
         self.ortho=[]
         self.costs={} # Dictionary of leaf cost for inparalog evaluation'
         self.newick = N
-        for leaf in self.leaves:
+        for leaf in self.leaves: #Cost initilized
              self.costs[leaf] = 1.0
         split_decomposition(self)   
 
