@@ -70,7 +70,7 @@ def non_redundant(cluster, minTaxa):
         outFile.close()
 				
 def redundant(cluster, minTaxa):
-        """Proudeces homolog-groups with at least N different OTU's, allowing redundancy but removing groups made of exclusively one OTU """
+        """Produces homolog-groups with at least N different OTU's, allowing redundancy but removing groups including less than a minimum different OTUs """
         inFile = open(cluster, "rw")
 	outFile =open("ClustR_m%d.txt" %minTaxa, "w" )
         SetsInspected = []
