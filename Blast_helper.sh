@@ -30,7 +30,7 @@ function CreateBlastDB()
 function AllvsAll ()
 {
     echo 'Starting All vs All'
-    cat $input | parallel   --block 100k --pipe --recstart '>' blastp -evalue 0.01 -outfmt 10 -db local_db/localDB -query - > AllvsAll_results.ocsv
+    cat $input | parallel   --block 100k --pipe --recstart '>' blastp -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > AllvsAll_results.ocsv
 
 }
 

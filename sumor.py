@@ -8,7 +8,7 @@ import shutil
 import readline
 import ete2
 
-'''This script contains functions to summarize the distribution of orthologous on a tree and auziliary fuction. These fuctions can be imported into the interpreted and ran interactively or through a helper script.'''
+'''This script contains functions to summarize the distribution of orthologous on a tree and auxiliary fuction. These fuctions can be imported into the interpreted and ran interactively or accessed through a helper script.'''
 
 readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
@@ -152,7 +152,7 @@ def No_OG_subsets(File):
     F.close()
 
 def line_writer(P_attern):
-    '''Creates OG summary file, for Tree orthology annotation'''
+    '''Creates OG summary file, for Tree orthology annotation from tree files in current working directory.'''
     Output = open('OG_summary.csv', 'w')
     Output.write('OGnumber,Species_code,Seq_Id\n')
     for file in glob.glob('*%s' % P_attern):
