@@ -6,7 +6,7 @@ from math import fsum
 import argparse
 
 parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using unrooted phylogenetic orthology criterion. Input trees are provided as a newick file with one or more trees or a list of many input files.')
-parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False', required = True)
+parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
 parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When the flag is present, inparalogues will  be included as orthologues, default = False')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa to include in orthogroups')
 parser.add_argument('-ouT', dest='outtrees', action = 'store_true', default =False, help ='When this flag is present pruned orthogroups will be witten to a file with the orthobranches in newick format')
@@ -42,13 +42,15 @@ class myPhylo():
 #FUNCTION DEFINITIONS
 
 def get_leaves(String):
-    pattern = "[A-Za-z0-9_]+%s[A-Za-z0-9_]+" %gsep
-    Leaves =re.findall(pattern, String)
+    pattern = "([A-Za-z0-9_]+%s[A-Za-z0-9_%s]+)" % (gsep, gsep)
+    Leaves = re.findall(pattern, String)
     return Leaves
 
 def spp_in_list(alist):
     '''return the species from a list of sequece identifiers'''
-    spp = re.findall('([A-Z_a-z0-9]+)%s' %gsep , (',').join(alist))
+    spp =[]
+    for i in alist:
+        spp.append(i.split(sep)[0])
     return spp
     
 def complement(Sub, Whole):
@@ -76,7 +78,6 @@ def split_decomposition(Tree):
             idc = ids
             while idc in closed and idc != 0:
                 idc = idc-1
-                #print idc
             P[idc].append(Pos)
             closed.append(idc)
         Pos+=1
@@ -91,8 +92,11 @@ def split_decomposition(Tree):
             mySplits.vecs = [vec, covec]
             exp = re.escape(r_vec) + r'\)([0-9\.]*:[0-9\.]+)'
             BranchVal=re.findall(exp, Tree.newick)
-            mySplits.branch_length = BranchVal[0].split(':')[1]
-            mySplits.support = BranchVal[0].split(':')[0]
+            try: 
+                mySplits.branch_length = BranchVal[0].split(':')[1]
+                mySplits.support = BranchVal[0].split(':')[0]
+            except:
+                print 'No branch value'
             Tree.splits.append(mySplits)
             Inspected.append(vec)
             Inspected.append(covec)
@@ -105,11 +109,14 @@ def split_decomposition(Tree):
             mySplits.vecs = [vec, covec]
             exp = re.escape(leaf) + r'\:([0-9\.]+)'
             BranchVal =  re.findall(exp, Tree.newick)
-            mySplits.branch_length = BranchVal[0]
+            try:
+                mySplits.branch_length = BranchVal[0]
+            except:
+                print "No branch value"
             Tree.splits.append(mySplits)
             
 def LargestBox(LoL):
-    '''Takes a list of list and returns a list where no list is a subset of the others, retaining only the largest'''
+    '''Takes a list of lists (lol) and returns a lol where no list is a subset of the others, retaining only the largest'''
     NR =[]
     for L in LoL:
         score=0
@@ -145,16 +152,17 @@ def orthologs(Phylo, minTaxa):
     Phylo.ortho=orthos
 
 def aggregate_splits(small,large):
+    """Takes two newick like splits where small is a subset of large and returns partial newick incluiding the two input groupings"""
     aggregate=large
     contents = get_leaves(small)
     placeholder= contents.pop()
-    for i in contents:
+    for i in contents: #remove from aggregate all leaves in small except the placeholder
         aggregate=aggregate.replace(i + ',', "")
-    aggregate = aggregate.replace(placeholder, small)
+    aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
 def subNewick(alist, myPhylo):
-    '''this fuction takkes a list of split members and source tree, returning the newick subtree'''
+    '''this fuction takes a list of split members and source tree, returning the newick subtree'''
     relevant = []
     seed =''
     for split in myPhylo.splits:
@@ -171,7 +179,7 @@ def subNewick(alist, myPhylo):
     partial = seed
     relevant = sorted(relevant, key=len, reverse=True) # order is important
     for e in relevant:
-            partial = aggregate_splits(e, partial)
+        partial = aggregate_splits(e, partial)
     partial = re.sub('None:', ':', partial)
     partial = re.sub(':None', ':1', partial)
     return partial
