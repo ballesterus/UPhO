@@ -5,18 +5,19 @@ from sys import argv
 from math import fsum
 import argparse
 
-parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using unrooted phylogenetic orthology criterion. Input trees are provided as a newick file with one or more trees or a list of many input files.')
-parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format), required =False')
-parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When the flag is present, inparalogues will  be included as orthologues, default = False')
-parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa to include in orthogroups')
-parser.add_argument('-ouT', dest='outtrees', action = 'store_true', default =False, help ='When this flag is present pruned orthogroups will be witten to a file with the orthobranches in newick format')
-parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
-parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the ortholog split.')
+parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using un-rooted phylogenetic orthology criterion. Input trees are provided as a newick file(s) with one or more trees.')
+parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'file or files to prune wirth tree in newick format.')
+parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When the flag is present, inparalogues will  be included as orthologues, default = False.')
+parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of taxa for orthogroup evaluation.')
+parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='When this flag is present  orthobranches  will be witten to its own file in newick format.')
+parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='If provided this argument points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires BlastResultsCluster.py and its dependencies.')
+parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the orthology evaluation.')
+parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species should be the first element for proper parsing. Default is: "|".')
 args = parser.parse_args()
 #print args
 
 #GLOBAL VARIABLES. MODIFY IF NEEDED
-sep='|'
+sep=args.delimiter
 gsep=re.escape(sep)
 
 #CLASS DEFINITIONS
@@ -54,6 +55,7 @@ def spp_in_list(alist):
     return spp
     
 def complement(Sub, Whole):
+    """Return element in Whole that are not present in Sub"""
     complement=[]
     for i in Whole:
         if i not in Sub:
@@ -83,10 +85,10 @@ def split_decomposition(Tree):
         Pos+=1
 #Part II: Where we use string operations  and to identify components parts of each split.
     Inspected= []
-    for Key in P.iterkeys():
+    for Key in P.iterkeys(): # this extracs splits from the parenthethical notattion using the parenthesis mapping dictionary.
         r_vec=newick[P[Key][0]: P[Key][1]]
         vec = sorted(get_leaves(r_vec))
-        covec = sorted(complement(vec, Tree.leaves))
+        covec = sorted(complement(vec, Tree.leaves)) #Complementary splits are inferred as the set of leaves not included in the parenthesis grouping.
         if vec not in Inspected and covec not in Inspected:
             mySplits = split()
             mySplits.vecs = [vec, covec]
@@ -100,7 +102,7 @@ def split_decomposition(Tree):
             Tree.splits.append(mySplits)
             Inspected.append(vec)
             Inspected.append(covec)
-    for leaf in leaves:
+    for leaf in leaves: #Splits leading to each terminal are included.
         vec=[leaf]
         covec = sorted(complement(vec,leaves))
         if leaf not in Inspected:
@@ -128,6 +130,7 @@ def LargestBox(LoL):
     return NR
 
 def orthologs(Phylo, minTaxa):
+    """This function returns populates the list of orthologs in the PhyloClass object"""
     OrthoBranch=[]
     #if in paralogs are to be included, update cost parameter per terminals. 
     if args.inParalogs:
@@ -139,7 +142,7 @@ def orthologs(Phylo, minTaxa):
                         for leaf in i_split:
                             ICost = 1.0/len(Otus)
                             if ICost < Phylo.costs[leaf]:
-                                Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs involved.
+                                Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs inplied by this split.
     for S in Phylo.splits:
         if S.support in [None, ''] or float(S.support) >= args.Support:
             for i_split in S.vecs:
@@ -233,7 +236,7 @@ def main():
 if __name__ == "__main__":
     print  "Begining orthology assesment. Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 
     OrtList = open('UPhO_orthogroups.csv', 'w')
-    if not args.outtrees:
+    if not args.out_trees:
         main()
     else:
         main_wTrees()
