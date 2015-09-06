@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser(description='This scrip produces clusters of ho
 parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Blast output file to process, if no input is provided the program will try to process a file with extension "csv" in the working diretory.')
 parser.add_argument('-s', dest= 'separator', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
 parser.add_argument('-t', dest= 'type',  type =str, default= 'r', help ='Specify the type cluster to form, option are to create  clusters wit redundancy in OTUs (r) or find only single copy clusters(sc).')
-parser.add_argument('-mcl', dest= 'mcl', type = str, default= 'False', help = 'When true, a "abc" file is produce for use in mcl.')
+parser.add_argument('-mcl', dest= 'mcl', action='store_true' default= False, help = 'When true, a "abc" file is produce for use in mcl.')
 parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value trhreshold, default 1e-5')
 parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different taxa to keep in each cluster')
 parser.add_argument('-R', dest='reference', type=str, default = 'All.fasta', help= 'Name of the master file from where to extract fastas into cluster files, if non is provided thi is asumed to be a file named "All.fasta" in the working directory')
@@ -49,7 +49,7 @@ def clusters(blastout, expectation):
 		current_query = queryId
 		if (current_query != subjectId) and (int(alnLength) >= 50) and float(eVal) <= float(expectation):
 			if previous_query != current_query:
-				myOut.write("\n"+current_query + ", " + subjectId)
+				myOut.write("\n"+current_query + "," + subjectId)
 				previous_query = current_query
 				n += 1
 			else:
@@ -62,12 +62,21 @@ def non_redundant(cluster, minTaxa):
 	outFile =open("ClustNR_m%d.txt" %minTaxa, "w")
         SetsInspected = []
         for line in inFile:
-                spp = re.findall(r'([A-Z_a-z0-9]+)%s' %gsep, line)
-                SeqIds = line.strip('\n').split(', ')
+                SeqIds = line.strip('\n').split(',')
+		spp = spp_in_list(SeqIds)
                 if len(spp) == len(set(spp)) and len(spp) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
                         SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
         outFile.close()
+
+
+def spp_in_list(alist):
+    """Return the species from a list of sequece identifiers"""
+    spp =[]
+    for i in alist:
+        spp.append(i.split(sep)[0])
+    return spp
+
 				
 def redundant(cluster, minTaxa):
         """Produces homolog-groups with at least N different OTU's, allowing redundancy but removing groups including less than a minimum different OTUs """
@@ -75,12 +84,14 @@ def redundant(cluster, minTaxa):
 	outFile =open("ClustR_m%d.txt" %minTaxa, "w" )
         SetsInspected = []
         for line in inFile:
-		spp = re.findall(r'([A-Z0-9_a-z]+)%s' % gsep, line )
-		SeqIds = line.strip('\n').split(', ')
+		SeqIds = line.strip('\n').split(',')
+		spp = spp_in_list(SeqIds)
                 nr = set(spp)
                 if len(nr) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
                         SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
+		else:
+			print nr
         outFile.close()
 
 
@@ -123,7 +134,7 @@ if __name__ == "__main__":
 			print 'Error: A blast output file is required to produce clusters. None available!'
 	else:
 		csv = args.input
-	if args.mcl == 'True':
+	if args.mcl::
 		print 'Creating a abc file for mcl'
 		mcl_abc(args.input, args.expectation)
 	else:
