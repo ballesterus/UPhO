@@ -165,7 +165,7 @@ def aggregate_splits(small,large):
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
-xdef subNewick(alist, myPhylo):
+def subNewick(alist, myPhylo):
     '''this fuction takes a list of split members and source tree, returning the newick subtree'''
     relevant = []
     seed =''
