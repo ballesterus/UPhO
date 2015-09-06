@@ -53,7 +53,7 @@ def RemoveDupSpecies(Tree):
             T = ete2.Tree(line)
             T.unroot()
             for leaf in T.iter_leaves():
-                sp, iD = leaf.name.split('|')
+                sp = leaf.name.split('|')[0]
                 if sp not in Sps:
                     leaf.name=sp
                     Sps.append(sp)
