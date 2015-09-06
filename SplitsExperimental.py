@@ -160,11 +160,12 @@ def aggregate_splits(small,large):
     contents = get_leaves(small)
     placeholder= contents.pop()
     for i in contents: #remove from aggregate all leaves in small except the placeholder
-        aggregate=aggregate.replace(i + ',', "")
+        aggregate=aggregate.replace(i , "")
+        aggregate =re.sub(",,+", "", aggregate)
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
-def subNewick(alist, myPhylo):
+xdef subNewick(alist, myPhylo):
     '''this fuction takes a list of split members and source tree, returning the newick subtree'''
     relevant = []
     seed =''
