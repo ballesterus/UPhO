@@ -160,8 +160,8 @@ def aggregate_splits(small,large):
     contents = get_leaves(small)
     placeholder= contents.pop()
     for i in contents: #remove from aggregate all leaves in small except the placeholder
-        aggregate=aggregate.replace(i , "")
-        aggregate =re.sub(",,+", "", aggregate)
+        aggregate=aggregate.replace(i + ',' , "")
+        aggregate=aggregate.replace(i, "")
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
@@ -210,7 +210,6 @@ def main_wTrees ():
                     Total += 1
                     ortNum += 1
                     OrtBranch.close()
-
         print "%d orthogroups were found in the tree file %s" % (count, tree)
     print 'Total  orthogroups found: %d' % Total
                             
