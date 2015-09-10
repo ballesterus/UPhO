@@ -51,14 +51,13 @@ def RemoveDupSpecies(Tree):
         for line in F:
             Sps=[]
             T = ete2.Tree(line)
-            T.unroot()
             for leaf in T.iter_leaves():
                 sp = leaf.name.split('|')[0]
                 if sp not in Sps:
                     leaf.name=sp
                     Sps.append(sp)
             T.prune(Sps)
-            Tn=T.write()
+            Tn=T.write( format = 0)
             Out.write(Tn + '\n')
 
 def MakeAstralSpeciesMap(All):

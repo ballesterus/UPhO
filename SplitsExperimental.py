@@ -35,7 +35,7 @@ class myPhylo():
         self.splits = []
         self.ortho=[]
         self.costs={} # Dictionary of leaf cost for inparalog evaluation'
-        self.newick = N
+        self.newick = N.strip('\n')
         for leaf in self.leaves: #Cost initilized
              self.costs[leaf] = 1.0
         split_decomposition(self)   
@@ -135,14 +135,13 @@ def orthologs(Phylo, minTaxa):
     #if in paralogs are to be included, update cost parameter per terminals. 
     if args.inParalogs:
         for S in Phylo.splits:
-            if S.support in [None, ''] or float(S.support) >= args.Support:
-                for i_split in S.vecs:
-                    Otus = spp_in_list(i_split)
-                    if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
-                        for leaf in i_split:
-                            ICost = 1.0/len(Otus)
-                            if ICost < Phylo.costs[leaf]:
-                                Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs inplied by this split.
+            for i_split in S.vecs:
+                Otus = spp_in_list(i_split)
+                if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
+                    for leaf in i_split:
+                        ICost = 1.0/len(Otus)
+                        if ICost < Phylo.costs[leaf]:
+                            Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs inplied by this split.
     for S in Phylo.splits:
         if S.support in [None, ''] or float(S.support) >= args.Support:
             for i_split in S.vecs:
@@ -151,8 +150,7 @@ def orthologs(Phylo, minTaxa):
                 if len(set(Otus)) == cCount and cCount >= minTaxa:
                     if i_split not in OrthoBranch:
                         OrthoBranch.append(i_split)
-    orthos = LargestBox(OrthoBranch)
-    Phylo.ortho=orthos
+    Phylo.ortho=OrthoBranch
 
 def aggregate_splits(small,large):
     """Takes two newick like splits where small is a subset of large and returns partial newick incluiding the two input groupings"""
@@ -161,12 +159,11 @@ def aggregate_splits(small,large):
     placeholder= contents.pop()
     for i in contents: #remove from aggregate all leaves in small except the placeholder
         aggregate=aggregate.replace(i + ',' , "")
-        aggregate=aggregate.replace(i, "")
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
 def subNewick(alist, myPhylo):
-    '''this fuction takes a list of split members and source tree, returning the newick subtree'''
+    '''this fuction takes a list of leaves forming a branch and a source tree, returning the newick subtree'''
     relevant = []
     seed =''
     for split in myPhylo.splits:
@@ -203,7 +200,10 @@ def main_wTrees ():
                     OrtBranch=open('%s_%s.tre' %(name,ortNum), 'w')
                     G = ','.join(group).strip(',')
                     OrtList.write(FName + G + '\n')
-                    branch = subNewick(group, P)
+                    if set(group) == set(P.leaves): # if the whole input tree represents an orthobranch
+                        branch = P.newick
+                    else:
+                        branch = subNewick(group, P)
                     OrtBranch.write(branch + '\n')
                     print "subtree  written to: %s_%s.tre" %(name,ortNum)
                     count += 1
