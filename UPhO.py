@@ -244,4 +244,4 @@ if __name__ == "__main__":
     if args.Reference != None:
         from Get_fasta_from_Ref import Retrieve_Fasta
         print "Proceeding to create a fasta file for each ortholog"    
-        Retrieve_Fasta('UPhO_Pruned.txt','UPhO_Seqs','upho', args.Reference)
+        Retrieve_Fasta('UPhO_orthogroups.csv','UPhO_Seqs','upho', args.Reference)

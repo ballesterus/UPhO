@@ -10,11 +10,11 @@ parser = argparse.ArgumentParser(description='This script creates fasta files fr
 parser.add_argument('-q', dest = 'query', type = str, default= 'None',  help = 'File with wanted fasta identifiers separated by ",". ')
 parser.add_argument('-o', dest= 'outdir', type =str, default= '.', help ='Name of the directory to use as output, if does no exist this wll be created. Default "."')
 parser.add_argument('-p', dest= 'prefix', type = str, default= 'Group', help ='Prefix to use whe no group name is provided')
-parser.add_argument('-r', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
+parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-c', dest= 'clean', type = str, default= 'False', help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
 
+args, unknown = parser.parse_known_args()
 
-args = parser.parse_args()
 #print args
 
 #GLOBAL VARIABLE. MODIFY IF NEEDED
@@ -79,8 +79,7 @@ def No_Same_OG_Intesec(File):
             Current = Pattern
             Independent = []
             Independent.append(A)
-                                 
-                                              
+                                                                               
 def Retrieve_Fasta(in_file, Outdir, Type, Reference):
         """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
         handle = open(in_file, 'r')
@@ -108,14 +107,15 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
 			OG_outfile.close()
 
 #RUNNING OPERATIONS
-if args.clean == 'True':
-    print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
-    No_Same_OG_Intesec(File)
-    print 'Done cleaning type I, proceeding to clean subsets'
-    No_OG_subsets(File)
-    print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
-    Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
-elif args.clean == 'False':
-    Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
-else:
-    print "Error: use 'True' or 'False' for the -c flag "
+if __name__ == "__main__":
+    if args.clean == 'True':
+        print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
+        No_Same_OG_Intesec(File)
+        print 'Done cleaning type I, proceeding to clean subsets'
+        No_OG_subsets(File)
+        print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
+        Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
+    elif args.clean == 'False':
+        Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
+    else:
+        print "Error: use 'True' or 'False' for the -c flag "
