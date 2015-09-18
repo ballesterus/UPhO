@@ -7,8 +7,8 @@ from Bio import SeqIO
 import argparse
 
 parser = argparse.ArgumentParser(description='This script creates fasta files from a list of sequence idetifiers. It takes as input a file in which each line is  list of of sequence identifiers to be written in multi-fasta file; and a Reference file, which contains the identifiers and their sequences. Fasta id in query and Reference should be identical. The output files are named with using a user defined prefix and a counter, or if a name defined by the user is preferred, this should be given as the firts elementvof tge list and identified by starting with  "#" ')
-parser.add_argument('-q', dest = 'query', type = str, default= 'None',  help = 'file with fasta identifiers separated by ",". ')
-parser.add_argument('-o', dest= 'outdir', type =str, default= '.', help ='Name of the directory to use as utput, if does no exist this wll be created. Default "."')
+parser.add_argument('-q', dest = 'query', type = str, default= 'None',  help = 'File with wanted fasta identifiers separated by ",". ')
+parser.add_argument('-o', dest= 'outdir', type =str, default= '.', help ='Name of the directory to use as output, if does no exist this wll be created. Default "."')
 parser.add_argument('-p', dest= 'prefix', type = str, default= 'Group', help ='Prefix to use whe no group name is provided')
 parser.add_argument('-r', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
 parser.add_argument('-c', dest= 'clean', type = str, default= 'False', help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
@@ -104,7 +104,7 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
                                 Counter += 1
 			for seqId in qlist:
                                 SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
-			print "successfully created %s" % OG_filename 
+			print "Successfully created file: %s" % OG_filename 
 			OG_outfile.close()
 
 #RUNNING OPERATIONS
