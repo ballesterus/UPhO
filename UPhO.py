@@ -135,13 +135,14 @@ def orthologs(Phylo, minTaxa):
     #if in paralogs are to be included, update cost parameter per terminals. 
     if args.inParalogs:
         for S in Phylo.splits:
-            for i_split in S.vecs:
-                Otus = spp_in_list(i_split)
-                if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
-                    for leaf in i_split:
-                        ICost = 1.0/len(Otus)
-                        if ICost < Phylo.costs[leaf]:
-                            Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs inplied by this split.
+            if S.support in [None, ''] or float(S.support) >= args.Support:
+                for i_split in S.vecs:
+                    Otus = spp_in_list(i_split)
+                    if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
+                        for leaf in i_split:
+                            ICost = 1.0/len(Otus)
+                            if ICost < Phylo.costs[leaf]:
+                                Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs inplied by this split.
     for S in Phylo.splits:
         if S.support in [None, ''] or float(S.support) >= args.Support:
             for i_split in S.vecs:
