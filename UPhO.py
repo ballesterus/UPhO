@@ -151,6 +151,7 @@ def orthologs(Phylo, minTaxa):
                 if len(set(Otus)) == cCount and cCount >= minTaxa:
                     if i_split not in OrthoBranch:
                         OrthoBranch.append(i_split)
+    OrthoBranch = LargestBox(OrthoBranch)
     Phylo.ortho=OrthoBranch
 
 def aggregate_splits(small,large):
