@@ -47,10 +47,10 @@ fi
 trees=`ls -1 *.tre 2>/dev/null | wc -l`
 if [ $trees = 0 ] 
 then 
-if [ $Tree_estimator == 'F' ] 
-then parallel -j+0 'FastTreeMP {} > {.}.tre' ::: *.fa 
-elif [ $Tree_estimator == 'X' ] 
-then parallel -j+0 'raxmlHPC-AVX -s {} -f a -p12345 -x12345 -#1000 -m PROTGAMMAAUTO -n {.}.rxOUT' ::: *.fa 
-fi 
+    if [ $Tree_estimator == 'F' ] 
+    then parallel -j+0 'FastTreeMP {} > {.}.tre' ::: *.fa;
+    elif [ $Tree_estimator == 'X' ] 
+    then parallel -j+0 'raxmlHPC-AVX -s {} -f a -p12345 -x12345 -#1000 -m PROTGAMMAAUTO -n {.}.rxOUT' ::: *.fa;
+    fi 
 else echo "There are $trees tree files (*.tre) in the working folder" echo "Nothing else to do. Good Bye" 
 fi
