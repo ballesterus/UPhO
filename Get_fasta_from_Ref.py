@@ -80,8 +80,8 @@ def No_Same_OG_Intesec(File):
             Independent = []
             Independent.append(A)
                                                                                
-def Retrieve_Fasta(in_file, Outdir, Type, Reference):
-        """ Takes a series of sequence comma separated Identifiers from orthogroups (one per line), and produces fasta files for each orthoGroup (line) """
+def Retrieve_Fasta(in_file, Outdir, prefix, Reference):
+        """ Creates fasta files from a csv input file (in_file) where the sequence identifiers to be written to sigle file are each separated by a comma. User provides otput directory, a prefix to use in naming the files,  and a reference from quere to extract the sequences. It requires  Biopython SeqIO."""
         handle = open(in_file, 'r')
         if not os.path.exists(Outdir):
                 os.makedirs(Outdir)
@@ -93,12 +93,12 @@ def Retrieve_Fasta(in_file, Outdir, Type, Reference):
 		if len(line) > 0: # do not process empty lines
                         line = line.replace(' ', '' ) # remove white spaces
 			qlist = line.strip('\n').split(',')
-                        if line.startswith('#'):
+                        if line.startswith('#'): #means that filenames are provided in the input this being the fisrt field in the csv.
                                 Name = qlist.pop(0)
                                 OG_filename = Name.strip('#') + '.fasta'
                                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                         else:
-                                OG_filename = Type + "_" + str(Counter) + ".fasta" 
+                                OG_filename = prefix + "_" + str(Counter) + ".fasta" 
                                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                                 Counter += 1
 			for seqId in qlist:
