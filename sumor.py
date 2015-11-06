@@ -29,7 +29,7 @@ def count_identifiers(file):
 
 
 def min_leaves(infile, Quant):
-    '''takes a file with one or more trees and return as file with the trees that have more pr equal leaves than the minimum specified by Quant'''
+    '''takes a file with one or more trees and return as file with the trees that have more or equal leaves than the minimum specified by Quant'''
     with open(infile, 'r') as F:
         OutName = infile.split('.')[0] + str(Quant) +'.' + infile.split('.')[1]
         Out = open(OutName, 'w')
@@ -242,6 +242,7 @@ def tree_ortho_annotator(summary, phylo):
     return T
 
 def CdsSets_by_Treatment(treat):
+    '''Make a set of sequence identifiers from  OG sumary file for comparisons between OG compositions'''
     D1 = open(treat, 'r')
     Seqs =[]
     for line in D1:
