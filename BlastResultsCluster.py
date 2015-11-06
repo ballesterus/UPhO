@@ -5,7 +5,7 @@ import os
 import re
 import glob
 
-parser = argparse.ArgumentParser(description='This scrip produces clusters of homolog sequences from a csv formatted blast output file.')
+parser = argparse.ArgumentParser(description='This script produces clusters of homolog sequences from a csv formatted blast output file.')
 parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Blast output file to process, if no input is provided the program will try to process a file with extension "csv" in the working diretory.')
 parser.add_argument('-d', dest= 'delimiter', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
 parser.add_argument('-t', dest= 'type',  type =str, default= 'r', help ='Specify the type cluster to perform, options are to create clusters with redundancy in spp. composition (r) or find only single copy clusters (sc).')
@@ -13,7 +13,8 @@ parser.add_argument('-mcl', dest= 'mcl', action='store_true', default= False, he
 parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value trhreshold, default 1e-5.')
 parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different species to keep in each cluster.')
 parser.add_argument('-R', dest='reference', type=str, default = 'All.fasta', help= 'Name of the reference file from where to extract individual squences to form cluster files, if non is provided thi is asumed to be a file named "All.fasta" in the working directory')
-args = parser.parse_args()
+
+args, unknown = parser.parse_known_args()
 
 #Global variables
 
@@ -115,4 +116,3 @@ if __name__ == "__main__":
 			non_redundant(clustFile, args.minTaxa)
                         from Get_fasta_from_Ref import Retrieve_Fastaa
 			Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
-
