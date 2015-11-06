@@ -86,7 +86,7 @@ def Sanitize_aln(Dict):
     Cleaned = {}
     AlnL= Aln_L(Dict)
     if AlnL != False:
-        print "The aligmnment is %d long" % AlnL
+        print "The aligmnment to clean is %d long" % AlnL
         for otu in Dict.iterkeys():
             SeL=seq_leng_nogaps(Dict[otu])
             if float(SeL)/AlnL > args.percentage and SeL > args.minalnL:
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     from BlastResultsCluster import spp_in_list
     for File in  args.input:
         FileName= File.split('.')
-        print 'Working on %s' %File
+        print '\nWorking on %s' %File
         F = Fasta_Parser(File)
         if args.minTax !=1:
             SppinAln = args.minTax
@@ -108,20 +108,21 @@ if __name__ == "__main__":
             SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
         print SppinAln
         if args.percentage > 0.0 or args.minalnL > 0:        
-            print '\nSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
+            print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
             F = Sanitize_aln(F)
             if len(F.keys())==0:
-                print "Alert: Not a single  clean sequence wasfound in %s" %File
+                print "\tAlert: Not a single  clean sequence wasfound in %s" %File
         if args.representative:
-            '''Selecting one representative sequence per species'''
+            print '''\tSelecting one representative sequence per species'''
             F =OneOTU(F)
-        if len(F.keys()) >= SppinAln:
+        SppinCleaned =  len(set(spp_in_list(F.keys(), args.delimiter)))
+        if SppinCleaned >= SppinAln:
             OutName = FileName[0] + '_clean.' + FileName[-1]
-            print 'Cleaned alignement writtten to %s' % OutName
+            print '\tCleaned alignement writtten to %s' % OutName
             Out = open(OutName, 'w')
             for Rec in F.iterkeys():
                 Out.write('>%s\n' % Rec)
                 Out.write(F[Rec] + '\n')
             Out.close()
         else:
-            print 'Alert: The cleaned alignemnet contains less species than the original and wont be written to a clean file.'
+            print '\tAlert: The cleaned alignemnet contains less species than the original and wont be written to a clean file.'
