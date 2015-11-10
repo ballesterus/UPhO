@@ -233,7 +233,7 @@ def main():
                     Total += 1
                     ortNum += 1
         print "%d orthogroups were found in the tree file %s" % (count, tree)
-
+    print 'Total  orthogroups found: %d' % Total
 #MAIN
 if __name__ == "__main__":
     print  "Begining orthology assesment. Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 

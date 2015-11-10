@@ -41,15 +41,17 @@ def clusters(blastout, expectation):
 	myOut = open("clusters_%s.txt"  % expectation, 'w')
 	in_file = open(blastout, 'r')
 	previous_query = ''
+	Homolog=[]
 	for line in in_file:
 		(queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
 		current_query = queryId
-		if (queryId != subjectId) and (int(alnLength) >= 50) and float(eVal) <= float(expectation):
+		if (int(alnLength) >= 50) and float(eVal) <= float(expectation):
 			if previous_query != current_query:
-				myOut.write("\n"+current_query + "," + subjectId)
+				myOut.write(','.join(set(Homolog)) + '\n')
 				previous_query = current_query
+				Homolog=[]
 			else:
-				myOut.write("," + subjectId)
+				Homolog.append(subjectId)
 
 def non_redundant(cluster, minTaxa):
         """This function filters out clusters with redundant species. Takes as input a cluster file, like the one produces by the fuction clusters, and a minimum number of different species"""
