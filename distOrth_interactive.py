@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 import os
-from sumor import *
+from distOrth import *
 
-##### YEAH_SHOWDOWN ######
+##### MAIN ######
 
 print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs). Select from the following options"
 T = None

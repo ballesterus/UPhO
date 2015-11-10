@@ -8,7 +8,7 @@ import shutil
 import readline
 import ete2
 
-'''This script contains functions to summarize the distribution of orthologous on a tree and auxiliary fuction. These fuctions can be imported into the interpreted and ran interactively or accessed through a helper script.'''
+'''This script contains functions to summarize the distribution of orthologous on a tree and auxiliary fuctions. These fuctions can be imported into the interpreted and ran interactively or accessed through a helper script.'''
 
 readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
@@ -241,9 +241,9 @@ def tree_ortho_annotator(summary, phylo):
         node.add_feature('Total', OG_count)
     return T
 
-def CdsSets_by_Treatment(treat):
+def orthologs_in_file(OGsummary):
     '''Make a set of sequence identifiers from  OG sumary file for comparisons between OG compositions'''
-    D1 = open(treat, 'r')
+    D1 = open(OGsummary, 'r')
     Seqs =[]
     for line in D1:
         if  not line.startswith('OGnumber'):
