@@ -102,7 +102,7 @@ def Retrieve_Fasta(in_file, Outdir, prefix, Reference):
                                 OG_outfile = open(Outdir+ '/' + OG_filename, 'w')
                                 Counter += 1
 			for seqId in qlist:
-                                SeqIO.write(seqSource[seqId], OG_outfile, 'fasta')
+                                SeqIO.write(seqSource[seqId.strip(sep)], OG_outfile, 'fasta')
 			print "Successfully created file: %s" % OG_filename 
 			OG_outfile.close()
 

@@ -34,7 +34,7 @@ def Fasta_Parser(File):
         Seq=''
         for Line in F:
             if is_ID(Line) and len(Seq) == 0:
-                seqid =Line.replace('\n', args.delimiter).strip('>') #replace ends of line with the dlimiter character thus ids with s single field work later on.
+                seqid =Line.replace('\n', args.delimiter).strip('>') #replace ends of line with the delimiter character thus ids with s single field ids.
                 Records[seqid]=''
             elif is_ID(Line) and len(Seq) > 0:
                 Records[seqid] = Records[seqid] + Seq
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         if args.percentage > 0.0 or args.minalnL > 0:        
             print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
             F = Sanitize_aln(F)
-            if len(F.keys())==0:
+            if not F:
                 print "\tAlert: Not a single  clean sequence wasfound in %s" %File
         if args.representative:
             print '''\tSelecting one representative sequence per species'''
