@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Usage: python minreID file SP_CODE  Separator"""
+"""Usage: python minreID.py  <inputfile> SP_CODE  Separator"""
 import os
 import re
 from sys import argv

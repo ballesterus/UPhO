@@ -4,7 +4,7 @@ import argparse
 import re
 from sys import argv
 
-parser = argparse.ArgumentParser(description='This  script returns alignments processed for phylogenetic analyses. It  performs a basic sanitation on the input files removing ambiguous sequences from the alignment. A sequences is considered ambiguous when it shows less than "m" unambiguous sites or the length of unambiguous sites  extends less than a percentage "p" of the total alignment length. It can additionally output MSA with only one sequence per OTU, removing additional sequence identifiers. Unless a new threshold is provided (-t) the cleaned alignments have the same taxon composition as the input.')
+parser = argparse.ArgumentParser(description="This  script returns alignments processed for phylogenetic analyses. It  performs a basic sanitation on the input files removing poorly overlapping  sequences from the alignment. A sequence is considered 'poor' when it shows less than 'm' unambiguous sites or the length of unambiguous sites  extends less than a proportion 'p' of the total alignment length. It can additionally output MSA with only one sequence per OTU, removing additional sequence identifiers and retaining only the longest sequence. Unless a new threshold is provided (-t) the cleaned alignments have the same taxon composition as the input.")
 parser.add_argument('-in', dest = 'input', type = str, nargs= '+',  help = 'Files to process(fasta alignment)')  
 parser.add_argument('-m', dest = 'minalnL', type = int, default= 0,  help = 'Minimum alignment length.') 
 parser.add_argument('-p', dest = 'percentage', type = float, default = 0.0, help= 'Minimum alignment relative overlap (float 0-1).')

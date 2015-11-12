@@ -10,9 +10,9 @@ parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Bl
 parser.add_argument('-d', dest= 'delimiter', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
 parser.add_argument('-t', dest= 'type',  type =str, default= 'r', help ='Specify the type cluster to perform, options are to create clusters with redundancy in spp. composition (r) or find only single copy clusters (sc).')
 parser.add_argument('-mcl', dest= 'mcl', action='store_true', default= False, help = "When true, a 'abc' file is produced to use as input for Markov Clustering with Stijn van Dongen's  program mcl.")
-parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value trhreshold, default 1e-5.')
+parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value threshold, default 1e-5.')
 parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different species to keep in each cluster.')
-parser.add_argument('-R', dest='reference', type=str, default = 'All.fasta', help= 'Name of the reference file from where to extract individual squences to form cluster files, if non is provided thi is asumed to be a file named "All.fasta" in the working directory')
+parser.add_argument('-R', dest='reference', type=str, default = 'All.fasta', help= 'Name of the reference file from where to extract individual sequences to form cluster files, if none is provided it is assumed to be a file named "All.fasta" in the working directory')
 
 args, unknown = parser.parse_known_args()
 
@@ -76,7 +76,7 @@ def spp_in_list(alist, delim):
 
 				
 def redundant(cluster, minTaxa):
-        """Produces homolog-groups with at least N different OTU's, allowing redundancy but removing groups including less than a minimum different OTUs """
+        """Produces homolog-groups with at least N different OTUs, allowing redundancy but removing groups including less than a minimum different OTUs """
         inFile = open(cluster, "rw")
 	outFile =open("ClustR_m%d.txt" %minTaxa, "w" )
         SetsInspected = []

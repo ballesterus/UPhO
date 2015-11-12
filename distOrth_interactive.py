@@ -4,7 +4,7 @@ from distOrth import *
 
 ##### MAIN ######
 
-print "This script will help us annotate a phylogenies, from a colection of fasta (orthologs). Select from the following options"
+print "This script will help us annotate a phylogenies, from a collection of fasta (orthologs). Select from the following options"
 T = None
 Summary= None
 NodeS= None
@@ -22,10 +22,10 @@ while Q == True:
 
     print """Select from the following options:
     
-    1: Create a OG_sumary file
+    1: Create a OG_summary file
     2: Annotate and load tree (loads summary).
     3: Plot(see) the tree.
-    4: Save  current tree image or load and savea new tree to image file (PDF, SVG or PNG).
+    4: Save  current tree image or load and save new tree to image file (PDF, SVG or PNG).
     5: Select a node and query the composition on specific node (requires loaded tree).
     6: Return non-redundant orthogroups, from all in summary or from selected node, and save to file (.txt) 
 
@@ -46,11 +46,11 @@ while Q == True:
         T = tree_ortho_annotator(Summary, Tree)
     
     elif selection == '3':
-        B_size=  float(raw_input('Bubble ize factor: '))
+        B_size=  float(raw_input('Bubble size factor: '))
         ts =tree_plot(T, B_size)
         T.show(tree_style=ts)
     elif selection == '4':
-        B_size=  float(raw_input('Bubble ize factor: '))
+        B_size=  float(raw_input('Bubble size factor: '))
         name = raw_input('Name of otput image file: ')
         Type = raw_input('Type of file (pdf, svg, or  png: ')
         OutName = name + '.' + Type
@@ -80,7 +80,7 @@ while Q == True:
             Ogs = OGSummary_to_Dict(Summaryo)
             nOgs= No_OG_subsets(Ogs)
             while selection =='6':
-                print "Redundancies esolved and log file written to OG_clean.log"
+                print "Redundancies resolved and log file written to OG_clean.log"
                 print """Options:
                 1: Create resolved OG from ALL orthologs in Summary.
                 2: Create resolved OG from ortholgs in SELECTED node.

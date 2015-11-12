@@ -9,8 +9,8 @@ parser = argparse.ArgumentParser(description='Script for finding orthologs from 
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate with tree in newick format.')
 parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When this flag is present, inparalogs will  be included in the orthogroups, default = False.')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup evaluation.')
-parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='When this flag is present  orthobranches  will be witten to its own file in newick format.')
-parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='If provided this argument points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires BlastResultsCluster.py and its dependencies.')
+parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='When this flag is present  orthobranches  will be written to its own file in newick format.')
+parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='If provided this argument points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the orthology evaluation.')
 parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species should be the first element for proper parsing. Default is: "|".')
 args = parser.parse_args()
@@ -36,34 +36,32 @@ class myPhylo():
         self.ortho=[]
         self.costs={} # Dictionary of leaf cost for inparalog evaluation'
         self.newick = N.strip('\n')
-        for leaf in self.leaves: #Cost initilized
+        for leaf in self.leaves: #Cost initialized
              self.costs[leaf] = 1.0
         split_decomposition(self)   
 
 #FUNCTION DEFINITIONS
 
 def get_leaves(String):
+    """Find leaves names in newick files using regexp. Leaves names are composed of alpha numeric characters, underscore and a special field delimiter"""
     pattern = "([A-Za-z0-9_]+%s[A-Za-z0-9_%s]+)" % (gsep, gsep)
     Leaves = re.findall(pattern, String)
     return Leaves
 
 def spp_in_list(alist):
-    '''return the species from a list of sequece identifiers'''
+    '''return the species from a list of sequence identifiers'''
     spp =[]
     for i in alist:
         spp.append(i.split(sep)[0])
     return spp
     
 def complement(Sub, Whole):
-    """Return element in Whole that are not present in Sub"""
-    complement=[]
-    for i in Whole:
-        if i not in Sub:
-            complement.append(i)
-    return complement
+    """Return elements in Whole that are not present in Sub"""
+    complement=set(Whole) - set(Sub)
+    return list(complement)
 
 def split_decomposition(Tree):
-    '''Add a list of splits class objects to myPhylo Class objetc'''
+    '''Add a list of splits class objects to myPhylo Class object'''
     #Part I. Where we identify matching parenthesis in the newick.  
     newick = Tree.newick
     leaves = Tree.leaves
@@ -85,7 +83,8 @@ def split_decomposition(Tree):
         Pos+=1
 #Part II: Where we use string operations  and to identify components parts of each split.
     Inspected= []
-    for Key in P.iterkeys(): # this extracs splits from the parenthethical notattion using the parenthesis mapping dictionary.
+    missBval = 0
+    for Key in P.iterkeys(): # this extracs splits from the parenthethical notation using the parenthesis mapping dictionary.
         r_vec=newick[P[Key][0]: P[Key][1]]
         vec = sorted(get_leaves(r_vec))
         covec = sorted(complement(vec, Tree.leaves)) #Complementary splits are inferred as the set of leaves not included in the parenthesis grouping.
@@ -98,7 +97,7 @@ def split_decomposition(Tree):
                 mySplits.branch_length = BranchVal[0].split(':')[1]
                 mySplits.support = BranchVal[0].split(':')[0]
             except:
-                print 'No branch value'
+                missBval+=1
             Tree.splits.append(mySplits)
             Inspected.append(vec)
             Inspected.append(covec)
@@ -114,9 +113,9 @@ def split_decomposition(Tree):
             try:
                 mySplits.branch_length = BranchVal[0]
             except:
-                print "No branch value"
+                missBval+=1
             Tree.splits.append(mySplits)
-            
+    print '%d splits in the tree missed branch values.'  %missBval
 def LargestBox(LoL):
     '''Takes a list of lists (lol) and returns a lol where no list is a subset of the others, retaining only the largest'''
     NR =[]

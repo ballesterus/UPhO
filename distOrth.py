@@ -8,7 +8,7 @@ import shutil
 import readline
 import ete2
 
-'''This script contains functions to summarize the distribution of orthologous on a tree and auxiliary fuctions. These fuctions can be imported into the interpreted and ran interactively or accessed through a helper script.'''
+'''This script contains functions to summarize the distribution of orthologous on a tree and auxiliary functions. These functions can be imported into the interpreted and ran interactively or accessed through a helper script.'''
 
 readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
@@ -61,7 +61,7 @@ def RemoveDupSpecies(Tree):
             Out.write(Tn + '\n')
 
 def MakeAstralSpeciesMap(All):
-    '''Creates a list of species and its gene copies for Astral. Note: as for May 2015, this fuction produces as seemingly correct map[ file, however it fails to run in astral. Maybe memmory leak in Astral4.4.7'''
+    '''Creates a list of species and its gene copies for Astral. Note: as for May 2015, this function produces as seemingly correct map[ file, however it fails to run in astral. Maybe memory leak in Astral4.4.7'''
     with open(All, 'r') as F:
         Sps={}
         for L in F:
@@ -123,7 +123,7 @@ def No_Same_OG_Intesec(File):
                                  
 
 def No_OG_subsets(File):
-    '''Takes a text file with orthogroups per line as a list comma ',' sepearated list  of sequence identifiers and OG name per line. It writes a similar formated file with one Orthologs per line but with out-subsets '''
+    '''Takes a text file with orthogroups per line as a list comma ',' separated list  of sequence identifiers and OG name per line. It writes a similar formatted file with one Orthologous per line but with out-subsets '''
     Log = open('OG_clean_II.log', 'w')
     Out = open('OG_cleaned_II.txt', 'w')
     M_List = open(File).readlines()
@@ -168,7 +168,7 @@ def line_writer(P_attern):
     Output.close()
 
 def Set_of_FastaID(extension):
-    '''This fuction inspect iteratively acrooss the composition of sequence identifiers of all files in the current directoty  (fasta sequence list, alignements and trees). Fisrt ocurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitue then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequeces or topologies)   
+    '''This function inspect iteratively across the composition of sequence identifiers of all files in the current directory  (fasta sequence list, alignments and trees). First occurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitute then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequences or topologies)   
 '''
     Report = open('redundancyReport.txt', 'w')
     UniqComsId = []
@@ -242,7 +242,7 @@ def tree_ortho_annotator(summary, phylo):
     return T
 
 def orthologs_in_file(OGsummary):
-    '''Make a set of sequence identifiers from  OG sumary file for comparisons between OG compositions'''
+    '''Make a set of sequence identifiers from  OG summary file for comparisons between OG compositions'''
     D1 = open(OGsummary, 'r')
     Seqs =[]
     for line in D1:
