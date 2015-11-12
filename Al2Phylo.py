@@ -4,10 +4,10 @@ import argparse
 import re
 from sys import argv
 
-parser = argparse.ArgumentParser(description='This  script returns alignments processed for phylogenetic analyses. If  performs a basic sanitation by of this alignments, removing ambiguous sequences from the alignemnet. A sequences is considered ambiguous when it shows less than N sites  unaumbiguous. I can additionally output MSA with only one squence per OTU, removing additinal sequece identifiers. Unless a new treshold is provided the cleaned alignments have the same taxon composition as the input.')
+parser = argparse.ArgumentParser(description='This  script returns alignments processed for phylogenetic analyses. It  performs a basic sanitation on the input files removing ambiguous sequences from the alignment. A sequences is considered ambiguous when it shows less than "m" unambiguous sites or the length of unambiguous sites  extends less than a percentage "p" of the total alignment length. It can additionally output MSA with only one sequence per OTU, removing additional sequence identifiers. Unless a new threshold is provided (-t) the cleaned alignments have the same taxon composition as the input.')
 parser.add_argument('-in', dest = 'input', type = str, nargs= '+',  help = 'Files to process(fasta alignment)')  
-parser.add_argument('-m', dest = 'minalnL', type = int, default= 0,  help = 'Minimun alignemnet lenght.') 
-parser.add_argument('-p', dest = 'percentage', type = float, default = 0.0, help= 'Minimum alignenent realtive overlap (float 0-1).')
+parser.add_argument('-m', dest = 'minalnL', type = int, default= 0,  help = 'Minimum alignment length.') 
+parser.add_argument('-p', dest = 'percentage', type = float, default = 0.0, help= 'Minimum alignment relative overlap (float 0-1).')
 parser.add_argument('-d', dest = 'delimiter', type = str, default= '|',  help = 'Custom character separating fields of sequence identifier.')
 parser.add_argument('-t', dest ='minTax', type=int, default = 1, help ='Minimum Taxa in cleaned alignment')
 parser.add_argument('-r', dest ='representative', action='store_true', default = False, help ='When the flag is present, one representative sequence per species(the longest) retained in the alignment.')
@@ -17,14 +17,14 @@ args, unknown = parser.parse_known_args()
 
 ###Function definitions
 def is_ID(Line):
-    """Evaluates if a string correspond to fasta identifier. herein broadly defined by starting with th e '>' symbol"""
+    """Evaluates if a string correspond to fasta identifier. herein broadly defined by starting with the e '>' symbol"""
     if Line.startswith('>'):
         return True
     else:
         return False
     
 def seq_leng_nogaps(Str):
-    """Returns the lenght of a sequence without conting and ambiguous positions"""
+    """Returns the length of a sequence without counting and ambiguous positions"""
     return len(Str.replace('-', ''))
     
 def Fasta_Parser(File):
@@ -70,7 +70,7 @@ def spp_in_list(alist, delim):
     return spp
 
 def Aln_L(Dict):
-    """Returns False if the seuqneces in the dict are nor the same lenght, thus probably not aligned, or the lengt of the alignment"""
+    """Returns False if the sequences in the dict are nor the same length, thus probably not aligned, or the length of the alignment"""
     Ref = Dict.keys()[0]
     Len= len(Dict[Ref]) # obtain a reference from the 1st dict entry.                                           
     if all(Len == len(Dict[key]) for key in Dict.iterkeys()):
@@ -82,7 +82,7 @@ def Aln_L(Dict):
         return False
         
 def Sanitize_aln(Dict):
-    """Remove sequence with hight content of gaps"""
+    """Remove sequence with high content of gaps"""
     Cleaned = {}
     AlnL= Aln_L(Dict)
     if AlnL != False:
@@ -92,7 +92,7 @@ def Sanitize_aln(Dict):
             if float(SeL)/AlnL > args.percentage and SeL > args.minalnL:
                 Cleaned[otu] = Dict[otu]
             else:
-                print "Sequence %s is shorter than the thresholds (%d sites) and will be removed from the alignement." % (otu, SeL)
+                print "Sequence %s is shorter than the thresholds (%d sites) and will be removed from the alignment." % (otu, SeL)
         return Cleaned
 
 ######MAIN######
@@ -111,18 +111,18 @@ if __name__ == "__main__":
             print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
             F = Sanitize_aln(F)
             if not F:
-                print "\tAlert: Not a single  clean sequence wasfound in %s" %File
+                print "\tAlert: Not a single  clean sequence was found in %s" %File
         if args.representative:
             print '''\tSelecting one representative sequence per species'''
             F =OneOTU(F)
         SppinCleaned =  len(set(spp_in_list(F.keys(), args.delimiter)))
         if SppinCleaned >= SppinAln:
             OutName = FileName[0] + '_clean.' + FileName[-1]
-            print '\tCleaned alignement writtten to %s' % OutName
+            print '\tCleaned alignment written to %s' % OutName
             Out = open(OutName, 'w')
             for Rec in F.iterkeys():
                 Out.write('>%s\n' % Rec)
                 Out.write(F[Rec] + '\n')
             Out.close()
         else:
-            print '\tAlert: The cleaned alignemnet contains less species than the original and wont be written to a clean file.'
+            print '\tAlert: The cleaned alignment contains less species than the original and wont be written to a clean file.'
