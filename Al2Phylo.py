@@ -85,7 +85,7 @@ def Sanitize_aln(Dict):
     """Remove sequence with high content of gaps"""
     Cleaned = {}
     AlnL= Aln_L(Dict)
-    if AlnL != False:
+    if AlnL != False or AlnL != 0:
         print "The aligmnment to clean is %d long" % AlnL
         for otu in Dict.iterkeys():
             SeL=seq_leng_nogaps(Dict[otu])
@@ -98,31 +98,39 @@ def Sanitize_aln(Dict):
 ######MAIN######
 if __name__ == "__main__":
     from BlastResultsCluster import spp_in_list
+    emtAln=[]
     for File in  args.input:
         FileName= File.split('.')
         print '\nWorking on %s' %File
         F = Fasta_Parser(File)
-        if args.minTax !=1:
-            SppinAln = args.minTax
-        else:
-            SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
-        print SppinAln
-        if args.percentage > 0.0 or args.minalnL > 0:        
-            print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
-            F = Sanitize_aln(F)
-            if not F:
-                print "\tAlert: Not a single  clean sequence was found in %s" %File
-        if args.representative:
-            print '''\tSelecting one representative sequence per species'''
-            F =OneOTU(F)
-        SppinCleaned =  len(set(spp_in_list(F.keys(), args.delimiter)))
-        if SppinCleaned >= SppinAln:
-            OutName = FileName[0] + '_clean.' + FileName[-1]
-            print '\tCleaned alignment written to %s' % OutName
-            Out = open(OutName, 'w')
-            for Rec in F.iterkeys():
-                Out.write('>%s\n' % Rec)
-                Out.write(F[Rec] + '\n')
-            Out.close()
-        else:
-            print '\tAlert: The cleaned alignment contains less species than the original and wont be written to a clean file.'
+        if AlnL(F) ==0: #Do not process empty alignments.
+            emtAln.append(File)
+        else:    
+            if args.minTax !=1:
+                SppinAln = args.minTax
+            else:
+                SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
+                print SppinAln
+            if args.percentage > 0.0 or args.minalnL > 0:        
+                print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
+                F = Sanitize_aln(F)
+                if not F:
+                    print "\tAlert: Not a single  clean sequence was found in %s" %File
+            if args.representative:
+                print '''\tSelecting one representative sequence per species'''
+                F =OneOTU(F)
+            SppinCleaned =  len(set(spp_in_list(F.keys(), args.delimiter)))
+            if SppinCleaned >= SppinAln:
+                OutName = FileName[0] + '_clean.' + FileName[-1]
+                print '\tCleaned alignment written to %s' % OutName
+                Out = open(OutName, 'w')
+                for Rec in F.iterkeys():
+                    Out.write('>%s\n' % Rec)
+                    Out.write(F[Rec] + '\n')
+                    Out.close()
+            else:
+                print '\tAlert: The cleaned alignment contains less species than the original and wont be written to a clean file.'
+        if len(emtAln) >0:
+            print "\tAlert: The following alignments were empty:"
+            for i in emtAln:
+                print i
