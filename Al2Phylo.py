@@ -61,7 +61,6 @@ def OneOTU(SppDict):
             rSpp[newkey] = Longest
     return rSpp
 
-
 def spp_in_list(alist, delim):
     """Return the species from a list of sequece identifiers"""
     spp =[]
@@ -70,22 +69,17 @@ def spp_in_list(alist, delim):
     return spp
 
 def Aln_L(Dict):
-    """Returns False if the sequences in the dict are nor the same length, thus probably not aligned, or the length of the alignment"""
+    """Returns the lenght of the alignment or  False if the sequences in the dict are nor the same length or if squences are of zero lenght, thus probably not aligned."""
     Ref = Dict.keys()[0]
     Len= len(Dict[Ref]) # obtain a reference from the 1st dict entry.                                           
     if all(Len == len(Dict[key]) for key in Dict.iterkeys()):
         return Len
-    else:
-        for key in Dict.iterkeys():
-            print '''Error: Verify alignment. It contains sequences of different lenght.'''
-            print  "%s : %d sites" % (key, len(Dict[key]))
-        return False
         
 def Sanitize_aln(Dict):
     """Remove sequence with high content of gaps"""
     Cleaned = {}
     AlnL= Aln_L(Dict)
-    if AlnL != False or AlnL != 0:
+    if AlnL != False:
         print "The aligmnment to clean is %d long" % AlnL
         for otu in Dict.iterkeys():
             SeL=seq_leng_nogaps(Dict[otu])
@@ -97,20 +91,22 @@ def Sanitize_aln(Dict):
 
 ######MAIN######
 if __name__ == "__main__":
-    from BlastResultsCluster import spp_in_list
-    emtAln=[]
+    problematica=[]
     for File in  args.input:
         FileName= File.split('.')
         print '\nWorking on %s' %File
-        F = Fasta_Parser(File)
-        if AlnL(F) ==0: #Do not process empty alignments.
-            emtAln.append(File)
-        else:    
+        try:
+            F = Fasta_Parser(File)
+        except:
+            print "ERROR: This does not seem to be a fasta file."
+        if AlnL < 1:
+            problematica.append(File)
+        else:
             if args.minTax !=1:
                 SppinAln = args.minTax
             else:
                 SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
-                print SppinAln
+            print SppinAln
             if args.percentage > 0.0 or args.minalnL > 0:        
                 print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
                 F = Sanitize_aln(F)
@@ -130,7 +126,7 @@ if __name__ == "__main__":
                     Out.close()
             else:
                 print '\tAlert: The cleaned alignment contains less species than the original and wont be written to a clean file.'
-        if len(emtAln) >0:
-            print "\tAlert: The following alignments were empty:"
-            for i in emtAln:
-                print i
+    if len(problematica) > 0:
+        print '*' * 20
+        print "Error: The following files were not processed. Either these are empty alignments or contain unaligned sequences. You may want to inspect them before proceeding."
+        '\n'.join(i for i in problematica )
