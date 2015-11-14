@@ -99,7 +99,7 @@ if __name__ == "__main__":
             F = Fasta_Parser(File)
         except:
             print "ERROR: This does not seem to be a fasta file."
-        if AlnL < 1:
+        if Aln_L(F) < 1:
             problematica.append(File)
         else:
             if args.minTax !=1:
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
             print SppinAln
             if args.percentage > 0.0 or args.minalnL > 0:        
-                print '\tSanitizing alignment %s by removing sequences with less than %d or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
+                print '\tSanitizing alignment %s by removing sequences with less than %d sites or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
                 F = Sanitize_aln(F)
                 if not F:
                     print "\tAlert: Not a single  clean sequence was found in %s" %File
@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 for Rec in F.iterkeys():
                     Out.write('>%s\n' % Rec)
                     Out.write(F[Rec] + '\n')
-                    Out.close()
+                Out.close()
             else:
                 print '\tAlert: The cleaned alignment contains less species than the original and wont be written to a clean file.'
     if len(problematica) > 0:
