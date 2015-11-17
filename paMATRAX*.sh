@@ -6,7 +6,7 @@
 # If you use this script you should cite the actual
 # programs in the dependencies list: 
 # 
-# The following programs are requiered and should be  refered
+# The following programs are required and should be  referenced
 # in the  $PATH.
 #
 #  *gnu-parallel
@@ -29,7 +29,7 @@ export trimal_cmd
 export raxml_cmd
 export Al2Phylo_cmd
 export fasttree_cmd
-#Initializa variables
+#Initialize variables
 EXT="fasta"
 AFLAG=1
 TFLAG=1
@@ -46,10 +46,10 @@ usage: $0 <options>
 This script runs the phylogetic pipeline Align -> Trim-> Sanitize-> Tree
 on all sequences in the cwd. It calls  gnu-parallel, mafft, trimAL, RAxML or
 FastTree. If an output file is found it would be skipped.
-Please cite the appropiate programs used on each step.
+Please cite the appropriate programs used on each step.
 
 -h  |  Print this help
--e  |  Extension if the unaligned sequences (deafault: fasta)
+-e  |  Extension if the unaligned sequences (default: fasta)
 -a  |  Stop after alignment
 -t  |  Stop after trimming
 -s  |  Stop after sanitation
@@ -105,11 +105,11 @@ function main () {
     parallel --env mafft_cmd  -j+0 'if [ ! -e {.}.al  ]; then $mafft_cmd {} > {.}.al 2>>mafft.log; fi' ::: *.$EXT;
     if [ $AFLAG -eq 0 ]
     then
-	echo "Pipeline stoped after alignement."
+	echo "Pipeline stopped after alignement."
 	exit 0
     else
 	echo "Starting trimming"
-	parallel --env triimal_cmd  -j+0 'if [ ! -e {.}.fa  ]; then $trimal_cmd -in {} -out {.}.fa; fi' ::: *.al;     
+	parallel --env trimal_cmd  -j+0 'if [ ! -e {.}.fa  ]; then $trimal_cmd -in {} -out {.}.fa; fi' ::: *.al;     
 	
 	if [ $TFLAG -eq 0 ]
 	then
@@ -118,19 +118,24 @@ function main () {
 	else
 	
 	    if [ $CFLAG -eq 1 ]
-	    then parallel --env Al2Phylo_cmd -j+0 'if [ ! -e *cleaned.fa ]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
+		
+	    then
+		echo "Starting cleaning"
+		parallel --env Al2Phylo_cmd -j+0 'if [ ! -e *cleaned.fa ]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
 		TinEXT='_clean.fa'
 	    fi    
 	    
 	    if [ $SFLAG -eq 0 ]
 	    then
-		echo "Pipeline stoped after sanitation."
+		echo "Pipeline stopped after sanitation."
 		exit 0
 	    else		
 		if [ $TREE_BUILDER == 'raxml' ]
-		then  
+		then
+		    echo "Starting tree estimation with raxml"
 		    parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n out 2>> raxml.log; fi' ::: *$TinEXT;
-		else	
+		else
+		    echo "Starting tree estimation with FastTree"
 		    parallel --env fasttree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $fasttree_cmd  {} > {.}.tre  2>> fasttree.log; fi' ::: *$TinEXT;
 		fi
 	    fi
@@ -159,3 +164,4 @@ else
     main
 fi
 exit
+
