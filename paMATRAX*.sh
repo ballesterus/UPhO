@@ -1,11 +1,13 @@
 #!/bin/sh
 ######################################################################
 # paMATRAX*.sh: A shell script for sequentially execute multiple 
-# sequence alignment (mafft), trimming (TRimal) and tree-estimation (raxml or fastree).
-# Of you use this script you should cite all programs in the dependencies: 
+# sequence alignment (mafft), trimming (trimAl) and tree-estimation 
+#(raxml or fastree).
+# If you use this script you should cite the actual
+# programs in the dependencies list: 
 # 
-# The following programs are requiered and should be installed in the 
-# $PATH. Depeending on your 
+# The following programs are requiered and should be  refered
+# in the  $PATH.
 #
 #  *gnu-parallel
 #  *raxmlHPC 
@@ -15,19 +17,36 @@
 #  *Al2Phylo.py
 ######################################################################
 
-mafft_cmd='mafft --anysymbol --auto --thread 2'
-trimal_cmd=
-raxml_cmd=
-fastree_cmd=
-Al2Phylo_cmd=
+#Program specific commands. User should modify this accordingly.
+mafft_cmd="mafft --anysymbol --auto --thread 2"
+trimal_cmd="trimal -fasta -gappyout"
+raxml_cmd="raxmlHPC-AVX -f a -p 767 -x 97897 -#100 -m PROTGAMMAAUTO"
+fasttree_cmd="FastTreeMP"
+Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.50"
 
-case {<<EOF
-usage: %0 options
+export mafft_cmd
+export trimal_cmd
+export raxml_cmd
+export Al2Phylo_cmd
+export fasttree_cmd
+#Initializa variables
+EXT="fasta"
+AFLAG=1
+TFLAG=1
+SFLAG=1
+CFLAG=0
+TinEXT='fa'
+TREE_BUILDER="ramxl"
+
+usage() {
+cat <<EOF
+
+usage: $0 <options>
 
 This script runs the phylogetic pipeline Align -> Trim-> Sanitize-> Tree
-on all sequences on the cwd. It calls  gnu-parallel, mafft, trimAL, RAxML or
-FastTree. Users should inspect and modify this script accordingly.
-Please cite the appropiate programs used on each of the steps.
+on all sequences in the cwd. It calls  gnu-parallel, mafft, trimAL, RAxML or
+FastTree. If an output file is found it would be skipped.
+Please cite the appropiate programs used on each step.
 
 -h  |  Print this help
 -e  |  Extension if the unaligned sequences (deafault: fasta)
@@ -39,42 +58,104 @@ Please cite the appropiate programs used on each of the steps.
 
 This are the default parameters for each program. Modify accordingly:
 
-
+    mafft:    $mafft_cmd
+   trimAl:    $trimal_cmd
+ Al2Phylo:    $Al2Phylo_cmd
+    raxml:    $raxml_cmd
+ fasttree:    $fastree_cmd
 
 EOF
 }
 
-if [ $# -eq 0 ] 
-then Tree_estimator='X' 
-else Tree_estimator=$1 
-fi
+while getopts "he:atscf" opt; do
 
-echo $Tree_estimator
+    case "$opt" in
+	h)
+	    usage
+	    exit 0
+	    ;;
+	e)
+	    EXT=$OPTARG
+	    ;;
+	
+	a) 
+	    AFLAG=0
+	    ;;
+	t)
+	    TFLAG=0
+	    ;;
+	s) SFLAg=0
+	    ;;
+	c) CFLAG=1
+	    ;;
+	f)
+	    TREE_BUILDER="FastTree"
+	    ;;
+	?)
+	    usage >&2
+	    exit 1
+	    ;;
+    esac
 
-#Part I. MSA using mafft on all files  in the cwd with estension ''
-als=`ls -1 *.al 2>/dev/null | wc -l` 
-if [ $als = 0 ]
-then parallel -j+0 $mafft_cmd {} > {.}.al' ::: *.fasta; 
-else echo "There are $als aligment files (*.al) in the working folder. Will procede with trimming" 
-fi
-#Part II: Masking gappy regions with trimal
-#Test if trimmed als exits in the wd 
-# Edit masking parameters in line 43
-trims=`ls -1 *.fa 2>/dev/null | wc -l` 
-if [ $trims = 0 ]
-then parallel -j+0 'trimal -in {} -out {.}.fa -fasta -gappyout' ::: *.al; 
-else 
-echo "There are $trims trimed aligment files (*.fa) in the working folder. Will procede with tree estimation" 
-fi
+done
+shift $((OPTIND-1))
 
-#Test if trees exist in the WD 
-trees=`ls -1 *.tre 2>/dev/null | wc -l`
-if [ $trees = 0 ] 
-then 
-    if [ $Tree_estimator == 'F' ] 
-    then parallel -j+0 'FastTreeMP {} > {.}.tre' ::: *.fa;
-    elif [ $Tree_estimator == 'X' ] 
-    then parallel -j+0 'raxmlHPC-AVX -s {} -f a -p12345 -x12345 -#1000 -m PROTGAMMAAUTO -n {.}.rxOUT' ::: *.fa;
-    fi 
-else echo "There are $trees tree files (*.tre) in the working folder" echo "Nothing else to do. Good Bye" 
+function main () {
+    echo "Starting MSA"
+    parallel --env mafft_cmd  -j+0 'if [ ! -e {.}.al  ]; then $mafft_cmd {} > {.}.al 2>>mafft.log; fi' ::: *.$EXT;
+    if [ $AFLAG -eq 0 ]
+    then
+	echo "Pipeline stoped after alignement."
+	exit 0
+    else
+	echo "Starting trimming"
+	parallel --env triimal_cmd  -j+0 'if [ ! -e {.}.fa  ]; then $trimal_cmd -in {} -out {.}.fa; fi' ::: *.al;     
+	
+	if [ $TFLAG -eq 0 ]
+	then
+	    echo "Pipeline stoped after trimming."
+	    exit 0
+	else
+	
+	    if [ $CFLAG -eq 1 ]
+	    then parallel --env Al2Phylo_cmd -j+0 'if [ ! -e *cleaned.fa ]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
+		TinEXT='_clean.fa'
+	    fi    
+	    
+	    if [ $SFLAG -eq 0 ]
+	    then
+		echo "Pipeline stoped after sanitation."
+		exit 0
+	    else		
+		if [ $TREE_BUILDER == 'raxml' ]
+		then  
+		    parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n out 2>> raxml.log; fi' ::: *$TinEXT;
+		else	
+		    parallel --env fasttree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $fasttree_cmd  {} > {.}.tre  2>> fasttree.log; fi' ::: *$TinEXT;
+		fi
+	    fi
+	fi	
+    fi
+}
+	    
+
+
+# echo Extension  $EXT
+# echo Al $AFLAG
+# echo Clean  $CFLAG
+# echo TRim trim$TFLAG
+# echo Sanit $SFLAG
+# echo build trees with $TREE_BUILDER
+
+
+find -empty -delete
+als=`ls -1 *.$EXT 2>/dev/null | wc -l` 
+echo $als
+if [ $als -lt 1 ]
+then
+    echo "ERROR: No input files found in the current directory"
+else
+    echo "$als files found in the current directory" 
+    main
 fi
+exit
