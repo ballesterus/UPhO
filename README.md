@@ -11,6 +11,8 @@ Additional scripts are provided for a variety of task including:
 <li>Al2phylo.py A script to prepare MSA for phylogenetic inference where only one sequence per otu is retained and unique sequence identifiers removed.
 <li>Consensus.py: Find conserved regions in MSA.
 <li>distOrth.py: Functions for annotating the didtribution of orthologs on a tree.
-<li>distOrth_interactive.py: interactive helper for sumor.
+<li>distOrth_interactive.py: interactive helper for distOrth.
+
+
 Each script has its own  -help flag for detail on its usage.
 
