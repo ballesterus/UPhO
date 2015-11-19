@@ -38,7 +38,7 @@ CFLAG=0
 TinEXT='fa'
 TREE_BUILDER="ramxl"
 
-usage() {
+function usage() {
 cat <<EOF
 
 usage: $0 <options>
@@ -77,7 +77,6 @@ while getopts "he:atscf" opt; do
 	e)
 	    EXT=$OPTARG
 	    ;;
-	
 	a) 
 	    AFLAG=0
 	    ;;
@@ -98,7 +97,6 @@ while getopts "he:atscf" opt; do
     esac
 
 done
-shift $((OPTIND-1))
 
 function main () {
     echo "Starting MSA"
@@ -144,22 +142,14 @@ function main () {
 }
 	    
 
-
-# echo Extension  $EXT
-# echo Al $AFLAG
-# echo Clean  $CFLAG
-# echo TRim trim$TFLAG
-# echo Sanit $SFLAG
-# echo build trees with $TREE_BUILDER
-
-
-find -empty -delete
+shift $((OPTIND-1))
 als=`ls -1 *.$EXT 2>/dev/null | wc -l` 
-echo $als
+#echo $als
 if [ $als -lt 1 ]
 then
     echo "ERROR: No input files found in the current directory"
 else
+    find -empty -delete
     echo "$als files found in the current directory" 
     main
 fi
