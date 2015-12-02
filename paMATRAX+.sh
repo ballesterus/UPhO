@@ -62,7 +62,7 @@ This are the default parameters for each program. Modify accordingly:
    trimAl:    $trimal_cmd
  Al2Phylo:    $Al2Phylo_cmd
     raxml:    $raxml_cmd
- fasttree:    $fastree_cmd
+ fasttree:    $fasttree_cmd
 
 EOF
 }
