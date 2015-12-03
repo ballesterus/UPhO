@@ -20,7 +20,7 @@
 #Program specific commands. User should modify this accordingly.
 mafft_cmd="mafft --anysymbol --auto --thread 2"
 trimal_cmd="trimal -fasta -gappyout"
-raxml_cmd="raxmlHPC-AVX -f a -p 767 -x 97897 -#100 -m PROTGAMMAAUTO"
+raxml_cmd="raxmlHPC-AVX -f a -p 767 -x 97897 -#100 -m PROTGAMMA"
 fasttree_cmd="FastTreeMP"
 Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.50"
 
@@ -35,8 +35,8 @@ AFLAG=1
 TFLAG=1
 SFLAG=1
 CFLAG=0
-TinEXT='fa'
-TREE_BUILDER="ramxl"
+TinEXT='.fa'
+TREE_BUILDER=0
 
 function usage() {
 cat <<EOF
@@ -88,7 +88,7 @@ while getopts "he:atscf" opt; do
 	c) CFLAG=1
 	    ;;
 	f)
-	    TREE_BUILDER="FastTree"
+	    TREE_BUILDER=1
 	    ;;
 	?)
 	    usage >&2
@@ -128,10 +128,10 @@ function main () {
 		echo "Pipeline stopped after sanitation."
 		exit 0
 	    else		
-		if [ $TREE_BUILDER == 'raxml' ]
+		if [ $TREE_BUILDER -eq 0 ]
 		then
 		    echo "Starting tree estimation with raxml"
-		    parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n out 2>> raxml.log; fi' ::: *$TinEXT;
+		    parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n {.}.out 2>> raxml.log; fi' ::: *$TinEXT;
 		else
 		    echo "Starting tree estimation with FastTree"
 		    parallel --env fasttree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $fasttree_cmd  {} > {.}.tre  2>> fasttree.log; fi' ::: *$TinEXT;
