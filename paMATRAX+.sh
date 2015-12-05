@@ -20,7 +20,7 @@
 #Program specific commands. User should modify this accordingly.
 mafft_cmd="mafft --anysymbol --auto --thread 2"
 trimal_cmd="trimal -fasta -gappyout"
-raxml_cmd="raxmlHPC-AVX -f a -p 767 -x 97897 -#100 -m PROTGAMMA"
+raxml_cmd="raxmlHPC-AVX -f a -p 767 -x 97897 -#100 -m PROTGAMMAUTO"
 fasttree_cmd="FastTreeMP"
 Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.50"
 
@@ -35,7 +35,7 @@ AFLAG=1
 TFLAG=1
 SFLAG=1
 CFLAG=0
-TinEXT='.fa'
+TinEXT='_clean.fa'
 TREE_BUILDER=0
 
 function usage() {

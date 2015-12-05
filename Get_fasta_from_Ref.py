@@ -110,9 +110,9 @@ def Retrieve_Fasta(in_file, Outdir, prefix, Reference):
 if __name__ == "__main__":
     if args.clean == 'True':
         print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
-        No_Same_OG_Intesec(File)
+        No_Same_OG_Intesec(args.query)
         print 'Done cleaning type I, proceeding to clean subsets'
-        No_OG_subsets(File)
+        No_OG_subsets('OG_cleaned_I.txt')
         print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
         Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
     elif args.clean == 'False':

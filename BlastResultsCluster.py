@@ -8,7 +8,7 @@ import glob
 parser = argparse.ArgumentParser(description='This script produces clusters of homolog sequences from a csv formatted blast output file.')
 parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Blast output file to process, if no input is provided the program will try to process a file with extension "csv" in the working diretory.')
 parser.add_argument('-d', dest= 'delimiter', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
-parser.add_argument('-t', dest= 'type',  type =str, default= 'r', help ='Specify the type cluster to perform, options are to create clusters with redundancy in spp. composition (r) or find only single copy clusters (sc).')
+parser.add_argument('-sc', dest= 'sc',  action ='store_true', default= False, help ='When the flag is present only sigle copy clusters, those composed of only one sequences per species , will be written to the output.')
 parser.add_argument('-mcl', dest= 'mcl', action='store_true', default= False, help = "When true, a 'abc' file is produced to use as input for Markov Clustering with Stijn van Dongen's  program mcl.")
 parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value threshold, default 1e-5.')
 parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different species to keep in each cluster.')
@@ -109,12 +109,12 @@ if __name__ == "__main__":
 		print 'E value filtering and clustering started'
 		clusters(csv, args.expectation)
 		clustFile = 'clusters_%s.txt' %args.expectation
-		if args.type == 'r':
+		if not args.sc:
 			print 'minimum taxa and clustering started'
 			redundant(clustFile, args.minTaxa)
                         from Get_fasta_from_Ref import Retrieve_Fasta
 			Retrieve_Fasta("ClustR_m%d.txt" % args.minTaxa, 'ClusteRs', 'bcl', args.reference )		
-		elif args.type =='sc':
+		else:
 			non_redundant(clustFile, args.minTaxa)
                         from Get_fasta_from_Ref import Retrieve_Fastaa
 			Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
