@@ -14,10 +14,9 @@ counter = 1
 for line in inp_F:
     id_Line= re.search(r'^>', line)
     idNum = format(counter, '06d')
-    unique_id= '>' + SP_code + sep + idNum
+    unique_id= '>' + SP_code + sep + idNum + sep
     if id_Line:
-        nl0=re.sub(r'cds\.', '', line) # remove cds prefix
-        nl1 = re.sub(r'\s.+', '', nl0) # remove additional annotations
+        nl1 = re.sub(r'\s.+', '', line) # remove additional annotations
         nl2 = re.sub(r'^>', unique_id, nl1) # add unique identifier 
         out_F.write(nl2)
         counter += 1 
