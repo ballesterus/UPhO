@@ -11,9 +11,9 @@ parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= Fa
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup evaluation.')
 parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='When this flag is present  orthobranches  will be written to its own file in newick format.')
 parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='If provided this argument points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
-parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a minimum support value for the orthology evaluation.')
+parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a support value threshold for the orthology evaluation.')
 parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species should be the first element for proper parsing. Default is: "|".')
-parser.add_argument('-paralogous', dest= 'tolerate', type = int, default= '0', help ='Specify maximum number (int) of paralogues to be tolertated, so that a almost ortholog group does not get discarded due to few potentially spurious sequence (feature requested by Kevin Kocot).')
+parser.add_argument('-para', dest= 'tolerate', type = int, default= '0', help ='Specify maximum number (int) of paralogues to be tolertated, so that a almost ortholog group does not get discarded due to few potentially spurious sequence (feature requested by Kevin Kocot).')
 args = parser.parse_args()
 #print args
 
@@ -118,6 +118,7 @@ def split_decomposition(Tree):
                 missBval+=1
             Tree.splits.append(mySplits)
     print '%d splits in the tree missed branch values.'  %missBval
+
 def LargestBox(LoL):
     '''Takes a list of lists (lol) and returns a lol where no list is a subset of the others, retaining only the largest'''
     NR =[]
@@ -227,12 +228,12 @@ def main_wTrees ():
                     ParBranch=open('%s_p%s.tre' %(name,parNum), 'w')
                     G = ','.join(group).strip(',')
                     ParList.write(FName + G + '\n')
-                    if set(group) == set(P.leaves): # if the whole input tree represents an orthobranch
+                    if set(group) == set(P.leaves): # if the whole input tree represents an orthobranch with n paralogs
                         branch = P.newick
                     else:
                         branch = subNewick(group, P)
                     ParBranch.write(branch + '\n')
-                    print "subtree  written to: %s_p%s.tre" %(name,ortNum)
+                    print "subtree  written to: %s_p%s.tre" %(name,parNum)
                     countp += 1
                     Tolerated += 1
                     parNum += 1
@@ -263,7 +264,7 @@ def main():
                     Total += 1
                     ortNum += 1
                 for group in P.paralogs:
-                    FName= '#%s_p%d,' %(name,ortNum)
+                    FName= '#%s_p%d,' %(name,parNum)
                     G = ','.join(group).strip(',')
                     ParList.write(FName + G + '\n')
                     countp += 1
@@ -278,14 +279,20 @@ def main():
 if __name__ == "__main__":
     print  "Begining orthology assesment: Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 
     OrtList = open('UPhO_orthogroups.csv', 'w')
-    ParList = open('UPhO_para-orthogroups.csv', 'w')
+    if args.tolerate > 0:
+        ParList = open('UPhO_para-orthogroups.csv', 'w')
+        
     if not args.out_trees:
         main()
     else:
         main_wTrees()
     OrtList.close()
-    ParList.close()
+    try:
+        ParList.close()
+    except:
+        None
     if args.Reference != None:
         from Get_fasta_from_Ref import Retrieve_Fasta
         print "Proceeding to create a fasta file for each ortholog"    
         Retrieve_Fasta('UPhO_orthogroups.csv','UPhO_Seqs','upho', args.Reference)
+
