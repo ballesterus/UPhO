@@ -1,6 +1,6 @@
 # UPhO
 
-UPhO find orthologs with and without inparalogs from input gene family trees. Reter to the Documentation.pdf for instructions on usage installation and dependencies. Type UPhO.py -h for help.
+UPhO find orthologs with and without inparalogs from input gene family trees. Refer to the Documentation.pdf for instructions on usage installation and dependencies. Type UPhO.py -h for help.
 
 The only input requierement for UPhO is a tree (or trees) in newick format in which the leaves are named with a species idenfifier, a field separator, and sequence identifier. By defauul the field separator is the charateer "|"  but custom delimiters can be defined. Examples of trees to test UPhO are provided in the  TestData folder.
 
@@ -17,4 +17,9 @@ Additional scripts are provided for a variety of task including:
 <li>**distOrth.py** Functions for annotating the didtribution of orthologs on a tree.
 <li>**distOrth_interactive.py** interactive helper for distOrth.
 
-Each script has its own  -help flag for detail on its usage.
+Each script has  (or should) have its own  -help flag for details on its usage, .
+
+##Disclaimer:
+
+This software is experimental, in active development and comes without warranty. More detailed documentation is in preparation.
+UPhO scripts were developed and tested using python 2.7 on Linux (RHLE and Debian) and MacOS. Versions of these scripts using python3 are being tested.
