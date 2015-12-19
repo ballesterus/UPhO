@@ -2,7 +2,7 @@
 
 UPhO find orthologs with and without inparalogs from input gene family trees. Reter to the Documentation.pdf for instructions on usage installation and dependencies. Type UPhO.py -h for help.
 
-The only input requierement for UPhP is a tree (or trees) in newick format in which the leaves are named with a species idenfifier, a field separator, and sequence identifier. By defauul the fiel separator is the  "|" symbol both custom delimiters can be defined. Examples of trees to test UPhO are provided in teh folder TestData.
+The only input requierement for UPhO is a tree (or trees) in newick format in which the leaves are named with a species idenfifier, a field separator, and sequence identifier. By defauul the fiel separator is the  "|" symbol both custom delimiters can be defined. Examples of trees to test UPhO are provided in teh folder TestData.
 
 Additional scripts are provided for a variety of task including:
 
