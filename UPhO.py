@@ -44,7 +44,7 @@ class myPhylo():
 
 def get_leaves(String):
     """Find leaves names in newick files using regexp. Leaves names are composed of alpha numeric characters, underscore and a special field delimiter"""
-    pattern = "([A-Za-z0-9_]+%s[A-Za-z0-9_%s]+)" % (gsep, gsep)
+    pattern = "[^\(\),;]+%s[^\(\),;:]+" % gsep
     Leaves = re.findall(pattern, String)
     return Leaves
 
