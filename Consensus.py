@@ -39,7 +39,20 @@ def Fasta_Parser(File):
                 Seq = Seq + Part
         Records[Header]=Seq
     return Records
-    F.close()
+
+def Fasta_to_Dict(File):
+    '''BETTER FASTA PARSER'''
+    with open(File, 'r') as F:
+        Records = {}
+        for Line in F:
+            if Line.startswith('>'):
+                Seqid = Line.strip('>').strip('\n')
+                Seq= ''
+                Records[Seqid] = Seq
+            else:
+                Seq = Records[Seqid] + Line.strip('\n')
+                Records[Seqid] = Seq 
+        return Records
 
 def make_Consensus(Dict, T):
     '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a T% consensus'''
