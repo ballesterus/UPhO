@@ -29,26 +29,17 @@ def seq_leng_nogaps(Str):
     
 def Fasta_Parser(File):
     """Returns a dictionary from a fasta file containing FastaId(key) and Seqs"""
-    Records = {}
     with open(File, 'r') as F:
-        Seq=''
+        Records = {}
         for Line in F:
-            if is_ID(Line) and len(Seq) == 0:
-                seqid =Line.replace('\n', args.delimiter).strip('>') #replace ends of line with the delimiter character thus ids with s single field ids.
-                Records[seqid]=''
-            elif is_ID(Line) and len(Seq) > 0:
-                Records[seqid] = Records[seqid] + Seq
-                seqid =Line.replace('\n', args.delimiter).strip('>')
-                if seqid not in Records.keys():
-                    Records[seqid]=''
-                Seq=''
+            if Line.startswith('>'):
+                Seqid = Line.strip('>').strip('\n')
+                Seq= ''
+                Records[Seqid] = Seq
             else:
-                Part=Line.replace('\n','')
-                Seq = Seq + Part
-        #print seqid
-        Records[seqid]=Records[seqid] + Seq #get the very last seq
-    F.close()
-    return Records
+                Seq = Records[Seqid] + Line.strip('\n')
+                Records[Seqid] = Seq 
+        return Records
 
 def OneOTU(SppDict):
     rSpp={}
