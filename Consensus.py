@@ -58,10 +58,7 @@ def make_Consensus(Dict, T):
     '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a T% consensus'''
     Consensus=''
     for i in range(0, len(Dict[Dict.keys()[0]])):
-        compo = []
-        for seq in Dict.itervalues():
-            site = seq[i]
-            compo.append(site)
+        compo = [seq[1] for seq in Dict.itervalues()]
         N = len(compo)
         G = 0 
         MFB = ''
@@ -100,7 +97,7 @@ def Good_Blocks(Consensus, M):
 if arguments.targets != None:
     Out =open('Output.fasta', 'w')
     for File in  arguments.targets[0]:
-        F = Fasta_Parser(File)
+        F = Fasta_to_Dict(File)
         FileName= File.split('.')
         Con = make_Consensus(F, T)
 #        print Con
