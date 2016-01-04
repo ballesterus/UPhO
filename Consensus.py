@@ -10,7 +10,7 @@ parser.add_argument('-m', action = 'store', dest = 'M', default = 18, type = int
 parser.add_argument('-f', action = 'append', dest = 'targets', type = str, nargs= '*',  default = None,  help = 'files to process(fasta alignment)')  
 
 arguments= parser.parse_args()
-print arguments
+#print arguments
 T = arguments.T
 M = arguments.M
 
@@ -58,8 +58,7 @@ def make_Consensus(Dict, T):
     '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a T% consensus'''
     Consensus=''
     for i in range(0, len(Dict[Dict.keys()[0]])):
-        compo = [seq[1] for seq in Dict.itervalues()]
-        N = len(compo)
+        compo = [seq[i] for seq in Dict.itervalues()]
         G = 0 
         MFB = ''
         for base in set(compo):
@@ -67,11 +66,12 @@ def make_Consensus(Dict, T):
             if freq > G:
                 G = freq
                 MFB = base
-        if float(G)/N >= T:
+        if float(G)/len(Dict.keys()) >= T:
             Consensus+=MFB
         else:
             Consensus+='N'
     return Consensus
+
 
 def Good_Blocks(Consensus, M):
     '''This funcion takes as inputs a consensus sequence and returns blocks of M contibuos base pairs in that consensus (Conserved sites of  a given length)'''
@@ -93,16 +93,27 @@ def Good_Blocks(Consensus, M):
     GoodBlocks+=block.lower()
     return GoodBlocks
 
+def seq_freqs(string):
+    '''returns a list with sequence lenght, frequecies of ATGC, gaps and ambiguous(RYN)'''
+    seq= string.upper()
+    Acount = seq.count('A')
+    Tcount = seq.count('T')
+    Gcount = seq.count('G')
+    Ccount = seq.count('C')
+    Gapcount = seq.count('-')
+    ambig = seq.count('R') + seq.count ('Y') + seq.count('N')
+
+    return [len(string), Acount, Tcount, Gcount, Ccount, Gapcount, ambig ]
+
+
 ###MAIN###
-if arguments.targets != None:
+if __name__ ==' __main__':
     Out =open('Output.fasta', 'w')
     for File in  arguments.targets[0]:
         F = Fasta_to_Dict(File)
         FileName= File.split('.')
         Con = make_Consensus(F, T)
-#        print Con
         Res = Good_Blocks(Con, M) 
-#        print Res
         if re.search(r'[ACGT]+', Res):
             print 'Consensus from orthogroup %s have conserevd regions' % FileName[0]
             Out.write('>' + FileName[0] + '\n')

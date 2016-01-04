@@ -60,11 +60,13 @@ def spp_in_list(alist, delim):
     return spp
 
 def Aln_L(Dict):
-    """Returns the lenght of the alignment or  False if the sequences in the dict are nor the same length or if squences are of zero lenght, thus probably not aligned."""
+    """Returns the lenght of the alignment or  zero if the sequences in the dict are nor the same length or if squences are of zero lenght, thus probably not aligned."""
     Ref = Dict.keys()[0]
     Len= len(Dict[Ref]) # obtain a reference from the 1st dict entry.                                           
     if all(Len == len(Dict[key]) for key in Dict.iterkeys()):
         return Len
+    else:
+        return 0
         
 def Sanitize_aln(Dict):
     """Remove sequence with high content of gaps"""
