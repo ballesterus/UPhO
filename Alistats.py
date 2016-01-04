@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from sys import argv
 
-    
 sep = '|'
 
 def Fasta_to_Dict(File):
@@ -53,7 +52,7 @@ if __name__=='__main__':
     Targets = argv
 #    print Targets
     with open('alns_stats.tsv', 'w') as out:
-        out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapper\identper\tConsensus\n")
+        out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapper\tidentper\tConsensus\n")
         for F in Targets:
             Al = Fasta_to_Dict(F)
             numSeq, numSpp, ATper, GCper, Gapper = aln_stats(Al)
