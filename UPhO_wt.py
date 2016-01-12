@@ -6,14 +6,14 @@ from math import fsum
 import argparse
 
 parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using Unrooted Phylogenetic Orthology criterion. Input trees are provided as a newick file(s) with one or more trees.')
-parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate with tree in newick format.')
-parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When this flag is present, inparalogs will  be included in the orthogroups, default = False.')
+parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate with tree(s) in newick format.')
+parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When this flag is present inparalogs will  be included in the orthogroups, default = False.')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup evaluation.')
 parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='When this flag is present  orthobranches  will be written to its own file in newick format.')
-parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='If provided this argument points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
+parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='Fasta file to be used as the source of sequences to write individual multiple sequence fasta files for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a support value threshold for the orthology evaluation.')
-parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species should be the first element for proper parsing. Default is: "|".')
-parser.add_argument('-para', dest= 'tolerate', type = int, default= '0', help ='Specify maximum number (int) of paralogues to be tolertated, so that a almost ortholog group does not get discarded due to few potentially spurious sequence (feature requested by Kevin Kocot).')
+parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Speciesname  must be the first element for proper parsing. Default is: "|".')
+parser.add_argument('-wP', dest= 'tolerance', type = int, default= '0', help ='Specify maximum number (int) of paralogues to be tolertated, so that an almost ortholog group does not get discarded due to few potentially spurious sequence (feature suggested by Kevin M. Kocot).')
 args = parser.parse_args()
 #print args
 
@@ -46,12 +46,12 @@ class myPhylo():
 
 def get_leaves(String):
     """Find leaves names in newick files using regexp. Leaves names are composed of alpha numeric characters, underscore and a special field delimiter"""
-    pattern = "([A-Za-z0-9_]+%s[A-Za-z0-9_%s]+)" % (gsep, gsep)
+    pattern = "[^\(\),;:\[\]]+%s[^\(\),;:\[\]]+" % gsep
     Leaves = re.findall(pattern, String)
     return Leaves
 
 def spp_in_list(alist):
-    '''return the species from a list of sequence identifiers'''
+    '''Return a list species from a list of sequence identifiers'''
     spp =[]
     for i in alist:
         spp.append(i.split(sep)[0])
@@ -83,7 +83,7 @@ def split_decomposition(Tree):
             P[idc].append(Pos)
             closed.append(idc)
         Pos+=1
-#Part II: Where we use string operations  and to identify components parts of each split.
+#Part II: Where we use string operations to identify components parts of each split.
     Inspected= []
     missBval = 0
     for Key in P.iterkeys(): # this extracs splits from the parenthethical notation using the parenthesis mapping dictionary.
@@ -154,7 +154,7 @@ def orthologs(Phylo, minTaxa):
                 if len(set(Otus)) == cCount and cCount >= minTaxa:
                     if i_split not in OrthoBranch:
                         OrthoBranch.append(i_split)
-                elif len(set(Otus)) >= (cCount -args.tolerate) and cCount >= minTaxa:
+                elif len(set(Otus)) >= (cCount -args.tolerance) and cCount >= minTaxa:
                     if i_split not in Tolerated:
                         Tolerated.append(i_split)
     OrthoBranch = LargestBox(OrthoBranch)
@@ -241,7 +241,7 @@ def main_wTrees ():
         print "%d orthogroups were found in the tree file %s" % (count, tree)
         print "%d paralogues  were tolerated  in the tree file %s" % (countp, tree)
     print 'Total  orthogroups found: %d' % Total
-    print 'Total paralogous tolerated %d' % Tolerated
+    print 'Total orthogroups with paralgy tolerated: %d' % Tolerated
                             
 def main():
     Total = 0
@@ -271,17 +271,17 @@ def main():
                     Tolerated += 1
                     parNum += 1
         print "%d orthogroups were found in the tree file %s" % (count, tree)
-        print "%d paralogues  were tolerated  in the tree file %s" % (countp, tree)
+        print "%d orthogroups with paralogy  were tolerated  in the tree file %s" % (countp, tree)
     print 'Total  orthogroups found: %d' % Total
-    print 'Total paralogous tolerated %d' % Tolerated
+    print 'Total orthologs with paralogy tolerated %d' % Tolerated
 
 #MAIN
 if __name__ == "__main__":
     print  "Begining orthology assesment: Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 
     OrtList = open('UPhO_orthogroups.csv', 'w')
-    if args.tolerate > 0:
-        ParList = open('UPhO_para-orthogroups.csv', 'w')
-        
+    if args.tolerance > 0:
+        print "Orthogroups with including a max. of %d paralogs will be writted to UPhO_wp_orthogroups.csv"
+        ParList = open('UPhO_wp_orthogroups.csv', 'w')
     if not args.out_trees:
         main()
     else:
@@ -295,4 +295,8 @@ if __name__ == "__main__":
         from Get_fasta_from_Ref import Retrieve_Fasta
         print "Proceeding to create a fasta file for each ortholog"    
         Retrieve_Fasta('UPhO_orthogroups.csv','UPhO_Seqs','upho', args.Reference)
+        try:
+            Retrieve_Fasta('UPhO_wp_orthogroups.csv','UPhO_Seqs','uphowp', args.Reference)
+        except:
+            print "Fasta files of  each orthogroup written to UPhO_Seqs. Nothing else to do. Bye bye!"
 
