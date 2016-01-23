@@ -6,14 +6,14 @@ from math import fsum
 import argparse
 
 parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using Unrooted Phylogenetic Orthology criterion. Input trees are provided as a newick file(s) with one or more trees.')
-parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate with tree(s) in newick format.')
-parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='When this flag is present inparalogs will  be included in the orthogroups, default = False.')
-parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup evaluation.')
-parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='When this flag is present  orthobranches  will be written to its own file in newick format.')
-parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='Fasta file to be used as the source of sequences to write individual multiple sequence fasta files for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
-parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Specify a support value threshold for the orthology evaluation.')
-parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Speciesname  must be the first element for proper parsing. Default is: "|".')
-parser.add_argument('-wP', dest= 'tolerance', type = int, default= '0', help ='Specify maximum number (int) of paralogues to be tolertated, so that an almost ortholog group does not get discarded due to few potentially spurious sequence (feature suggested by Kevin M. Kocot).')
+parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate, with tree(s) in newick format.')
+parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='Include inparalogs will in the orthogroups, default = False.')
+parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup.')
+parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='Write orthobranches  to newick file.')
+parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='Points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
+parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Minimum support value for the orthology evaluation.')
+parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
+parser.add_argument('-wP', dest= 'tolerance', type = int, default= 0, help ='Specify a maximum number (int) of paralogues to be tolertated, so that an almost ortholog group does not get discarded due to few potentially spurious sequence (feature suggested by Kevin M. Kocot).')
 args = parser.parse_args()
 #print args
 
@@ -131,14 +131,14 @@ def LargestBox(LoL):
             NR.append(L)
     return NR
 
-def orthologs(Phylo, minTaxa):
+def orthologs(Phylo, minTaxa, bsupport):
     """This function returns populates the list of orthologs in the PhyloClass object"""
     OrthoBranch=[]
     Tolerated=[]
     #if in paralogs are to be included, update cost parameter per terminals. 
     if args.inParalogs:
         for S in Phylo.splits:
-            if S.support in [None, ''] or float(S.support) >= args.Support:
+            if S.support in [None, ''] or float(S.support) >= bsupport:
                 for i_split in S.vecs:
                     Otus = spp_in_list(i_split)
                     if  len(set(Otus)) == 1 and len(Otus) > 1: # find splits representing in-paralogs and update costs
@@ -147,7 +147,7 @@ def orthologs(Phylo, minTaxa):
                             if ICost < Phylo.costs[leaf]:
                                 Phylo.costs[leaf] = ICost #Reduce cost value of inparlogue copies in poportion to the number of inparalogs inplied by this split.
     for S in Phylo.splits:
-        if S.support in [None, ''] or float(S.support) >= args.Support:
+        if S.support in [None, ''] or float(S.support) >= bsupport:
             for i_split in S.vecs:
                 Otus = spp_in_list(i_split)
                 cCount = fsum(Phylo.costs[i] for i in i_split)
@@ -205,7 +205,7 @@ def main_wTrees ():
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
-                orthologs(P, args.minTaxa)
+                orthologs(P, args.minTaxa, args.Support)
                 parNum=0
                 ortNum=0
                 for group in P.ortho:
@@ -253,7 +253,7 @@ def main():
         with open(tree, 'r') as T:
             for line in  T:
                 P = myPhylo(line)
-                orthologs(P, args.minTaxa)
+                orthologs(P, args.minTaxa, args.Support)
                 ortNum=0
                 parNum=0
                 for group in P.ortho:
@@ -298,5 +298,6 @@ if __name__ == "__main__":
         try:
             Retrieve_Fasta('UPhO_wp_orthogroups.csv','UPhO_Seqs','uphowp', args.Reference)
         except:
-            print "Fasta files of  each orthogroup written to UPhO_Seqs. Nothing else to do. Bye bye!"
+            print "File with inapralogs not found."
+    print "Fasta files of  each orthogroup written to UPhO_Seqs. Nothing else to do. Bye bye!"
 
