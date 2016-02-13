@@ -7,9 +7,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using Unrooted Phylogenetic Orthology criterion. Input trees are provided as a newick file(s) with one or more trees.')
 parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate, with tree(s) in newick format.')
-parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='Include inparalogs will in the orthogroups, default = False.')
+parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='Include inparalogs in the orthogroups, default = False.')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup.')
-parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='Write orthobranches  to newick file.')
+parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='Write orthologous branches to newick file.')
 parser.add_argument('-R', dest= 'Reference', type = str, default= None, help ='Points to a fasta file to be used as the source of sequences to write individual multiple sequence fasta file for each of the orthogroups found. Requires Get_fasta_from_Ref.py and its dependencies.')
 parser.add_argument('-S', dest= 'Support', type = float, default = 0.0, help='Minimum support value for the orthology evaluation.')
 parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
