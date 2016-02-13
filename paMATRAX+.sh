@@ -49,7 +49,7 @@ FastTree. If an output file is found it would be skipped.
 Please cite the appropriate programs used on each step.
 
 -h  |  Print this help
--e  |  Extension if the unaligned sequences (default: fasta)
+-e  |  Extension of the unaligned sequences (default: fasta)
 -a  |  Stop after alignment
 -t  |  Stop after trimming
 -s  |  Stop after sanitation
