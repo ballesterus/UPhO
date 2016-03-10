@@ -6,7 +6,7 @@
 # If you use this script you should cite the actual
 # programs in the dependencies list: 
 # 
-# The following programs are required and should be  referenced
+# The following programs are required and should be referenced
 # in the  $PATH.
 #
 #  *gnu-parallel
@@ -29,6 +29,7 @@ export trimal_cmd
 export raxml_cmd
 export Al2Phylo_cmd
 export fasttree_cmd
+
 #Initialize variables
 EXT="fasta"
 AFLAG=1
@@ -56,7 +57,7 @@ Please cite the appropriate programs used on each step.
 -c  |  Sanitize trimmed alignments with Al2Phylo.py
 -f  |  Use FastTree for building trees (default raxml).
 
-This are the default parameters for each program. Modify accordingly:
+These are the default parameters for each program. Modify accordingly:
 
     mafft:    $mafft_cmd
    trimAl:    $trimal_cmd

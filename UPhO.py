@@ -6,7 +6,7 @@ from math import fsum
 import argparse
 
 parser = argparse.ArgumentParser(description='Script for finding orthologs from gene family trees using Unrooted Phylogenetic Orthology criterion. Input trees are provided as a newick file(s) with one or more trees.')
-parser.add_argument('-in', dest = 'Trees', type = str, default= None, nargs= '+',  help = 'Input file(s) to evaluate, with tree(s) in newick format.')
+parser.add_argument('-in', dest = 'Trees', type = str, nargs= '+', required=True,  help = 'Input file(s) to evaluate, with tree(s) in newick format.')
 parser.add_argument('-iP', dest= 'inParalogs', action ='store_true', default= False, help ='Include inparalogs in the orthogroups, default = False.')
 parser.add_argument('-m', dest= 'minTaxa', type = int, default= '4', help ='Specify the minimum number of OTUs in an orthogroup.')
 parser.add_argument('-ouT', dest='out_trees', action = 'store_true', default =False, help ='Write orthologous branches to newick file.')
@@ -43,20 +43,20 @@ class myPhylo():
 #FUNCTION DEFINITIONS
 
 def get_leaves(String):
-    """Find leaves names in newick files using regexp. Leaves names are composed of alpha numeric characters, underscore and a special field delimiter"""
+    '''Find leaves names in newick files using regexp. Leaves names are composed of alpha numeric characters, underscore and a special field delimiter'''
     pattern = "[^\(\),;:\[\]]+%s[^\(\),;:\[\]]+" % gsep
     Leaves = re.findall(pattern, String)
     return Leaves
 
 def spp_in_list(alist):
-    '''return the species from a list of sequence identifiers'''
+    '''Return the species from a list of sequence identifiers'''
     spp =[]
     for i in alist:
         spp.append(i.split(sep)[0])
     return spp
     
 def complement(Sub, Whole):
-    """Return elements in Whole that are not present in Sub"""
+    '''Return elements in Whole that are not present in Sub'''
     complement=set(Whole) - set(Sub)
     return list(complement)
 
@@ -81,10 +81,10 @@ def split_decomposition(Tree):
             P[idc].append(Pos)
             closed.append(idc)
         Pos+=1
-#Part II: Where we use string operations  and to identify components parts of each split.
+#Part II: Where we use string operations to identify components parts of each split.
     Inspected= []
     missBval = 0
-    for Key in P.iterkeys(): # this extracs splits from the parenthethical notation using the parenthesis mapping dictionary.
+    for Key in P.iterkeys(): # This extracs splits deduced from the parenthetical notation ussing mappings in dictionary P.
         r_vec=newick[P[Key][0]: P[Key][1]]
         vec = sorted(get_leaves(r_vec))
         covec = sorted(complement(vec, Tree.leaves)) #Complementary splits are inferred as the set of leaves not included in the parenthesis grouping.
@@ -115,7 +115,7 @@ def split_decomposition(Tree):
             except:
                 missBval+=1
             Tree.splits.append(mySplits)
-    print '%d splits in the tree missed branch values.'  %missBval
+    print '%d edges in the tree missed branch values.'  %missBval
 def LargestBox(LoL):
     '''Takes a list of lists (lol) and returns a lol where no list is a subset of the others, retaining only the largest'''
     NR =[]
@@ -129,9 +129,9 @@ def LargestBox(LoL):
     return NR
 
 def orthologs(Phylo, minTaxa, bsupport):
-    """This function returns populates the list of orthologs in the PhyloClass object"""
+    '''This function returns populates the list of orthologs in the PhyloClass object'''
     OrthoBranch=[]
-    #if inparalogs are to be included, update cost value per terminals. 
+    #if in-paralogs are to be included, update cost value of each terminals. 
     if args.inParalogs:
         for S in Phylo.splits:
             if S.support in [None, ''] or float(S.support) >= bsupport:
@@ -154,7 +154,7 @@ def orthologs(Phylo, minTaxa, bsupport):
     Phylo.ortho=OrthoBranch
 
 def aggregate_splits(small,large):
-    """Takes two newick like splits where small is a subset of large and returns partial newick incluiding the two input groupings"""
+    '''Takes two newick like splits where small is a subset of large and returns partial newick incluiding the two input groupings'''
     aggregate=large
     contents = get_leaves(small)
     placeholder= contents.pop()
@@ -164,7 +164,7 @@ def aggregate_splits(small,large):
     return aggregate
 
 def subNewick(alist, myPhylo):
-    """This function takes a list of leaves forming a branch and a source tree, returning the newick subtree"""
+    '''This function takes a list of leaves forming a branch and a source tree, returning the newick subtree'''
     relevant = []
     seed =''
     for split in myPhylo.splits:
@@ -187,6 +187,7 @@ def subNewick(alist, myPhylo):
     return partial
  
 def main_wTrees ():
+    '''Main program execution when trees are to be written'''
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
@@ -215,6 +216,7 @@ def main_wTrees ():
     print 'Total  orthogroups found: %d' % Total
                             
 def main():
+    '''Main program execution when trees are not written'''
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
