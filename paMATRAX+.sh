@@ -39,7 +39,7 @@ CFLAG=0
 TinEXT='_clean.fa'
 TREE_BUILDER=0
 
-function usage() {
+usage() {
 cat <<EOF
 
 usage: $0 <options>
