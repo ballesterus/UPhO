@@ -99,7 +99,7 @@ while getopts "he:atscf" opt; do
 
 done
 
-function main () {
+main () {
     echo "Starting MSA"
     parallel --env mafft_cmd  -j+0 'if [ ! -e {.}.al  ]; then $mafft_cmd {} > {.}.al 2>>mafft.log; fi' ::: *.$EXT;
     if [ $AFLAG -eq 0 ]
