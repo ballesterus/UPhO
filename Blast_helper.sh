@@ -19,7 +19,7 @@ input=$1
 
 #functions
 
-function CreateBlastDB()
+CreateBlastDB ()
 {
     if ! [ -d $ldb_path ]
     then mkdir $ldb_path;
@@ -28,7 +28,7 @@ function CreateBlastDB()
     makeblastdb -dbtype $db_type -in $input -input_type fasta -out local_db/localDB
 }
 
-function AllvsAll ()
+AllvsAll ()
 {
     echo 'Starting All vs All'
     cat $input | parallel  --block 100k --pipe --recstart '>' blastp -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > AllvsAll_results.csv
