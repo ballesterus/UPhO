@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ######################################################################
 # paMATRAX*.sh: A shell script for sequentially execute multiple 
 # sequence alignment (mafft), trimming (trimAl) and tree-estimation 
