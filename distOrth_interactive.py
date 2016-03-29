@@ -19,6 +19,8 @@ while Q == True:
         print "Summary file loaded"
     if NodeS != None:
         print "The node %s is selected" %NodeS[0]
+    print 'Outgroups: ' + ','.join(outgroups)
+
 
     print """Select from the following options:
     
@@ -27,7 +29,7 @@ while Q == True:
     3: Plot(see) the tree.
     4: Save  current tree image or load and save new tree to image file (PDF, SVG or PNG).
     5: Select a node and query the composition on specific node (requires loaded tree).
-    6: Return non-redundant orthogroups, from all in summary or from selected node, and save to file (.txt) 
+    6: Declare outgroups
 
     q: Exit"""
     selection = raw_input("Enter your selection: ")
@@ -58,43 +60,23 @@ while Q == True:
         T.render(OutName, tree_style = ts)
         
     elif selection=='5':
-        if T ==None:
+        if T == None:
             print 'Error: first load a tree:' 
         else:
             NodeNum = raw_input('Select  a node number from the tree above: ' )
             Result = get_orthoSet_by_node(T, str(NodeNum))
+            print 'There are %d orthogroups mapped to node %s.' % (len(Result), NodeNum)
             NodeS = [NodeNum, Result]
-            #print NodeS
             In = open(raw_input('Orthogroups text file:'), 'r')
             Out = open('compo_node_%s.txt' %NodeNum, 'w' )
             for Line in In:
-                Q=Line.split(',')
-                if Q[0].strip('#') in Result:
+                M=Line.split(',')
+                if M[0].strip('#') in Result:
                     Out.write(Line)
-
-    elif selection == '6':
-        if Summary == None:
-            print "ERROR: load a summary and a tree first."
-        else:
-            while selection =='6':
-                print "Redundancies resolved and log file written to OG_clean_I.log and OG_clean_II.log"
-                print """Options:
-                1: Create cleaned OG from ortholgs in SELECTED node.
-                2: Do Nothing.
-                """
-                answer=raw_input('Select option from above: ') 
-                if answer not in ['1','2', '3']:
-                    print "ERROR select the number of the option"
-                elif answer =='1':
-                    No_Same_OG_Intesec(Summary)
-                    No_OG_subsets('OG_cleaned_I.txt')
-                elif answer =='2':
-                    if NodeS==None:
-                        print 'Error: No node is selected'
-                    else:
-                        No_Same_OG_Intesec('compo_node_%s.txt' %NodeS)
-                        No_OG_subsets('OG_cleaned_I.txt')
-                elif answer =='3':
-                    selection = None
+    elif selection =='6':
+        outG = raw_input('Enter an outgroup: ')
+        outgroups.append(outG)
+        T = tree_ortho_annotator(Summary, Tree)
+        
     elif selection=='q':
         Q = False

@@ -11,7 +11,7 @@ parser.add_argument('-q', dest = 'query', type = str, default= 'None',  help = '
 parser.add_argument('-o', dest= 'outdir', type =str, default= '.', help ='Name of the directory to use as output, if does no exist this wll be created. Default "."')
 parser.add_argument('-p', dest= 'prefix', type = str, default= 'Group', help ='Prefix to use whe no group name is provided')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
-parser.add_argument('-c', dest= 'clean', type = str, default= 'False', help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
+parser.add_argument('-c', dest= 'clean', action='store_true', default= False, help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
 parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
 args, unknown = parser.parse_known_args()
 
@@ -45,7 +45,7 @@ def No_OG_subsets(File):
                 TotalSubsets += 1
         if Score < 1:
             Out.write(Line)
-    Log.write(str(TotalSubsets)+' xsubsets processed')
+    Log.write(str(TotalSubsets)+' subsets processed')
     Log.close()
     Out.close()
     F.close()
@@ -58,7 +58,7 @@ def No_Same_OG_Intesec(File):
     Independent = []
     for Line in F:
         A = Line.strip('\n').split(',')  
-        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+_",A[0])
+        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+",A[0])
         if Pattern == Current:
             for i in Independent:
                 if A  not in Independent:
@@ -73,7 +73,7 @@ def No_Same_OG_Intesec(File):
                     else:
                         Independent.append(A)
         else:
-            print 'The independent set derived from tree %s has %d seqsIds' % (Current, len(Independent))
+            print 'The tree %s has %d independent orthogroups' % (Current, len(Independent))
             for i in Independent:
                 Out.write(','.join(i) + '\n')
             Current = Pattern
@@ -108,14 +108,13 @@ def Retrieve_Fasta(in_file, Outdir, prefix, Reference):
 
 #RUNNING OPERATIONS
 if __name__ == "__main__":
-    if args.clean == 'True':
+    if args.clean:
         print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
         No_Same_OG_Intesec(args.query)
         print 'Done cleaning type I, proceeding to clean subsets'
         No_OG_subsets('OG_cleaned_I.txt')
         print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
         Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
-    elif args.clean == 'False':
+    elif not args.clean:
         Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
-    else:
-        print "Error: use 'True' or 'False' for the -c flag "
+  

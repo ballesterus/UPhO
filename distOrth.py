@@ -90,64 +90,7 @@ def deRedundance(LoL):
             NR.append(L)
     return NR
 
-def No_Same_OG_Intesec(File):
-    Log = open('OG_clean_I.log', 'w')
-    Out = open('OG_cleaned_I.txt', 'w')
-    F = open(File, 'r')
-    Current =''
-    Independent = []
-    for Line in F:
-        A = Line.strip('\n').split(',')  
-        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+_",A[0])
-        if Pattern == Current:
-            for i in Independent:
-                if A  not in Independent:
-                    if len(set(A)&set(i)) > 0:
-                        Independent.remove(i)
-                        Winner= max([A,i], key=len)
-                        Independent.append(Winner)
-                        Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
-                        print Log_st
-                        Log.write(Log_st)
-                        
-                    else:
-                        Independent.append(A)
-        else:
-            print 'The independent set derived from tree %s has %d seqsIds' % (Current, len(Independent))
-            for i in Independent:
-                Out.write(','.join(i) + '\n')
-            Current = Pattern
-            Independent = []
-            Independent.append(A)
-                                 
 
-def No_OG_subsets(File):
-    '''Takes a text file with orthogroups per line as a list comma ',' separated list  of sequence identifiers and OG name per line. It writes a similar formatted file with one Orthologous per line but with out-subsets '''
-    Log = open('OG_clean_II.log', 'w')
-    Out = open('OG_cleaned_II.txt', 'w')
-    M_List = open(File).readlines()
-    F = open(File, 'r')
-    TotalSubsets=0
-    print 'Master list contains %d elements' % len(M_List)
-    F = open(File, 'r')
-    for Line in F:
-        Score = 0
-        A = Line.strip('\n').split(',')
-        Aid = A.pop(0)
-        for B in M_List: 
-            B = B.strip('\n').split(',')
-            Bid = B.pop(0)
-            #print B
-            if set(A).issubset(B) and A != B:
-                Log.write('SUBSET: Ortho group %s is a subset of Orthogroup %s\n' %(Aid, Bid))
-                Score +=1
-                TotalSubsets += 1
-        if Score < 1:
-            Out.write(Line)
-    Log.write(str(TotalSubsets)+'subsets processed')
-    Log.close()
-    Out.close()
-    F.close()
 
 def line_writer(P_attern):
     '''Creates OG summary file, for Tree orthology annotation from tree files in current working directory.'''
@@ -198,13 +141,12 @@ def Set_of_FastaID(extension):
 def tree_ortho_annotator(summary, phylo):
     inFile= open(summary, 'r')
     T = ete2.Tree(phylo)
-    inx =0
+    idx =0
     if outgroups:
-        for i in idx:
-            if T.get_leaves_by_name(outgroup[idx]) != []:
-                T.set_outgroup(outgroup[idx])
+        for i in outgroups:
+            if T.get_leaves_by_name(outgroups[idx]) != []:
+                T.set_outgroup(outgroups[idx])
                 break
-     
     for node in T.traverse():
         node.add_feature('OgCompo', []) #initialize the OrthoGroup (OG) composition in each node
     for line in inFile: #pasre the OG summary file and add the OG composition to each leaf
