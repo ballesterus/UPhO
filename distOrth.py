@@ -14,8 +14,7 @@ readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
 
 Separator = '|'
-outgroup1 = 'H_pococki'
-outgroup2= 'S_lineatus'
+outgroups = []
 
 #Function definitions
 
@@ -199,10 +198,13 @@ def Set_of_FastaID(extension):
 def tree_ortho_annotator(summary, phylo):
     inFile= open(summary, 'r')
     T = ete2.Tree(phylo)
-    if T.get_leaves_by_name(outgroup1) != []:
-        T.set_outgroup(outgroup1)
-    else:
-        T.set_outgroup(outgroup2)
+    inx =0
+    if outgroups:
+        for i in idx:
+            if T.get_leaves_by_name(outgroup[idx]) != []:
+                T.set_outgroup(outgroup[idx])
+                break
+     
     for node in T.traverse():
         node.add_feature('OgCompo', []) #initialize the OrthoGroup (OG) composition in each node
     for line in inFile: #pasre the OG summary file and add the OG composition to each leaf

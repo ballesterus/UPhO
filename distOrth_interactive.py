@@ -64,7 +64,7 @@ while Q == True:
             NodeNum = raw_input('Select  a node number from the tree above: ' )
             Result = get_orthoSet_by_node(T, str(NodeNum))
             NodeS = [NodeNum, Result]
-            print NodeS
+            #print NodeS
             In = open(raw_input('Orthogroups text file:'), 'r')
             Out = open('compo_node_%s.txt' %NodeNum, 'w' )
             for Line in In:
@@ -76,36 +76,24 @@ while Q == True:
         if Summary == None:
             print "ERROR: load a summary and a tree first."
         else:
-            print "Loading Ortholgs and sequence compostion"
-            Ogs = OGSummary_to_Dict(Summaryo)
-            nOgs= No_OG_subsets(Ogs)
             while selection =='6':
-                print "Redundancies resolved and log file written to OG_clean.log"
+                print "Redundancies resolved and log file written to OG_clean_I.log and OG_clean_II.log"
                 print """Options:
-                1: Create resolved OG from ALL orthologs in Summary.
-                2: Create resolved OG from ortholgs in SELECTED node.
-                3: Do Nothing.
+                1: Create cleaned OG from ortholgs in SELECTED node.
+                2: Do Nothing.
                 """
                 answer=raw_input('Select option from above: ') 
-                if answer not in ['1','2','3']:
+                if answer not in ['1','2', '3']:
                     print "ERROR select the number of the option"
-                elif answer == '1':
-                    Out =open('NS_ortho_from_AlL.txt', 'w')
-                    for k, v in nOgs.iteritems():
-                        line = ','.join(v) + '\n'
-                        Out.write('#' + k + ',')
-                        Out.write(line)
+                elif answer =='1':
+                    No_Same_OG_Intesec(Summary)
+                    No_OG_subsets('OG_cleaned_I.txt')
                 elif answer =='2':
                     if NodeS==None:
                         print 'Error: No node is selected'
                     else:
-                        OName ='NS_ortho_from_node_%s.txt' % NodeS[0]
-                        Out =open(OName, 'w')
-                        for entry in NodeS[1]:
-                            if entry in nOgs.keys():
-                                line =','.join(nOgs[entry]) + '\n'
-                                Out.write('#' + entry + ',')
-                                Out.write(line)
+                        No_Same_OG_Intesec('compo_node_%s.txt' %NodeS)
+                        No_OG_subsets('OG_cleaned_I.txt')
                 elif answer =='3':
                     selection = None
     elif selection=='q':
