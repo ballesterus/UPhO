@@ -188,6 +188,8 @@ def subNewick(alist, myPhylo):
  
 def main_wTrees ():
     '''Main program execution when trees are to be written'''
+    if not os.path.exists('UPhO_branches'):
+        os.makedirs('UPhO_branches')
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
@@ -199,7 +201,7 @@ def main_wTrees ():
                 ortNum=0
                 for group in P.ortho:
                     FName= '#%s_%d,' %(name,ortNum)
-                    OrtBranch=open('%s_%s.tre' %(name,ortNum), 'w')
+                    OrtBranch=open('UPhO_branches/%s_%s.tre' %(name,ortNum), 'w')
                     G = ','.join(group).strip(',')
                     OrtList.write(FName + G + '\n')
                     if set(group) == set(P.leaves): # if the whole input tree represents an orthobranch

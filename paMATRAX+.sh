@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ######################################################################
 # paMATRAX*.sh: A shell script for sequentially execute multiple 
 # sequence alignment (mafft), trimming (trimAl) and tree-estimation 
@@ -101,7 +102,7 @@ done
 
 main () {
     echo "Starting MSA"
-    parallel --env mafft_cmd  -j+0 'if [ ! -e {.}.al  ]; then $mafft_cmd {} > {.}.al 2>>mafft.log; fi' ::: *.$EXT;
+    parallel --env mafft_cmd -j+0 'if [ ! -e {.}.al  ]; then $mafft_cmd {} > {.}.al 2>>mafft.log; fi' ::: *.$EXT;
     if [ $AFLAG -eq 0 ]
     then
 	echo "Pipeline stopped after alignement."
