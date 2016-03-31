@@ -2,7 +2,7 @@
 ############################
 #Usage:
 #
-# Blast_helper.sh <input.fasta>
+# Blast_helper.sh <input.fasta> <query.fasta>
 #
 #Requires:
 #
@@ -16,6 +16,14 @@
 ldb_path='local_db'
 db_type='prot'
 input=$1
+query=$2
+
+if [ -z "$2"  ]
+then query=$1
+fi
+
+#echo $query
+
 
 #functions
 
@@ -31,7 +39,7 @@ CreateBlastDB ()
 AllvsAll ()
 {
     echo 'Starting All vs All'
-    cat $input | parallel  --block 100k --pipe --recstart '>' blastp -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > AllvsAll_results.csv
+    cat $query | parallel  --block 100k --pipe --recstart '>' blastp -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results.csv
 
 }
 
