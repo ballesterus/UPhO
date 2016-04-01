@@ -113,8 +113,14 @@ if __name__ == "__main__":
 			print 'minimum taxa and clustering started'
 			redundant(clustFile, args.minTaxa)
                         from Get_fasta_from_Ref import Retrieve_Fasta
-			Retrieve_Fasta("ClustR_m%d.txt" % args.minTaxa, 'ClusteRs', 'bcl', args.reference )		
-		else:
+                        try:
+                                Retrieve_Fasta("ClustR_m%d.txt" % args.minTaxa, 'ClusteRs', 'bcl', args.reference)
+                        except:
+                                pass
+                else:
 			non_redundant(clustFile, args.minTaxa)
-                        from Get_fasta_from_Ref import Retrieve_Fastaa
-			Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
+                        from Get_fasta_from_Ref import Retrieve_Fasta
+                        try:
+                                Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
+                        except:
+                                pass     
