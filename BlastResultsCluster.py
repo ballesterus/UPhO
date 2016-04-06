@@ -81,11 +81,11 @@ def redundant(cluster, minTaxa):
 	outFile =open("ClustR_m%d.txt" %minTaxa, "w" )
         SetsInspected = []
         for line in inFile:
-		SeqIds = line.strip('\n').split(',')
+		SeqIds = sorted(line.strip('\n').split(','))
 		spp = spp_in_list(SeqIds,sep)
                 nr = set(spp)
-                if len(nr) >= int(minTaxa) and sorted(SeqIds) not in SetsInspected:
-                        SetsInspected.append(sorted(SeqIds))
+                if len(nr) >= int(minTaxa) and SeqIds not in SetsInspected:
+                        SetsInspected.append(SeqIds)
                         outFile.write(line)
         outFile.close()
 
