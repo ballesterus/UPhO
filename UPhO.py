@@ -193,6 +193,7 @@ def main_wTrees ():
     Total = 0
     for tree in args.Trees:
         name=tree.split('.')[0]
+        name=name.replace('/','_')
         count = 0
         with open(tree, 'r') as T:
             for line in  T:
