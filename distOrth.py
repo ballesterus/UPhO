@@ -8,7 +8,7 @@ import shutil
 import readline
 import ete2
 
-'''This script contains functions to summarize the distribution of orthologous on a tree and auxiliary functions. These functions can be imported into the interpreted and ran interactively or accessed through a helper script.'''
+'''This file contains functions to summarize the distribution of orthologous on a tree and auxiliary functions. These functions can be imported into the interpreted and ran interactively or accessed through a helper script distOrth_interactive.py.'''
 
 readline.parse_and_bind("tab: complete")
 #Global Variables. Modify if needed.
@@ -91,23 +91,85 @@ def deRedundance(LoL):
     return NR
 
 
+def No_OG_subsets(File):
+    '''Takes a UPho_orthogroups.csv. It writes a similar formated file with one Orthologs per line but without subsets'''
+    Log = open('OG_no_subsets.log', 'w')
+    Out = open('OG_no_subsets.txt', 'w')
+    M_List = open(File).readlines()
+    F = open(File, 'r')
+    TotalSubsets=0
+    print 'Master list contains %d elements' % len(M_List)
+    F = open(File, 'r')
+    for Line in F:
+        Score = 0
+        A = Line.strip('\n').split(',')
+        Aid = A.pop(0)
+        for B in M_List:
+            B = B.strip('\n').split(',')
+            Bid = B.pop(0)
+            #print B
+            if set(A).issubset(B) and A != B:
+                Log.write('SUBSET: Ortho group %s is a subset of Orthogroup %s\n' %(Aid, Bid))
+                Score +=1
+                TotalSubsets += 1
+        if Score < 1:
+            Out.write(Line)
+    Log.write(str(TotalSubsets)+' subsets processed')
+    Log.close()
+    Out.close()
+    F.close()
 
-def line_writer(P_attern):
-    '''Creates OG summary file, for Tree orthology annotation from FASTA files in current working directory.'''
-    Output = open('OG_summary.csv', 'w')
-    Output.write('OGnumber,Species_code,Seq_Id\n')
-    for file in glob.glob('*%s' % P_attern):
-        Handle = open(file, 'r')
-        OrtG = file.strip('%s' % P_attern)
-        for Line in Handle:
-            if re.search (r'^>', Line):
-                Line = Line.strip('\n')
-                Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not contain spaces and this data will not be included in the annotation.
-                Div = re.sub('>','',Line).split(Separator)
-                OutLine = '%s,%s,%s\n' % (OrtG, Div[0], Div[1])
-                Output.write(OutLine)
-        Handle.close()
-    Output.close()
+def No_Same_OG_Intesec(File):
+    Log = open('OG_no_intersec.log', 'w')
+    Out = open('OG_no_intersec.txt', 'w')
+    F = open(File, 'r')
+    Current =''
+    Independent = []
+    for Line in F:
+        A = Line.strip('\n').split(',')  
+        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+",A[0])
+        if Pattern == Current:
+            for i in Independent:
+                if A  not in Independent:
+                    if len(set(A)&set(i)) > 0:
+                        Independent.remove(i)
+                        Winner= max([A,i], key=len)
+                        Independent.append(Winner)
+                        Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
+                        print Log_st
+                        Log.write(Log_st)
+                        
+                    else:
+                        Independent.append(A)
+        else:
+            print 'The tree %s has %d independent orthogroups' % (Current, len(Independent))
+            for i in Independent:
+                Out.write(','.join(i) + '\n')
+            Current = Pattern
+            Independent = []
+            Independent.append(A)
+    F.close()
+    Out.close()
+    Log.close()
+    
+#DEPRECATED
+# def line_writer(P_attern):
+#     '''Creates OG summary file, for Tree orthology annotation from FASTA files in current working directory.'''
+#     Output = open('OG_summary.csv', 'w')
+#     Output.write('OGnumber,Species_code,Seq_Id\n')
+#     for file in glob.glob('*%s' % P_attern):
+#         Handle = open(file, 'r')
+#         OrtG = file.strip('%s' % P_attern)
+#         for Line in Handle:
+#             if re.search (r'^>', Line):
+#                 Line = Line.strip('\n')
+#                 Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not contain spaces and this data will not be included in the annotation.
+#                 Div = re.sub('>','',Line).split(Separator)
+#                 OutLine = '%s,%s,%s\n' % (OrtG, Div[0], Div[1])
+#                 Output.write(OutLine)
+#         Handle.close()
+#     Output.close()
+#
 
 
 def OG_summary_maker(P_attern):
@@ -128,7 +190,7 @@ def OG_summary_maker(P_attern):
     
 
 def Set_of_FastaID(extension):
-    '''This function inspect iteratively across the composition of sequence identifiers of all files in the current directory  (fasta sequence list, alignments and trees). First occurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitute then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequences or topologies)   
+    '''This function inspects iteratively across the composition of sequence identifiers of all files in the current directory  (fasta sequence list, alignments and trees). First occurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitute then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequences or topologies)   
 '''
     Report = open('redundancyReport.txt', 'w')
     UniqComsId = []
@@ -156,7 +218,7 @@ def Set_of_FastaID(extension):
     Report.write('The are %d different groups' % len(UniqComsId))
     Report.write(UniqComsId)
 
-def tree_ortho_annotator(summary,stype, phylo):
+def tree_ortho_annotator(summary,phylo):
     inFile= open(summary, 'r')
     T = ete2.Tree(phylo)
     idx =0
@@ -167,27 +229,27 @@ def tree_ortho_annotator(summary,stype, phylo):
                 break
     for node in T.traverse():
         node.add_feature('OgCompo', []) #initialize the OrthoGroup (OG) composition in each node
-    if stype == "UPhO":
-        for line in inFile: #pasre the OG summary file and add the OG composition to each leaf
-            items=line.split(',')
-            OG_num = items.pop(0).strip('#')
-            for item in items:
-                Sp_Code=item.split(Separator)[0]
-                CNode=T&Sp_Code
-                CCompo = CNode.OgCompo
-                if OG_num not in CCompo: 
-                    CCompo.append(OG_num)
-                    CNode.add_feature('OgCompo', CCompo)
-    else:
-        if not re.search('^OGnumber', line):
-            items= line.split(',')
-            Sp_Code = items[1]
-            OG_num = items[0]
-            CNode = T&Sp_Code #get leaf node
+            
+    for line in inFile: #pasre the OG summary file and add the OG composition to each leaf
+        items=line.split(',')
+        OG_num = items.pop(0).strip('#')
+        for item in items:
+            Sp_Code=item.split(Separator)[0]
+            CNode=T&Sp_Code
             CCompo = CNode.OgCompo #access the list compositon of each leaf
             if OG_num not in CCompo: # conditional to avoid count twice the same orthogroup per leaf, which occurs when there are inParalogs
                 CCompo.append(OG_num)
                 CNode.add_feature('OgCompo', CCompo)
+    # else:
+    #     if not re.search('^OGnumber', line):
+    #         items= line.split(',')
+    #         Sp_Code = items[1]
+    #         OG_num = items[0]
+    #         CNode = T&Sp_Code #get leaf node
+    #         CCompo = CNode.OgCompo 
+    #         if OG_num not in CCompo: 
+    #             CCompo.append(OG_num)
+    #             CNode.add_feature('OgCompo', CCompo)
     I_node = 0 #initialize counter to use as node name
     for node in T.traverse():
         if node.is_leaf() == False and node.is_root() == False:
@@ -219,10 +281,10 @@ def orthologs_in_file(OGsummary):
     D1 = open(OGsummary, 'r')
     Seqs =[]
     for line in D1:
-        if  not line.startswith('OGnumber'):
-            list=line.split(',')
-            element = list[1] + Separator + list[2]
-            Seqs.append(element)
+        list=line.split(',')
+        list.remove(list[0])
+        for item in list:
+            Seqs.append(item)
     return set(Seqs)
 
 def get_orthoSet_by_node(Phylo, NodeNumber):

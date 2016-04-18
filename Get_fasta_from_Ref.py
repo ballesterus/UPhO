@@ -11,7 +11,7 @@ parser.add_argument('-q', dest = 'query', type = str, default= 'None',  help = '
 parser.add_argument('-o', dest= 'outdir', type =str, default= '.', help ='Name of the directory to use as output, if does no exist this wll be created. Default "."')
 parser.add_argument('-p', dest= 'prefix', type = str, default= 'Group', help ='Prefix to use whe no group name is provided')
 parser.add_argument('-R', dest= 'Reference', type = str, default= 'None', help ='A fasta file with the source fasta sequences in the input tree. If provided, a fasta file will be created for each ortholog found')
-parser.add_argument('-c', dest= 'clean', action='store_true', default= False, help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
+#parser.add_argument('-c', dest= 'clean', action='store_true', default= False, help ='When true, redundancies are resolved (no subsets, no overalap ro same ortho-group). I produces clean log output')
 parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
 args, unknown = parser.parse_known_args()
 
@@ -22,63 +22,6 @@ sep = args.delimiter
 
 #Function definitions
 
-def No_OG_subsets(File):
-    '''Takes a UPho_orthogroups.csv. It writes a similar formated file with one Orthologs per line but without subsets'''
-    Log = open('OG_clean_II.log', 'w')
-    Out = open('OG_cleaned_II.txt', 'w')
-    M_List = open(File).readlines()
-    F = open(File, 'r')
-    TotalSubsets=0
-    print 'Master list contains %d elements' % len(M_List)
-    F = open(File, 'r')
-    for Line in F:
-        Score = 0
-        A = Line.strip('\n').split(',')
-        Aid = A.pop(0)
-        for B in M_List:
-            B = B.strip('\n').split(',')
-            Bid = B.pop(0)
-            #print B
-            if set(A).issubset(B) and A != B:
-                Log.write('SUBSET: Ortho group %s is a subset of Orthogroup %s\n' %(Aid, Bid))
-                Score +=1
-                TotalSubsets += 1
-        if Score < 1:
-            Out.write(Line)
-    Log.write(str(TotalSubsets)+' subsets processed')
-    Log.close()
-    Out.close()
-    F.close()
-
-def No_Same_OG_Intesec(File):
-    Log = open('OG_clean_I.log', 'w')
-    Out = open('OG_cleaned_I.txt', 'w')
-    F = open(File, 'r')
-    Current =''
-    Independent = []
-    for Line in F:
-        A = Line.strip('\n').split(',')  
-        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+",A[0])
-        if Pattern == Current:
-            for i in Independent:
-                if A  not in Independent:
-                    if len(set(A)&set(i)) > 0:
-                        Independent.remove(i)
-                        Winner= max([A,i], key=len)
-                        Independent.append(Winner)
-                        Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
-                        print Log_st
-                        Log.write(Log_st)
-                        
-                    else:
-                        Independent.append(A)
-        else:
-            print 'The tree %s has %d independent orthogroups' % (Current, len(Independent))
-            for i in Independent:
-                Out.write(','.join(i) + '\n')
-            Current = Pattern
-            Independent = []
-            Independent.append(A)
                                                                                
 def Retrieve_Fasta(in_file, Outdir, prefix, Reference):
         """ Creates fasta files from a csv input file (in_file) where the sequence identifiers to be written to sigle file are each separated by a comma. User provides otput directory, a prefix to use in naming the files,  and a reference from quere to extract the sequences. It requires  Biopython SeqIO."""
@@ -108,13 +51,14 @@ def Retrieve_Fasta(in_file, Outdir, prefix, Reference):
 
 #RUNNING OPERATIONS
 if __name__ == "__main__":
-    if args.clean:
-        print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
-        No_Same_OG_Intesec(args.query)
-        print 'Done cleaning type I, proceeding to clean subsets'
-        No_OG_subsets('OG_cleaned_I.txt')
-        print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
-        Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
-    elif not args.clean:
-        Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
+    Retrieve_Fasta(args.query, args.outdir, args.prefix, args.Reference)
+    # if args.clean:
+    #     print "Cleaning the input file of type I redunduancies: overlap of orthogroups derived from the same gene tree"
+    #     No_Same_OG_Intesec(args.query)
+    #     print 'Done cleaning type I, proceeding to clean subsets'
+    #     No_OG_subsets('OG_cleaned_I.txt')
+    #     print "Cleaning is done, check log files for details. Proceeding to retrived clened sequences from the reference."
+    #     Retrieve_Fasta('OG_cleaned_II.txt', args.outdir, args.prefix, args.Reference)
+    # elif not args.clean:
+
   
