@@ -93,7 +93,7 @@ def deRedundance(LoL):
 
 
 def line_writer(P_attern):
-    '''Creates OG summary file, for Tree orthology annotation from tree files in current working directory.'''
+    '''Creates OG summary file, for Tree orthology annotation from FASTA files in current working directory.'''
     Output = open('OG_summary.csv', 'w')
     Output.write('OGnumber,Species_code,Seq_Id\n')
     for file in glob.glob('*%s' % P_attern):
@@ -102,12 +102,30 @@ def line_writer(P_attern):
         for Line in Handle:
             if re.search (r'^>', Line):
                 Line = Line.strip('\n')
-                Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not conatain spaces and this data will not be included in the annotation.
+                Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not contain spaces and this data will not be included in the annotation.
                 Div = re.sub('>','',Line).split(Separator)
                 OutLine = '%s,%s,%s\n' % (OrtG, Div[0], Div[1])
                 Output.write(OutLine)
         Handle.close()
     Output.close()
+
+
+def OG_summary_maker(P_attern):
+    """"Inspects all files with extension P_attern in the current directory and writes a files with sequence indentifiers as a list. The name of the file is the fisrts element identified with #"""
+    Output = open('OG_summary.csv', 'w')
+    for file in glob.glob('*%s' % P_attern):
+        Handle = open(file, 'r')
+        OrtG = file.strip('%s' % P_attern) # removes extension
+        Output.write("#%s" %OrtG)
+        for Line in Handle:
+            if Line.startswith('>'): #only look for fasta ids.
+                Line = Line.strip('\n').strip('>')
+                Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not contain spaces and this data will not be included in the annotation.
+                Output.write(",%s" % Line)
+        Output.write("\n") 
+        Handle.close()
+    Output.close()
+    
 
 def Set_of_FastaID(extension):
     '''This function inspect iteratively across the composition of sequence identifiers of all files in the current directory  (fasta sequence list, alignments and trees). First occurrence of seqId sets are marked with the added extension '.2'. The collection of marked files constitute then non redundant collection of trees or sequences, based on seqIds only. Not: this function does not verifies identity in the whole file content (sequences or topologies)   
@@ -138,7 +156,7 @@ def Set_of_FastaID(extension):
     Report.write('The are %d different groups' % len(UniqComsId))
     Report.write(UniqComsId)
 
-def tree_ortho_annotator(summary, phylo):
+def tree_ortho_annotator(summary,stype, phylo):
     inFile= open(summary, 'r')
     T = ete2.Tree(phylo)
     idx =0
@@ -149,7 +167,18 @@ def tree_ortho_annotator(summary, phylo):
                 break
     for node in T.traverse():
         node.add_feature('OgCompo', []) #initialize the OrthoGroup (OG) composition in each node
-    for line in inFile: #pasre the OG summary file and add the OG composition to each leaf
+    if stype == "UPhO":
+        for line in inFile: #pasre the OG summary file and add the OG composition to each leaf
+            items=line.split(',')
+            OG_num = items.pop(0).strip('#')
+            for item in items:
+                Sp_Code=item.split(Separator)[0]
+                CNode=T&Sp_Code
+                CCompo = CNode.OgCompo
+                if OG_num not in CCompo: 
+                    CCompo.append(OG_num)
+                    CNode.add_feature('OgCompo', CCompo)
+    else:
         if not re.search('^OGnumber', line):
             items= line.split(',')
             Sp_Code = items[1]

@@ -23,7 +23,7 @@ sep = args.delimiter
 #Function definitions
 
 def No_OG_subsets(File):
-    '''Takes a UPho_Pruned.txt. It writes a similar formated file with one Orthologs per line but with out-subsets'''
+    '''Takes a UPho_orthogroups.csv. It writes a similar formated file with one Orthologs per line but without subsets'''
     Log = open('OG_clean_II.log', 'w')
     Out = open('OG_cleaned_II.txt', 'w')
     M_List = open(File).readlines()

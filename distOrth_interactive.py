@@ -24,7 +24,7 @@ while Q == True:
 
     print """Select from the following options:
     
-    1: Create a OG_summary file
+    1: Create a OG_summary file (UPhO_orthogroups.csv can be used instead)
     2: Annotate and load tree (loads summary).
     3: Plot(see) the tree.
     4: Save  current tree image or load and save new tree to image file (PDF, SVG or PNG).
@@ -39,13 +39,16 @@ while Q == True:
         W_path = raw_input('Select the Path to process: ')
         Pattern = raw_input('Type the extension of files to process: ')
         os.chdir(W_path)
-        line_writer(Pattern)
+#        line_writer(Pattern)
+        OG_summary_maker(Pattern)
         print "Orthology composition written to OG_summary.csv" 
 
     elif selection == '2':
         Tree = raw_input('Input name of tree file (newick): ')
         Summary = raw_input('Input OG_summary file: ')
-        T = tree_ortho_annotator(Summary, Tree)
+        stype = raw_input ('Type "UPhO" if this summary file a UPhO_orthogroups output file: ')
+        Separator = raw_input('Field delimiter character: ' )
+        T = tree_ortho_annotator(Summary, stype, Tree)
     
     elif selection == '3':
         B_size=  float(raw_input('Bubble size factor: '))
@@ -76,7 +79,7 @@ while Q == True:
     elif selection =='6':
         outG = raw_input('Enter an outgroup: ')
         outgroups.append(outG)
-        T = tree_ortho_annotator(Summary, Tree)
+        T = tree_ortho_annotator(Summary, stype,Tree)
         
     elif selection=='q':
         Q = False
