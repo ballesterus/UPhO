@@ -4,33 +4,37 @@ from distOrth import *
 
 ##### MAIN ######
 
-print "This script will help us annotate a phylogenies, from a collection of fasta (orthologs). Select from the following options"
 T = None
 Summary= None
 NodeS= None
-Q = True 
+Q = True
+Tree= None
+Summary = None
+outgroup = None
+
 while Q == True:
     os.system('clear')
-    if T == None:
-        print "No trees loaded."
-    else:
+    print " Welcome to distOrth_interactive.\nThis script will help us annotate the distribution of orthologs on a species tree."
+    if T:
         print  T.get_ascii(attributes=["name"], show_internal=True)
-    if Summary !=None:
-        print "Summary file loaded"
-    if NodeS != None:
-        print "The node %s is selected" %NodeS[0]
-    print 'Outgroups: ' + ','.join(outgroups)
+        print "\n"
+    if Summary:
+        print "\t*Summary file loaded: %s" % Summary
+    if NodeS:
+        print "\t*The node %s is selected" %NodeS[0]
+    if outgroup:
+        print '\t*Outgroup: ' + outgroup
 
 
-    print """Select from the following options:
+    print """\nSelect from the following options:
     
-    1: Create a OG_summary file (UPhO_orthogroups.csv can be used instead)
+    1: Create a OG_summary from FASTA files in folder.
     2: Annotate and load tree (loads summary).
     3: Plot(see) the tree.
     4: Save  current tree image or load and save new tree to image file (PDF, SVG or PNG).
     5: Select a node and query the composition on specific node (requires loaded tree).
-    6: Declare outgroups
-    7: Resolve redundancies
+    6: Root the tree on outgroup,
+    7: Resolve redundancies.
 
     q: Exit"""
     selection = raw_input("Enter your selection: ")
@@ -51,6 +55,7 @@ while Q == True:
         T = tree_ortho_annotator(Summary, Tree)
     
     elif selection == '3':
+        T = tree_ortho_annotator(Summary, Tree)
         B_size=  float(raw_input('Bubble size factor: '))
         ts =tree_plot(T, B_size)
         T.show(tree_style=ts)
@@ -59,8 +64,10 @@ while Q == True:
         name = raw_input('Name of otput image file: ')
         Type = raw_input('Type of file (pdf, svg, or  png: ')
         OutName = name + '.' + Type
+        T = tree_ortho_annotator(Summary,Tree)
         ts =tree_plot(T, B_size)
         T.render(OutName, tree_style = ts)
+        "The  image file was written"
         
     elif selection=='5':
         if T == None:
@@ -70,33 +77,34 @@ while Q == True:
             Result = get_orthoSet_by_node(T, str(NodeNum))
             print 'There are %d orthogroups mapped to node %s.' % (len(Result), NodeNum)
             NodeS = [NodeNum, Result]
-           # In = open(raw_input('Orthogroups text file:'), 'r')
             Out = open('compo_node_%s.txt' %NodeNum, 'w' )
             for Line in Summary:
                 M=Line.split(',')
                 if M[0].strip('#') in Result:
                     Out.write(Line)
+            print "Selected orthogrups written to: compo_node_%s.txt " %NodeNum
     elif selection =='6':
-        outG = raw_input('Enter an outgroup: ')
-        outgroups.append(outG)
-        T = tree_ortho_annotator(Summary,Tree)
+        outgroup = raw_input('Enter an outgroup: ')
+        T.set_outgroup(outgroup)
 
     elif selection == '7':
         target = raw_input("Name of the file to remove redundancies: ")
-        print """Select an option from below:
+        print """The file %s will be processed. Select an option from below:
+
         a:  Remove orthogrops that are subsets of others
         b:  If two orthogroups derived from the same homolog 
         and are not mutually exclusive, remove the smaller.
 
-        """
+        """ % target
         type_of_clean = raw_input("Selection: ")
         if type_of_clean == 'a':
             print "Removing subsets"
             No_OG_subsets(target)
+            print "Orthogroups written to OG_no_subsets.txt. See log for details."
         elif type_of_clean=='b':
             print("Removing overlapping orthogroups from same gene-family")
             No_Same_OG_Intesec(target)
-
+            print "Orthogroups written to OG_no_intersec.txt'. See log for details."
         else:
             break
     elif selection=='q':
