@@ -49,14 +49,14 @@ cat <<EOF
 usage: $0 <options>
 
 This script helps the user to perform local BLAST searches for protein
-homology assesment. It takes as input a file in FASTA format from
-which a local BLAST database is created. This same file is use as the
+homology assesment. It takes as input a file with sequences in FASTA format 
+from which a local BLAST database is created. This same file is use as the
 query unless otherwise specified trough -q.  GNU parallel and BLAST+
 should be in installed and properly cited when using this script.
 
 -h   |  Print this help
 -i   |  The input fasta file to build a   
--q   |  Specify a query file, otherwise allvsall will be performed using the "-in" file..
+-q   |  Specify a query file, otherwise all vs. all will be performed using the "-i" file.
 -p   |  Use psiblast instead of blastp
 
 
@@ -64,8 +64,7 @@ EOF
 }
 
 ### Main
-
-
+OPTIND=1
 while getopts "hepq:i:" opt; do
 
     case "$opt" in
@@ -79,6 +78,7 @@ while getopts "hepq:i:" opt; do
 	    query=$OPTARG
 	    ;;
 
+	
 	q) 
 	    query=$OPTARG
 	    ;;
@@ -88,16 +88,24 @@ while getopts "hepq:i:" opt; do
 	    ;;
 
 
-	?)
-	    usage >&2
+	'?')
+	    usage 
+	    exit 1
+	    ;;
+	:)
+	    usage
 	    exit 1
 	    ;;
     esac
 
 done
 
-shift $((OPTIND-1))
-
-
-CreateBlastDB && AllvsAll;
+shift "$((OPTIND-1))"
+if [ "$input" != "" ]
+then
+    CreateBlastDB && AllvsAll;
+else
+    echo "ERROR: Input file needed [-i]"
+    exit 1
+fi
 exit $?
