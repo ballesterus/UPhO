@@ -1,61 +1,37 @@
 #!/usr/bin/env python
+
+import argparse
+import re
 from sys import argv
+from Consensus import *
 
-sep = '|'
-
-def Fasta_to_Dict(File):
-    '''BETTER FASTA PARSER'''
-    with open(File, 'r') as F:
-        Records = {}
-        for Line in F:
-            if Line.startswith('>'):
-                Seqid = Line.strip('>').strip('\n')
-                Seq= ''
-                Records[Seqid] = Seq
-            else:
-                Seq = Records[Seqid] + Line.strip('\n')
-                Records[Seqid] = Seq 
-        return Records
+delim = '|'
 
 def aln_stats(Dict):
-    Spp = set([i.split(sep)[0] for i in Dict.iterkeys()])
+    Spp = set([i.split(delim)[0] for i in Dict.iterkeys()])
     Allseq = ''.join(Dict.values())
     AT = Allseq.count('A') + Allseq.count('T')
     GC = Allseq.count('G') + Allseq.count('C')
     Gaps = Allseq.count('-')
     sites = len(Allseq)
-    return [ len(Dict.keys()), len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites]
-
-def make_Consensus(Dict, T):
-    '''This functiom returns the sites where all the alignment  positions match on the same nucleotide. this is a T% consensus'''
-    Consensus=''
-    for i in range(0, len(Dict[Dict.keys()[0]])):
-        compo = [seq[i] for seq in Dict.itervalues()]
-        G = 0 
-        MFB = ''
-        for base in set(compo):
-            freq = compo.count(base)
-            if freq > G:
-                G = freq
-                MFB = base
-        if float(G)/len(Dict.keys()) >= T:
-            Consensus+=MFB
-        else:
-            Consensus+='N'
-    return Consensus
-
+    ambigs= sites - AT - GC - Gaps
+    return [ len(Dict.keys()), len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites, float(ambigs/sites)]
 
 #MAIN
-if __name__=='__main__': 
-    Script = argv[0]
-    argv.remove(Script)
-    Targets = argv
-#    print Targets
+if __name__=='__main__':
+    parser = argparse.ArgumentParser(description='This is a program, to write tab separated statistics from  FASTA sequence files, specially those containing UPhP orthologs.')
+    parser.add_argument('-in', dest = 'Alignments', type = str, nargs= '+', required=True,  help = 'Input file(s) to create the report from.')
+    parser.add_argument('-t', action= 'store', dest = 'threshold', default = 1.0, type = float,  help='Specify frequency threshold for consensus, default 1.0' ) 
+    parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
+    arguments= parser.parse_args()
+    #Global variables
+    delim = arguments.delimiter 
     with open('alns_stats.tsv', 'w') as out:
         out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapper\tidentper\tConsensus\n")
-        for F in Targets:
+        for F in arguments.Alignments:
             Al = Fasta_to_Dict(F)
-            numSeq, numSpp, ATper, GCper, Gapper = aln_stats(Al)
-            C = make_Consensus(Al, 1.0)
+            numSeq, numSpp, ATper, GCper, Gapper, Ambper = aln_stats(Al)
+            C = make_Consensus(Al, arguments.threshold)
             Ident = (C.count('A') + C.count('T') + C.count('C') + C.count('G')) / float(len(C))
-            out.write("%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%s\n"  % (F, numSeq, numSpp, len(C), ATper, GCper, Gapper, Ident, C))
+            out.write("%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, numSeq, numSpp, len(C), ATper, GCper, Gapper,Ambper, Ident, C))
+        print "Summary stats written to alns_stats.tsv"
