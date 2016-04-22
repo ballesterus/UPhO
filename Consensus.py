@@ -3,17 +3,7 @@
 import argparse
 import re
 from sys import argv
-parser = argparse.ArgumentParser(description='This is a program to write consensus sequences')
-parser.add_argument('-i', dest = 'alignments', type = str, nargs= '+', help = 'Input alignment(s) in FASTA format.')
-parser.add_argument('-t', action= 'store', dest = 'percentage', default = 1.0, type = float,  help='Specify percentage threshold to make consensus, default 1.0' )
-parser.add_argument('-B', action = 'store', dest = 'blocks', default = 0, type = int, help='look for conserved regions in the alignement (blocks) of the minimum size provided')
-parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
-arguments= parser.parse_args()
 
-#print arguments
-T = arguments.percentage
-M = arguments.blocks
-D = arguments.delimiter
 
 #Globals
 
@@ -125,7 +115,18 @@ def Good_Blocks(Consensus, M):
 
 
 ###MAIN###
-if __name__ =='__main__':
+if __name__ =='__main__': 
+    parser = argparse.ArgumentParser(description='This is a program to write consensus sequences')
+    parser.add_argument('-i', dest = 'alignments', type = str, nargs= '+', help = 'Input alignment(s) in FASTA format.')
+    parser.add_argument('-t', action= 'store', dest = 'percentage', default = 1.0, type = float,  help='Specify percentage threshold to make consensus, default 1.0' )
+    parser.add_argument('-B', action = 'store', dest = 'blocks', default = 0, type = int, help='look for conserved regions in the alignement (blocks) of the minimum size provided')
+    parser.add_argument('-d', dest = 'delimiter', type = str, default = '|', help = 'Specify custom field delimiter character separating species name from other sequence identifiers. Species name should be the first element for proper parsing. Default is: "|".')
+    arguments= parser.parse_args()
+
+    #print arguments
+    T = arguments.percentage
+    M = arguments.blocks
+    D = arguments.delimiter
     for File in arguments.alignments:
         F = Fasta_to_Dict(File)
         Con = make_Consensus(F, T)
