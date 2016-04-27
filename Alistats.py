@@ -14,8 +14,7 @@ def aln_stats(Dict):
     GC = Allseq.count('G') + Allseq.count('C')
     Gaps = Allseq.count('-')
     sites = len(Allseq)
-    ambigs= sites - AT - GC - Gaps
-    return [ len(Dict.keys()), len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites, float(ambigs/sites)]
+    return [ len(Dict.keys()), len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites,]
 
 #MAIN
 if __name__=='__main__':
@@ -27,11 +26,13 @@ if __name__=='__main__':
     #Global variables
     delim = arguments.delimiter 
     with open('alns_stats.tsv', 'w') as out:
-        out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapper\tidentper\tConsensus\n")
+        out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapperr\tambigperc\tidentpe\tConsensus\n")
         for F in arguments.Alignments:
             Al = Fasta_to_Dict(F)
-            numSeq, numSpp, ATper, GCper, Gapper, Ambper = aln_stats(Al)
+            numSeq, numSpp, ATper, GCper, Gapper = aln_stats(Al)
             C = make_Consensus(Al, arguments.threshold)
-            Ident = (C.count('A') + C.count('T') + C.count('C') + C.count('G')) / float(len(C))
-            out.write("%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, numSeq, numSpp, len(C), ATper, GCper, Gapper,Ambper, Ident, C))
+            AlnL = len(C)
+            Ident = (C.count('A') + C.count('T') + C.count('C') + C.count('G')) / float(AlnL)
+            Ambper = ((AlnL - C.count('-')) / float(AlnL)) - Ident
+            out.write("%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, numSeq, numSpp, AlnL, ATper, GCper, Gapper, Ambper, Ident, C))
         print "Summary stats written to alns_stats.tsv"

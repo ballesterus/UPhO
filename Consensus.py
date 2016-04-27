@@ -73,7 +73,7 @@ def Fasta_to_Dict(File):
                 Records[Seqid] = Seq
             else:
                 Seq = Records[Seqid] + Line.strip('\n')
-                Records[Seqid] = Seq 
+                Records[Seqid] = Seq.upper() 
         return Records
 
 def make_Consensus(Dict, T):
