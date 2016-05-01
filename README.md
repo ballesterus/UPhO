@@ -2,14 +2,14 @@
 
 <img src="/misc/UPhO_logo.png" width="250" align="left"> UPhO finds orthologs with and without inparalogs from input gene family trees. Refer to the Documentation.pdf for more detailed explanations on its usage, installation and dependencies. Type UPhO.py -h for help.
 
-The only input requierement for UPhO is a tree (or trees) in Newick format in which the leaves are named with a species idenfifier, a field separator, and sequence identifier. By default, the field separator is the charater "|"  but custom delimiters can be defined. Examples of trees to test UPhO are provided in the TestData folder.
+The only input requierement for UPhO is a tree (or trees) in Newick format in which the leaves are named with a species idenfifier, a field separator, and sequence identifier. By default, the field separator is the character "|"  but custom delimiters can be defined. Examples of trees to test UPhO are provided in the TestData folder.
 
 Additional scripts are provided for a variety of task including:
 
 <li>**minreID.py**  Renames sequence identifiers adding species (OTU) name and field delimiters character.
 <li>**blast_helper.sh** Assists in  all vs. all blastp search.
 <li>**BlastResultCluster.py** Clusters genes in gene families based on e values threshold and a minimum number of OTUs.
-<li>**paMATRAX+.sh** Wrapper of gnu-parallel mafft, trimAl and RAxML (or FastTree) for parallel estimation of phylogenetic trees..
+<li>**paMATRAX+.sh** Wrapper of gnu-parallel mafft, trimAl and RAxML (or FastTree) for parallel estimation of phylogenetic trees.
 <li>**UPhO.py** The orthology evaluation tool.
 <li>**UPhO_wt.py** UPhO with an additional parameter to tolerate some (n) paralogous. Maybe useful in cases where few spurious or misplaced sequences discard  a whole orthogroup. Also, this feature could be useful for rooting this orthobranch. 
 <li>**Get_Fasta_from_Ref.py** Creates fasta files from lists of sequence identifiers.
