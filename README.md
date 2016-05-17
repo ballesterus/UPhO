@@ -30,3 +30,5 @@ UPhO scripts were developed and tested using Python 2.7 on Linux (RHLE and Debia
 
 Ballesteros JA and Hormiga G. 2016. A new orthology assessment method for phylogenomic data: Unrooted Phylogenetic Orthology.
 *Molecular Biology and Evolution*, doi: 10.1093/molbev/msw069<url>
+[abstract](http://mbe.oxfordjournals.org/cgi/content/abstract/msw069?ijkey=VjQMzoE7wlaZHjG&keytype=ref)
+[fulltext](http://mbe.oxfordjournals.org/cgi/reprint/msw069?ijkey=VjQMzoE7wlaZHjG&keytype=ref)
