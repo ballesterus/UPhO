@@ -8,7 +8,7 @@ from sys import argv
 #Globals
 
 NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N', '-')
-AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X', '-')
+AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X', '-', '*')
 
 #dictionary of ambiguity:
 Ambigs = {
@@ -38,7 +38,7 @@ def string_type(string):
     elif  all (i in AA for i in list(string)):
         return 'AA'
     else:
-        return 'ERROR NOT AA or NT'
+        return 'ERROR: NOT AA or NT'
 
 def Is_NT_or_AA(Fasta_Dict):
     ''' Returns NT is the sequence is composed of Nucleotide symbols or AA if symbols are aminoacids'''
@@ -47,7 +47,7 @@ def Is_NT_or_AA(Fasta_Dict):
     elif all(string_type(Fasta_Dict[key]) == 'AA' for key in Fasta_Dict.iterkeys()):
         return 'AA'
     else:
-        print "ERROR"
+        print "ERROR: Non IUPAC symbol"
 
 def return_amb(list_of_nuc):
     """Returns a  one letter ambiguity code form a list of nucleotides. """
