@@ -38,7 +38,7 @@ CreateBlastDB ()
 AllvsAll ()
 {
     echo 'Starting BLAST search' $query 'vs.' $input 'using' $type.
-    cat $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results.csv
+    cat $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results_$query.csv
 
 }
 
@@ -55,7 +55,7 @@ query unless otherwise specified trough -q.  GNU parallel and BLAST+
 should be in installed and properly cited when using this script.
 
 -h   |  Print this help
--i   |  The input fasta file to build a   
+-i   |  The input FASTA file to build a BLASTDB   
 -q   |  Specify a query file, otherwise all vs. all will be performed using the "-i" file.
 -p   |  Use psiblast instead of blastp
 
@@ -75,10 +75,8 @@ while getopts "hepq:i:" opt; do
 	
 	i)
 	    input=$OPTARG
-	    query=$OPTARG
 	    ;;
 
-	
 	q) 
 	    query=$OPTARG
 	    ;;
@@ -86,7 +84,6 @@ while getopts "hepq:i:" opt; do
 	p)
 	    type='psiblast'
 	    ;;
-
 
 	'?')
 	    usage 
@@ -100,7 +97,16 @@ while getopts "hepq:i:" opt; do
 
 done
 
-shift "$((OPTIND-1))"
+shift $((OPTIND-1))
+if [ "$query" = "" ]
+then
+    query=$input
+fi
+
+echo $query
+echo $input
+echo $type
+
 if [ "$input" != "" ]
 then
     CreateBlastDB && AllvsAll;
