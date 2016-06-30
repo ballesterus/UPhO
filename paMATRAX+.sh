@@ -19,11 +19,11 @@
 ######################################################################
 
 #Program specific commands. User should modify this accordingly.
-mafft_cmd="mafft --anysymbol --auto --thread 2"
+mafft_cmd="mafft --anysymbol --auto --quiet --thread 4"
 trimal_cmd="trimal -fasta -gappyout"
 raxml_cmd="raxmlHPC -f a -p 767 -x 97897 -#100 -m PROTGAMMAJTTX"
-fasttree_cmd="fasttree"
-Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.50"
+fasttree_cmd="FastTreeMP -mlacc 2 -slownni "
+Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 25"
 
 export mafft_cmd
 export trimal_cmd
@@ -121,7 +121,7 @@ main () {
 		
 	    then
 		echo "Starting cleaning"
-		parallel --env Al2Phylo_cmd -j+0 'if [ ! -e *cleaned.fa ]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
+		parallel --env Al2Phylo_cmd -j+0 'if [ ! -e {.}_clean.fa ]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
 		TinEXT='_clean.fa'
 	    fi    
 	    

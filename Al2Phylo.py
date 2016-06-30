@@ -99,7 +99,7 @@ if __name__ == "__main__":
                 SppinAln = args.minTax
             else:
                 SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
-            print SppinAln
+            print "Min spp for clean: %d"  % SppinAln
             if args.percentage > 0.0 or args.minalnL > 0:        
                 print '\tSanitizing alignment %s by removing sequences with less than %d sites or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
                 F = Sanitize_aln(F)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
                     Out.write(F[Rec] + '\n')
                 Out.close()
             else:
-                print '\tAlert: The cleaned alignment contains less species than the original and wont be written to a clean file.'
+                print '\tAlert: The cleaned alignment contains less species than required and wont be written to a clean file.'
     if len(problematica) > 0:
         print '*' * 20
         print "Error: The following files were not processed. Either these are empty alignments or contain unaligned sequences. You may want to inspect them before proceeding."
