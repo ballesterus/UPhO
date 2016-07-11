@@ -1,0 +1,92 @@
+\begin{thebibliography}{14}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Ballesteros and Hormiga(2016)}]{Ballesteros2016}
+Ballesteros JA, Hormiga G. 2016.
+\newblock A new orthology assessment method for phylogenomic data: Unrooted
+  phylogenetic orthology.
+\newblock Molecular Biology and Evolution in press.
+
+\bibitem[{Camacho et~al.(2009)Camacho, Coulouris, Avagyan, Ma, Papadopoulos,
+  Bealer and Madden}]{Camacho2009}
+Camacho C, Coulouris G, Avagyan V, Ma N, Papadopoulos J, Bealer K, Madden T.
+  2009.
+\newblock {BLAST+: architecture and applications.}
+\newblock BMC Bioinformatics 10:421.
+
+\bibitem[{Capella-Guti{\'{e}}rrez et~al.(2009)Capella-Guti{\'{e}}rrez,
+  Silla-Mart{\'{\i}}nez and Gabald{\'{o}}n}]{Capella-Gutierrez2009}
+Capella-Guti{\'{e}}rrez S, Silla-Mart{\'{\i}}nez J, Gabald{\'{o}}n T. 2009.
+\newblock {trimAl: a tool for automated alignment trimming in large-scale
+  phylogenetic analyses.}
+\newblock Bioinformatics 25(15):1972--1973.
+
+\bibitem[{Cock et~al.(2009)Cock, Antao, Chang, Chapman, Cox, Dalke, Friedberg,
+  Hamelryck, Kauff and et~al.}]{Cock2009}
+Cock P, Antao T, Chang J, Chapman B, Cox C, Dalke A, Friedberg I, Hamelryck T,
+  Kauff B Fand~Wilczynski, et~al. 2009.
+\newblock {Biopython: freely available Python tools for computational molecular
+  biology and bioinformatics.}
+\newblock Bioinformatics 25(11):1422--1423.
+
+\bibitem[{Edgar(2004)}]{Edgar04}
+Edgar RC. 2004.
+\newblock Muscle: multiple sequence alignment with high accuracy and high
+  throughput.
+\newblock Nucleic Acids Research 32:1792--1797.
+
+\bibitem[{Enright et~al.(2002)Enright, {Van Dongen} and Ouzounis}]{Enright2002}
+Enright A, {Van Dongen} S, Ouzounis C. 2002.
+\newblock {An efficient algorithm for large-scale detection of protein
+  families.}
+\newblock Nucleic Acids Res 30(7):1575--1584.
+
+\bibitem[{Huerta-Cepas et~al.(2010)Huerta-Cepas, Dopazo and
+  Gabald{\'{o}}n}]{Huerta-Cepas2010}
+Huerta-Cepas J, Dopazo J, Gabald{\'{o}}n T. 2010.
+\newblock {ETE: A Python environment for tree exploration.}
+\newblock BMC Bioinformatics 11:24.
+
+\bibitem[{Huerta-Cepas et~al.(2016)Huerta-Cepas, Serra and
+  Bork}]{Huerta-Cepas2016}
+Huerta-Cepas J, Serra F, Bork P. 2016.
+\newblock Ete3: Reconstruction analyses and visualization of phylogenomc data.
+\newblock Molecular Biology and Evolution in press.
+
+\bibitem[{Katoh and Standley(2013)}]{Katoh2013}
+Katoh K, Standley DM. 2013.
+\newblock Mafft multiple sequence alignment software version 7: Improvements in
+  performance and usability.
+\newblock Molecular Biology and Evolution 30(4):772--780.
+
+\bibitem[{Price et~al.(2010)Price, Dehal and Arkin}]{Price2010}
+Price M, Dehal P, Arkin A. 2010.
+\newblock {FastTree 2--approximately maximum-likelihood trees for large
+  alignments.}
+\newblock PloS One 5(3):e9490.
+
+\bibitem[{Sievers et~al.(2011)Sievers, Wilm, Dineen, Gibson, Karplus, Li,
+  Lopez, McWilliam, Remmert, S{\"o}ding et~al.}]{Sievers539}
+Sievers F, Wilm A, Dineen D, Gibson TJ, Karplus K, Li W, Lopez R, McWilliam H,
+  Remmert M, S{\"o}ding J, et~al. 2011.
+\newblock Fast, scalable generation of high-quality protein multiple sequence
+  alignments using clustal omega.
+\newblock Molecular Systems Biology 7(1).
+
+\bibitem[{Stamatakis(2014)}]{Stamatakis2014}
+Stamatakis A. 2014.
+\newblock {RAxML version 8: A tool for phylogenetic analysis and post-analysis
+  of large phylogenies}.
+\newblock Bioinformatics 30(9):1312--1313.
+
+\bibitem[{Tange(2011)}]{Tange2011}
+Tange O. 2011.
+\newblock Gnu parallel - the command-line power tool.
+\newblock ;login: The USENIX Magazine 36(1):42--47.
+
+\bibitem[{{van Dongen}(2000)}]{vanDongen2000}
+{van Dongen} S. 2000.
+\newblock Graphs Clustering by Flow Simulation.
+\newblock Ph. d. thesis. University of Utrecht. Utrecht, Netherlands.
+
+\end{thebibliography}

@@ -1,0 +1,18 @@
+\contentsline {section}{\numberline {1}Quick recipe}{1}{section.1}
+\contentsline {section}{\numberline {2}Introduction}{2}{section.2}
+\contentsline {section}{\numberline {3}Download \& install}{2}{section.3}
+\contentsline {subsection}{\numberline {3.1}Dependencies}{3}{subsection.3.1}
+\contentsline {section}{\numberline {4}Sequence and leaves identifiers}{3}{section.4}
+\contentsline {section}{\numberline {5}Grouping sequences into homologs}{4}{section.5}
+\contentsline {subsection}{\numberline {5.1}All versus All BLAST}{4}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Get\_Fasta\_from\_Ref.py}{5}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}Clustering}{5}{subsection.5.3}
+\contentsline {subsubsection}{\numberline {5.3.1}BlastResultsCluster.py (BRC)}{5}{subsubsection.5.3.1}
+\contentsline {subsubsection}{\numberline {5.3.2}MCL}{6}{subsubsection.5.3.2}
+\contentsline {section}{\numberline {6}Estimating gene trees phylogenies: \texttt {paMATRAX+.sh}}{6}{section.6}
+\contentsline {section}{\numberline {7}Orthology assessment with UPhO}{7}{section.7}
+\contentsline {section}{\numberline {8}Phylogenetic structure and congruence of orthologs}{9}{section.8}
+\contentsline {section}{\numberline {9}Distribution of orthologs with distOrth}{9}{section.9}
+\contentsline {subsection}{\numberline {9.1}Create an \texttt {OG\_Summary.txt} from FASTA files}{9}{subsection.9.1}
+\contentsline {subsection}{\numberline {9.2}Annotating and exporting a figure of a tree}{9}{subsection.9.2}
+\contentsline {subsection}{\numberline {9.3}Redundancies}{10}{subsection.9.3}

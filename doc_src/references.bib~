@@ -1,0 +1,29 @@
+@article{Ballesteros2016,
+title={A new orthology assessment method for phylogenomic data: Unrooted Phylogenetic Orthology},
+year={2016},
+author={Ballesteros, Jesus A and Hormiga, Gustavo},
+volume={in press},
+journal={Molecular Biology and Evolution}
+
+}
+@article{Tange2011,
+title = {GNU Parallel - The Command-Line Power Tool},
+author = {O. Tange},
+journal = {;login: The USENIX Magazine},
+number = {1},
+volume = {36},
+year = {2011},
+pages = {42-47}
+}
+
+
+@article{Katoh2013,
+author = {Katoh, Kazutaka and Standley, Daron M.},
+title = {MAFFT Multiple Sequence Alignment Software Version 7: Improvements in Performance and Usability},
+volume = {30},
+number = {4},
+pages = {772-780},
+year = {2013},
+journal = {Molecular Biology and Evolution}
+}
+

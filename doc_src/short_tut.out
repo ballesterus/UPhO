@@ -1,0 +1,18 @@
+\BOOKMARK [1][-]{section.1}{Quick recipe}{}% 1
+\BOOKMARK [1][-]{section.2}{Introduction}{}% 2
+\BOOKMARK [1][-]{section.3}{Download \046 install}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Dependencies}{section.3}% 4
+\BOOKMARK [1][-]{section.4}{Sequence and leaves identifiers}{}% 5
+\BOOKMARK [1][-]{section.5}{Grouping sequences into homologs}{}% 6
+\BOOKMARK [2][-]{subsection.5.1}{All versus All BLAST}{section.5}% 7
+\BOOKMARK [2][-]{subsection.5.2}{Get\137Fasta\137from\137Ref.py}{section.5}% 8
+\BOOKMARK [2][-]{subsection.5.3}{Clustering}{section.5}% 9
+\BOOKMARK [3][-]{subsubsection.5.3.1}{BlastResultsCluster.py \(BRC\)}{subsection.5.3}% 10
+\BOOKMARK [3][-]{subsubsection.5.3.2}{MCL}{subsection.5.3}% 11
+\BOOKMARK [1][-]{section.6}{Estimating gene trees phylogenies: paMATRAX+.sh}{}% 12
+\BOOKMARK [1][-]{section.7}{Orthology assessment with UPhO}{}% 13
+\BOOKMARK [1][-]{section.8}{Phylogenetic structure and congruence of orthologs}{}% 14
+\BOOKMARK [1][-]{section.9}{Distribution of orthologs with distOrth}{}% 15
+\BOOKMARK [2][-]{subsection.9.1}{Create an OG\137Summary.txt from FASTA files}{section.9}% 16
+\BOOKMARK [2][-]{subsection.9.2}{Annotating and exporting a figure of a tree}{section.9}% 17
+\BOOKMARK [2][-]{subsection.9.3}{Redundancies}{section.9}% 18
