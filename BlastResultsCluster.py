@@ -5,20 +5,10 @@ import os
 import re
 import glob
 
-parser = argparse.ArgumentParser(description='This script produces clusters of homolog sequences from a csv formatted blast output file.')
-parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Blast output file to process, if no input is provided the program will try to process a file with extension "csv" in the working diretory.')
-parser.add_argument('-d', dest= 'delimiter', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
-parser.add_argument('-sc', dest= 'sc',  action ='store_true', default= False, help ='When the flag is present only sigle copy clusters, those composed of only one sequences per species , will be written to the output.')
-parser.add_argument('-mcl', dest= 'mcl', action='store_true', default= False, help = "When true, a 'abc' file is produced to use as input for Markov Clustering with Stijn van Dongen's  program mcl.")
-parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value threshold, default 1e-5.')
-parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different species to keep in each cluster.')
-parser.add_argument('-R', dest='reference', type=str, default = 'All.fasta', help= 'Name of the reference file from where to extract individual sequences to form cluster files, if none is provided it is assumed to be a file named "All.fasta" in the working directory')
-
-args, unknown = parser.parse_known_args()
 
 #Global variables
 
-sep=args.delimiter
+sep='|'
 gsep =re.escape(sep)
 
 #Function definitions
@@ -116,35 +106,51 @@ def redundant(cluster, minTaxa):
 
 #MAIN
 if __name__ == "__main__":
+
+        parser = argparse.ArgumentParser(description='This script produces clusters of homolog sequences from a csv formatted blast output file.')
+        parser.add_argument('-in', dest = 'input', type = str, default= None, help = 'Blast output file to process, if no input is provided the program will try to process a file with extension "csv" in the working diretory.')
+        parser.add_argument('-d', dest= 'delimiter', type =str, default= '|', help ='Custom character separating the otu_name from the sequence identifier')
+        parser.add_argument('-sc', dest= 'sc',  action ='store_true', default= False, help ='When the flag is present only sigle copy clusters, those composed of only one sequences per species , will be written to the output.')
+        parser.add_argument('-mcl', dest= 'mcl', action='store_true', default= False, help = "When true, a 'abc' file is produced to use as input for Markov Clustering with Stijn van Dongen's  program mcl.")
+        parser.add_argument('-e', dest='expectation', type=float, default = 1e-5, help ='Additional expectation value threshold, default 1e-5.')
+        parser.add_argument('-m', dest='minTaxa', type=int, default = 4, help = 'minimum number of different species to keep in each cluster.')
+        parser.add_argument('-R', dest='reference', type=str, help= 'Name of the reference file from where to extract individual sequences to form cluster files, if none is provided it is assumed to be a file named "All.fasta" in the working directory')
+
+        args, unknown = parser.parse_known_args()
+
+        sep=args.delimiter
+
 	if args.input == None:
-		print 'No blast output file was provided'
+		print 'No BLAST output file was provided'
 		csvs=glob.glob("*.csv")
 		if len(csvs) > 0:
 			csv = csvs[0]
-			print 'No blast output  provided the file %s in the wd will be tried' % csv
+			print 'No BLAST output  provided the file %s in the wd will be tried' % csv
 		else:
-			print 'Error: A blast output file is required to produce clusters. None available!'
+			print 'Error: A BLAST output file is required to produce clusters. None available!'
 	else:
 		csv = args.input
 	if args.mcl:
-		print 'Creating a abc file for mcl'
+		print 'Creating an abc file for mcl'
 		mcl_abc(args.input, args.expectation)
 	else:
 		print 'E value filtering and clustering started'
 		clusters(csv, args.expectation)
 		clustFile = 'clusters_%s.txt' %args.expectation
 		if not args.sc:
-			print 'minimum taxa and clustering started'
+			print 'Minimum taxa filtering started'
 			redundant(clustFile, args.minTaxa)
-                        from Get_fasta_from_Ref import Retrieve_Fasta
-                        try:
-                                Retrieve_Fasta("ClustR_m%d.txt" % args.minTaxa, 'ClusteRs', 'bcl', args.reference)
-                        except:
-                                pass
+                        if args.reference:
+                                from Get_fasta_from_Ref import Retrieve_Fasta
+                                try:
+                                        Retrieve_Fasta("ClustR_m%d.txt" % args.minTaxa, 'ClusteRs', 'bcl', args.reference)
+                                except:
+                                        pass
                 else:
 			non_redundant(clustFile, args.minTaxa)
-                        from Get_fasta_from_Ref import Retrieve_Fasta
-                        try:
-                                Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
-                        except:
-                                pass     
+                        if args.reference:
+                                from Get_fasta_from_Ref import Retrieve_Fasta
+                                try:
+                                        Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
+                                except:
+                                        pass     
