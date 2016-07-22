@@ -22,7 +22,7 @@
 mafft_cmd="mafft --anysymbol --auto --quiet --thread 4"
 trimal_cmd="trimal -fasta -gappyout"
 raxml_cmd="raxmlHPC -f a -p 767 -x 97897 -#100 -m PROTGAMMAJTTX"
-fasttree_cmd="FastTreeMP -mlacc 2 -slownni "
+fasttree_cmd="fasttree -nt"
 Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 25"
 
 export mafft_cmd
@@ -101,41 +101,43 @@ while getopts "he:atscf" opt; do
 done
 
 main () {
-    echo "Starting MSA"
+    printf "\nStarting MSA"
     parallel --env mafft_cmd -j+0 'if [ ! -e {.}.al  ]; then $mafft_cmd {} > {.}.al 2>>mafft.log; fi' ::: *.$EXT;
+    printf "\nAll alignemnets are completed. Alignments files writen with extension with extension .al"
     if [ $AFLAG -eq 0 ]
     then
-	echo "Pipeline stopped after alignement."
+	printf "\nPipeline stopped after alignement."
 	exit 0
     else
-	echo "Starting trimming"
+	printf "\n\nStarting trimming."
 	parallel --env trimal_cmd  -j+0 'if [ ! -e {.}.fa  ]; then $trimal_cmd -in {} -out {.}.fa; fi' ::: *.al;     
-	
+	printf "\nAll alignments were trimmed. Trimmed alignments written with extension .fa"
 	if [ $TFLAG -eq 0 ]
 	then
-	    echo "Pipeline stoped after trimming."
+	    printf "\nPipeline stoped after trimming."
 	    exit 0
 	else
 	
 	    if [ $CFLAG -eq 1 ]
 		
 	    then
-		echo "Starting cleaning"
-		parallel --env Al2Phylo_cmd -j+0 'if [ ! -e {.}_clean.fa ]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
+		printf "\n\nStarting cleaning"
+		parallel --env Al2Phylo_cmd -j+0 'if [[ ! -e {.}_clean.fa && ! -e {= s:_clean\.fa::; =}_clean.fa ]]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
 		TinEXT='_clean.fa'
+		printf '\nAll alignments were cleaned. Cleaned alignments end with _clean.fa'
 	    fi    
 	    
 	    if [ $SFLAG -eq 0 ]
 	    then
-		echo "Pipeline stopped after sanitation."
+		printf "\nPipeline stopped after sanitation."
 		exit 0
 	    else		
 		if [ $TREE_BUILDER -eq 0 ]
 		then
-		    echo "Starting tree estimation with raxml"
+		    printf "\n\nStarting tree estimation with raxml"
 		    parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n {.}.out 2>> raxml.log; fi' ::: *$TinEXT;
 		else
-		    echo "Starting tree estimation with FastTree"
+		    printf "\n\nStarting tree estimation with FastTree"
 		    parallel --env fasttree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $fasttree_cmd  {} > {.}.tre  2>> fasttree.log; fi' ::: *$TinEXT;
 		fi
 	    fi
@@ -146,14 +148,15 @@ main () {
 
 shift $((OPTIND-1))
 als=`ls -1 *.$EXT 2>/dev/null | wc -l` 
-#echo $als
+#printf $als
 if [ $als -lt 1 ]
 then
-    echo "ERROR: No input files found in the current directory"
+    printf "ERROR: No input files found in the current directory"
 else
-    find -empty -delete
-    echo "$als files found in the current directory" 
+    find . -empty -delete
+    printf "\n%s%d%s" "There are " $als " files found in the current directory." 
     main
+    printf "\n\nAll files in the directory have been processed. We are done with paMATRAX+.\n"
 fi
 exit
 
