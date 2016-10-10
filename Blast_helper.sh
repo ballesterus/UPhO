@@ -38,7 +38,7 @@ CreateBlastDB ()
 AllvsAll ()
 {
     echo 'Starting BLAST search' $query 'vs.' $input 'using' $type.
-    cat $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results_$query.csv
+    cat $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results_${query%.*}.csv
 
 }
 
@@ -103,15 +103,21 @@ then
     query=$input
 fi
 
-echo $query
-echo $input
+echo $query vs $input
 echo $type
 
 if [ "$input" != "" ]
 then
-    CreateBlastDB && AllvsAll;
+    if [ -e local_db/localDB.phr ]
+    then
+	echo "The database exist, proceeding to the search step";
+	AllvsAll;
+    else
+	CreateBlastDB && AllvsAll;
+    fi
 else
     echo "ERROR: Input file needed [-i]"
     exit 1
+    
 fi
 exit $?
