@@ -108,7 +108,7 @@ echo $type
 
 if [ "$input" != "" ]
 then
-    if [ -e local_db/localDB.phr ]
+    if [ -e local_db/localDB*.phr ]
     then
 	echo "The database exist, proceeding to the search step";
 	AllvsAll;
