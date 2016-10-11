@@ -6,8 +6,8 @@
 #
 #Requires:
 #
-#    -gnu parallel
-#    -blast+
+#    -gnu-parallel
+#    -blast+ (tested with versions 2.2.30)
 # 
 ############################
 
@@ -37,9 +37,23 @@ CreateBlastDB ()
 
 AllvsAll ()
 {
+    find . -empty -delete
     echo 'Starting BLAST search' $query 'vs.' $input 'using' $type.
-    cat $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results_${query%.*}.csv
-
+    if [ ! -e BLAST_results_${query%.*}.csv ]
+    then
+	cat $query | parallel --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results_${query%.*}.csv
+    else
+	echo 'A BLAST output file matching the query name exist in the wd.'
+	#Lets try to restart the BLAST search from where it was left.
+	# Firts lets see what is the last record written  to the output file
+	last=`tail -n1 BLAST_results_${query%.*}.csv | cut -f 1 -d ','`
+	qline=`grep -n  $last $query | cut -f 1 -d ':'`
+	#remove last query from the output
+	sed -i '' "/^"$last"/d" BLAST_results_${query%.*}.csv
+	#start from previous last query
+	echo "Re-starting from line:" $qline "=" $last 
+	tail -n +$qline $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - >> BLAST_results_${query%.*}.csv
+    fi
 }
 
 
