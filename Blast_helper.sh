@@ -108,11 +108,12 @@ echo $type
 
 if [ "$input" != "" ]
 then
-    if [ -e local_db/localDB*.phr ]
+    if ls local_db/localDB* 1> /dev/null 2>&1;
     then
-	echo "The database exist, proceeding to the search step";
+	echo "A local BLAST database exist, proceeding to the search step";
 	AllvsAll;
     else
+	echo "Creating local BLAST database."
 	CreateBlastDB && AllvsAll;
     fi
 else
