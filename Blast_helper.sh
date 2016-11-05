@@ -49,7 +49,7 @@ AllvsAll ()
 	last=`tail -n1 BLAST_results_${query%.*}.csv | cut -f 1 -d ','`
 	qline=`grep -n  $last $query | cut -f 1 -d ':'`
 	#remove last query from the output
-	sed -i '' "/^"$last"/d" BLAST_results_${query%.*}.csv
+	sed -i -e "/^"$last"/d" BLAST_results_${query%.*}.csv
 	#start from previous last query
 	echo "Re-starting from line:" $qline "=" $last 
 	tail -n +$qline $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - >> BLAST_results_${query%.*}.csv
