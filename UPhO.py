@@ -153,7 +153,8 @@ def aggregate_splits(small,large):
     contents = get_leaves("(%s)" %small)
     placeholder= contents.pop()
     for i in contents: #remove from aggregate all leaves in small except the placeholder
-        aggregate=aggregate.replace(i + ',' , "")
+        aggregate=aggregate.replace('%s,' %i , "")
+        aggregate=aggregate.replace('%s)' %i , ")")
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
@@ -174,6 +175,7 @@ def subNewick(alist, myPhylo):
                     relevant.append(rep)
     partial = seed
     relevant = sorted(relevant, key=len, reverse=True) # order is important
+    print relevant
     for e in relevant:
         partial = aggregate_splits(e, partial)
     partial = re.sub('None:', ':', partial)
