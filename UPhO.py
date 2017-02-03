@@ -19,6 +19,7 @@ class split():
         self.branch_length=None
         self.support=None
         self.name=None
+        self.label=[]
 
 class myPhylo():
     '''A class for newick trees'''
@@ -36,8 +37,8 @@ class myPhylo():
 
 def get_leaves(String):
     '''Find leaves names in newick files using regexp. Leaves names are composed of alpha numeric characters, underscore and a special field delimiter'''
-    pattern = "[,\(]+(.+?)[\,:\);)]"
-    #pattern = "[^\(\),;:\[\]]+%s[^\(\),;:\[\]]+" % gsep
+    pattern = "(?<=[,\(])\w.+?(?=[,:;\)])"
+#    pattern = "[^\(\),;:\[\]]+%s[^\(\),;:\[\]]+" % gsep
     Leaves = re.findall(pattern, String)
     return Leaves
 
@@ -149,7 +150,7 @@ def orthologs(Phylo, minTaxa, bsupport):
 def aggregate_splits(small,large):
     '''Takes two newick like splits where small is a subset of large and returns partial newick incluiding the two input groupings'''
     aggregate=large
-    contents = get_leaves(small)
+    contents = get_leaves("(%s)" %small)
     placeholder= contents.pop()
     for i in contents: #remove from aggregate all leaves in small except the placeholder
         aggregate=aggregate.replace(i + ',' , "")
