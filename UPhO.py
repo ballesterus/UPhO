@@ -175,7 +175,6 @@ def subNewick(alist, myPhylo):
                     relevant.append(rep)
     partial = seed
     relevant = sorted(relevant, key=len, reverse=True) # order is important
-    print relevant
     for e in relevant:
         partial = aggregate_splits(e, partial)
     partial = re.sub('None:', ':', partial)
