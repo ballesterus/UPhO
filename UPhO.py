@@ -10,7 +10,6 @@ import argparse
 #GLOBAL VARIABLES. MODIFY IF NEEDED
 sep='|'
 gsep=re.escape(sep)
-OrtList = open('UPhO_orthogroups.csv', 'a')
 
 #CLASS DEFINITIONS
 class split():
@@ -154,7 +153,6 @@ def aggregate_splits(small,large):
     placeholder= contents.pop()
     for i in contents: #remove from aggregate all leaves in small except the placeholder
         aggregate=aggregate.replace('%s,' %i , "")
-        aggregate=aggregate.replace('%s)' %i , ")")
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
@@ -247,6 +245,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sep=args.delimiter
     gsep=re.escape(sep)
+    OrtList = open('UPhO_orthogroups.csv', 'a')
 
     print  "Begining orthology assesment. Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 
 
