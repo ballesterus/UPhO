@@ -19,14 +19,14 @@ Additional scripts are provided for a variety of task including:
 <li>distOrth.py Functions for annotating the distribution of orthologs on a tree.
 <li>distOrth_interactive.py interactive helper for distOrth.
 
-Each script has  (or should have) its own  -help flag for details on its usage, .
+Each script has  (or should have) its own  -help flag for details on its usage.
 
-##Disclaimer:
+<h3>Disclaimer<\h3>:
 
 This software is experimental, in active development and comes without warranty.
 UPhO scripts were developed and tested using Python 2.7 on Linux (RHLE and Debian) and MacOS. Versions of these scripts using Python3 are being tested.
 
-##Citation
+<h3>Citation<\h3>
 
 Ballesteros JA and Hormiga G. 2016. A new orthology assessment method for phylogenomic data: Unrooted Phylogenetic Orthology.
 Molecular Biology and Evolution, doi: 10.1093/molbev/msw069<url>
