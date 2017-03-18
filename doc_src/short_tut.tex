@@ -20,8 +20,6 @@
 \usepackage{color} 
 \usepackage[colorlinks=true,linkcolor=Violet,citecolor=Violet,urlcolor=blue]{hyperref} 
 \usepackage{listings}
- 
-
 \title{
   {\Huge\color{red}U}nrooted 
   {\Huge\color{red}Ph}ylogenetic 
@@ -29,21 +27,21 @@
 \\(Documentation)
 } 
 \author{Jesus A. Ballesteros}
-\date{Apr 2016}
+\date{March 2017}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \maketitle
 \section{Quick recipe}
 \begin{enumerate}
-\item Rename each FASTA file to include the OTU of species name. Using
+\item Rename sequences in  each FASTA file to include the respective species name. Using
 the provided script \texttt{minreID.py}:
-  \begin{verbatim} 
+  \begin{verbatim}
 minreID.py SequencesAA.fasta Species_Name \|
   \end{verbatim}
-\item Concatenate all the renamed FASTA files into a single reference
+\item Concatenate all FASTA files with the renamed sequences into a single reference
 file.
-  \begin{verbatim} 
+  \begin{verbatim}
 cat *_withid.FASTA > AllSeqs.faa
   \end{verbatim}
 \item AllvsAll BLAST. Create a BLAST database of the reference FASTA
@@ -80,19 +78,19 @@ UPho.py -in *.tre -m 5 -S 0.95 -ouT -iP -R../AllSeqs.faa
 \tableofcontents
 \section{Introduction} UPhO identifies orthologous splits from
 gene-family trees and thus, strictly speaking, the only required input
-are Newick formated trees (gene phylogenies) that satisfy a leaf naming
+are trees in NEWICK format (gene-family phylogenies) that satisfy a leaf naming
 convention (explained below). Nevertheless, in most cases gene-family
 trees need to be estimated from a collection of anonymous genomic
 sequences (draft genomes, gene models, EST, transcriptomes, etc.) from
 a collection of taxa of interest.
 
-The pipeline herein presented, describes a general approach to obtain
+The pipeline followed in this document describes a general approach to obtain
 these gene trees from such type of input data, identify orthogroups and
 analyze some of its basic properties. It incorporates common tasks in
 bioinformatics for detecting sequence homology and estimate gene trees
 that are not intrinsically part of UPhO. Decisions in all the steps
-leading to the gene trees are let to the  judgment of the user. In this
-documentation is presented a plausible choice in a much diverse
+leading to the gene trees are let to the  judgment of the user. This
+documentation presents a plausible path in a much diverse
 decision tree. If you use UPhO or any of its scripts, please cite the
 the paper describing the method \citep{Ballesteros2016} and the respective 
 third party programs used.
@@ -113,18 +111,18 @@ Example: If the UPhO folder is cloned (copied) in the folder
 lines to your \texttt{.bash\_profile}:
  
 \begin{verbatim} 
-export PATH="$PATH:/home/UserName/UPhO/" 
-export PYTHONPATH="$PYTHONPATH:/home/UserName/UPhO/"
+export PATH="$PATH:/home/UserName/UPhO" 
+export PYTHONPATH="$PYTHONPATH:/home/UserName/UPhO"
 \end{verbatim}
 
-Tip: For the changes to take effect without log off your current terminal session, run:\\
-\texttt{source .bash\_profile}
+Tip: For the changes to take effect without logging off your current terminal session, run:\\
+\texttt{source $\sim$/.bash\_profile}
 
 \subsection{Dependencies} For orthology inference UPhO depends only of
 Python 2.7.x with standard libraries and modules. Some other scripts,
 such as \texttt{distOrth.py} and \texttt{Get\_FASTA\_from\_Ref.py} make use of ETE2
-and/or Biopython modules.  Many of the steps for the workflow herein
-exemplified consists of common tasks for which a wide variety of
+and/or Biopython modules.  The workflow herein
+exemplified is modular and  consists of common tasks for which a wide variety of
 programs are available including: gene homology, multiple sequence
 alignment, gap masking, alignment sanitation, tree inference,
 etc. Here we demonstrate a possible implementation of this pipeline
@@ -185,7 +183,7 @@ The fields must be separated by a custom character (default ``|'')
 that is not in the set used for naming OTU's. Virtually any other
 character could be used although common sense should prevent the use
 of characters with special meanings in FASTA and Newick standards,
-such as ``>'', ``:'', ``('', etc.
+such as ``> : , ('', etc.
 
 \textbf{Important}: The use of blank spaces and punctuation marks
 (``.'' ``,'') should be avoided. These characters should be replaced or
@@ -199,7 +197,7 @@ comply with the naming requirements. This simple script takes as arguments the t
 Example:
 
 \begin{verbatim} 
-#Example of identifier in iput file assembly.fasta:
+#Example of identifier in input file assembly.fasta:
 >c1212_g1_i2
 
 minreID.py assembly.fasta mySpecies \|
@@ -209,7 +207,7 @@ minreID.py assembly.fasta mySpecies \|
 \end{verbatim}
 
 Note that the pipe character ``|'', which has a special meaning in
-bash, must be scaped with ``\char`\\'' to be interpreted as a text character.
+bash, must be escaped with ``\char`\\'' to be interpreted as a text character.
 
 Tip: If seamless transition between aminoacid and nucleotide versions
 are desired, original DNA sequences and their respective
@@ -223,12 +221,11 @@ inspected, verifying that such correspondence is correct.
 \section{Grouping sequences into homologs} The first step towards
 obtaining gene trees is grouping sequences into sets of homologous
 genes. The task of clustering sequences into gene families is a
-complex bioinformatic problem and an active area of research. Two
+complex bioinformatic problem and an active area of research. Two alternative
 approaches are herein exemplified; one is based on explicit sequence
 similarity thresholds, and another one is based on a natural
 clustering strategy using the Markov clustering algorithm
-\citep{vanDongen2000, Enright2002}. The starting point to any of these clustering approaches is
-a text file with pairwise BLAST scores. To build this required
+\citep{vanDongen2000, Enright2002}. The starting point to any of these clustering approaches is a text file with pairwise BLAST scores. To build this required
 similarity table we used an all versus all BLAST strategy.
 
 \subsection{All versus All BLAST} This is a very common bioinformatic
@@ -244,7 +241,7 @@ creates a local BLAST database and performs the search using
 across as many processors as available in the system, This script
 depends on a local version of BLAST+ (v2.2.x) and gnu-parallel.
 
-The only required parameter for the \texttt{Blast\_ helper.sh} script is an input file (\texttt{-i}) in  FASTA format. This file normally contains the sequences of all the species of interest with the sequence identifiers in the format described above. Specific query files can be defined (\texttt{-q}). If no query file is provided the input file will be used as the query, thus performing a \emph{all vs. all BLAST} search.
+The only required parameter for the \texttt{Blast\_ helper.sh} script is an input file (\texttt{-i}) in  FASTA format. This file normally contains the sequences of all the species of interest with the sequence identifiers in the format described above. Specific query files can be defined (\texttt{-q}). If no query file is provided the input file will be used as the query, thus performing a \emph{all vs. all} BLAST search.
 
 Example:
 \begin{verbatim}
@@ -327,7 +324,7 @@ orthology because there is not evidence of a single gene duplication
 event.
 
 An option to find only these single copy homolo-groups is provided in
-\texttt{BlastResultsCluster.py} using the flah \texttt{-sc}, see examples below. 
+\texttt{BlastResultsCluster.py} using the flag \texttt{-sc}, see examples below. 
 Most commoly,users would be interested in cases where more than one  homologs are present per species; the relation of these multiple genes 
 are thus candidate to be inspected in the search of orthologs. The single
 copy genes are nonetheless represented (a subset) of the collection
@@ -340,8 +337,7 @@ Identify and group single copy sets with an additional $e$ value and at
 least 4 taxa.
 
 \begin{verbatim}
-BlastResultsClusters.py -in BLAST_output.csv -e 1e-10
--m 4 -sc -R All.fasta
+BlastResultsClusters.py -in BLAST_output.csv -e 1e-10 -m 4 -sc -R All.fasta
 \end{verbatim}
 
 Identify and group redundant set with same $e$ value and at least 4
@@ -395,7 +391,7 @@ be modified replacing TABS with ``,'' and the resulting file used as a
 query for \texttt{Get\_fasta\_from\_Ref.py}
 
 \begin{verbatim} 
-sed 's/\t/,/g mcl mci40.out > mci40.csv'
+sed 's/\t/,/g' mcl mci40.out > mci40.csv
 \end{verbatim}
 
 Tip: Removing clusters containing less than \emph{a priori} minimum
@@ -420,9 +416,9 @@ gene trees from multiple unaligned sequence files. For each input file the follo
 Align $\rightarrow $Mask gap rich regions $\rightarrow$ Clean alignment
 of short sequences $\rightarrow$ estimate a phylogenetic tree.  This
 part of the pipeline is one of the most time consuming ones and its
-complexity depends on a variety of factors, including, sequence
+complexity depends on a variety of factors, including sequence
 complexity, number of sequences in each file, etc. This shell script
-uses GNU-parallel to each step of the phylogenetic pipeline in
+uses GNU-parallel to run each step of the phylogenetic pipeline in
 parallel. First a multiple sequence aligner (MAFFT) is run on all the
 sequences in the current directory with extension
 \texttt{``.fasta''}. The resulting alignments are written to files
@@ -533,8 +529,8 @@ that define in-paralogs.
 
 Example:
 \begin{verbatim} 
-#Running UPhO accepting in-paralogs, incluiding atleast 12 species per
-#orthogroup and derived from splits with at least 0.75 bootstraop
+#Running UPhO accepting in-paralogs, incluiding at least 12 species per
+#orthogroup and derived from splits with at least 0.75 bootstrap
 #support.
 
 UPhO.py -m 12 -iP -S 0.75 -in *.tre
@@ -549,7 +545,7 @@ individual files in Newick format and saved  in a folder named
 orthology evaluation phase; therefore, if the orthobranches of a previous run
 are required, UPhO must be run again using the same parameters. If
 orthobranches from multiple runs of UPhO want to be compared, the
-Output folder must be renamed to avoid overwritting previous tree
+Output folder must be renamed to avoid overwriting previous tree
 files. The user should remember that these branches are derived from
 the topolgy implied in the input gene-family tree and that phylogenetic 
 re-ananlysis  of the orthologous sequences alone may differ from the
@@ -564,12 +560,11 @@ identical. These sequences are by default written to a folder named
 Example:
 
 \begin{verbatim} 
-#A complex UPhO run combining a bash loop to obtain untrimmed aligned 
-#FASTA files of each orthogroup. Notice that the
-#firts part of the name in the aligned gene families and their trees
-#is identical. The use of a single reference file will be problematic
-#in this case because a given sequence may be present in more than one
-#homolog alignment.
+#A complex UPhO run combining a bash loop to obtain untrimmed aligned
+#FASTA files of each orthogroup. Notice that the first part of the name
+#in the aligned gene families and their trees is identical. The use of
+#a single reference file will be problematic in this case because a
+#given sequence may be present in more than one homolog alignment.
 
 for i in *.tre 
 do 
@@ -580,10 +575,10 @@ rm UPhO_orthogroups.csv
 
 \end{verbatim}
 
-Tip: To prevent writting large collections of sequences files, multiple
-runs of UPhO can be evaluated withouth the \texttt{-R} flag. Each
+Tip: To prevent writing large collections of sequences files, multiple
+runs of UPhO can be evaluated without the \texttt{-R} flag. Each
 UPhO\_orthogroups.csv file must be renamed between alternative runs to
-prevent rewritting. If sequences are then required, they can be fetched 
+prevent rewriting. If sequences are then required, they can be fetched 
 using \texttt{Get\_fasta\_from\_Ref.py}
 
 \section{Phylogenetic structure and congruence of orthologs} Simple
@@ -618,8 +613,7 @@ There are two main input requirements for the mapping procedure:
 \begin{enumerate}
   \item A species tree. This can be a tree estimated from the
 orthologs or an external reference tree. The name of the leaves in
-this tree must have at least all the species in the orthologs that are
-gonna be mapped.
+this tree must have at least all the species represented in the orthogroups to be be mapped.
   \item A text file with the lists of orthologs and their sequence composition (\texttt{OG\_summary} hereafter). The  \texttt{UPhO\_orthogroups.csv} output or similar formated text file. An option is provided in \texttt{distOrth}  to create this file from a series of FASTA files.
 \end{enumerate} 
 
