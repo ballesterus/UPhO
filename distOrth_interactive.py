@@ -8,8 +8,8 @@ T = None
 Summary= None
 NodeS= None
 Q = True
-Tree= None
-Summary = None
+# Tree= None
+# Summary = None
 outgroup = None
 
 while Q == True:
@@ -37,6 +37,7 @@ while Q == True:
     7: Resolve redundancies.
 
     q: Exit"""
+    
     selection = raw_input("Enter your selection: ")
     if selection  not in ['1','2','3','4', '5', '6','7','q']:
         print "ERROR type the number of your selection"
@@ -55,16 +56,18 @@ while Q == True:
         T = tree_ortho_annotator(Summary, Tree)
     
     elif selection == '3':
-        T = tree_ortho_annotator(Summary, Tree)
+#        T = tree_ortho_annotator(Summary, Tree)
+        T.ladderize()
         B_size=  float(raw_input('Bubble size factor: '))
         ts =tree_plot(T, B_size)
         T.show(tree_style=ts)
+        
     elif selection == '4':
         B_size=  float(raw_input('Bubble size factor: '))
         name = raw_input('Name of otput image file: ')
         Type = raw_input('Type of file (pdf, svg, or  png: ')
         OutName = name + '.' + Type
-        T = tree_ortho_annotator(Summary,Tree)
+       # T = tree_ortho_annotator(Summary,Tree)
         ts =tree_plot(T, B_size)
         T.render(OutName, tree_style = ts)
         "The  image file was written"
@@ -86,7 +89,7 @@ while Q == True:
     elif selection =='6':
         outgroup = raw_input('Enter an outgroup: ')
         T.set_outgroup(outgroup)
-
+        
     elif selection == '7':
         target = raw_input("Name of the file to remove redundancies: ")
         print """The file %s will be processed. Select an option from below:

@@ -6,7 +6,7 @@ import glob
 import re
 import shutil
 import readline
-import ete2
+import ete3
 
 '''This file contains functions to summarize the distribution of orthologous on a tree and auxiliary functions. These functions can be imported into the interpreted and ran interactively or accessed through a helper script distOrth_interactive.py.'''
 
@@ -48,7 +48,7 @@ def RemoveDupSpecies(Tree):
     with open(Tree, 'r') as F:
         for line in F:
             Sps=[]
-            T = ete2.Tree(line)
+            T = ete3.Tree(line)
             for leaf in T.iter_leaves():
                 sp = leaf.name.split('|')[0]
                 if sp not in Sps:
@@ -63,7 +63,7 @@ def MakeAstralSpeciesMap(All):
     with open(All, 'r') as F:
         Sps={}
         for L in F:
-            T = ete2.Tree(L) 
+            T = ete3.Tree(L) 
             for leaf in T.iter_leaves():
                 sp, seq = leaf.name.split(Separator)
                 if sp not in Sps.keys():
@@ -219,7 +219,7 @@ def Set_of_FastaID(extension):
 
 def tree_ortho_annotator(summary,phylo):
     inFile= open(summary, 'r')
-    T = ete2.Tree(phylo)
+    T = ete3.Tree(phylo)
     for node in T.traverse():
         node.add_feature('OgCompo', []) #initialize the OrthoGroup (OG) composition in each node
             
@@ -289,16 +289,16 @@ def get_orthoSet_by_node(Phylo, NodeNumber):
 
 def tree_plot(phylo, Bsize = 1.0):
     T = phylo
-    ts = ete2.TreeStyle()
+    ts = ete3.TreeStyle()
     ts.show_leaf_name = False
     for n in T.traverse():
         if n.is_leaf():
-            Nlabel = ete2.AttrFace('name', fsize =14, ftype='Arial', fstyle='italic')
+            Nlabel = ete3.AttrFace('name', fsize =14, ftype='Arial', fstyle='italic')
             n.add_face(face =Nlabel,column=0, position ='aligned')
-        NOg = ete2.AttrFace('Total', fsize= 10, ftype='Arial') 
+        NOg = ete3.AttrFace('Total', fsize= 10, ftype='Arial') 
         n.add_face(face=NOg,column=0, position =  'branch-bottom')
         #Set node style
-        nstyle = ete2.NodeStyle()
+        nstyle = ete3.NodeStyle()
         nstyle["fgcolor"] = 'Red'
         nstyle["shape"] = "circle"
         nstyle["hz_line_color"]="Gray"
