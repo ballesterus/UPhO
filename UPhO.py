@@ -12,7 +12,7 @@ sep='|'
 gsep=re.escape(sep)
 
 #CLASS DEFINITIONS
-class split():
+class split:
     def __init__(self):
         self.vecs=None
         self.branch_length=None
@@ -97,9 +97,9 @@ def split_decomposition(Tree):
     for leaf in leaves: #Splits leading to each terminal are included.
         vec=[leaf]
         covec = sorted(complement(vec,leaves))
-        if leaf not in Inspected:
+        if vec not in Inspected:
             Inspected.append(leaf)
-            mySplits =split()
+            mySplits = split()
             mySplits.vecs = [vec, covec]
             exp = re.escape(leaf) + r'\:([0-9\.]+)'
             BranchVal =  re.findall(exp, Tree.newick)
@@ -108,7 +108,17 @@ def split_decomposition(Tree):
             except:
                 missBval+=1
             Tree.splits.append(mySplits)
-    print '%d edges in the tree missed branch values.'  %missBval
+        else:
+            exp = re.escape(leaf) + r'\:([0-9\.]+)'
+            BranchVal =  re.findall(exp, Tree.newick)
+            for s in Tree.splits:
+                if vec in s.vecs:
+                    if s.branch_length != BranchVal[0]:
+                        nval=float(s.branch_length) + float(BranchVal[0])
+                        print nval
+                        s.branch_length=str(nval)
+#    print '%d edges in the tree missed branch values.'  %missBval
+
 def LargestBox(LoL):
     '''Takes a list of lists (lol) and returns a lol where no list is a subset of the others, retaining only the largest'''
     NR =[]
