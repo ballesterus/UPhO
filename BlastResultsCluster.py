@@ -66,6 +66,8 @@ def clusters(blastout, expectation):
                                 Homolog.append(subjectId)
 			else:
 				Homolog.append(subjectId)
+	myOut.write(','.join(set(Homolog)) + '\n')
+
 
 def non_redundant(cluster, minTaxa):
         """This function filters out clusters with redundant species. Takes as input a cluster file, like the one produces by the fuction clusters, and a minimum number of different species"""
