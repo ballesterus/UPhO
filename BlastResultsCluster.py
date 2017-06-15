@@ -26,27 +26,6 @@ def mcl_abc(blastout, expectation):
         in_file.close()
         myOut.close()
 
-def hmmr_clust(hmmrout, expectation):
-        """Read a hmmerscan output and produce a cluster text file in which members of the same cluster are written on a single line. The group associtaion is based on the best scoring domain and clusters named as the hmm target profile hit with e score less than expectation"""
-        myOut = open('hmmerclust-%s.txt' % expectation, 'w')
-        in_file = open (hmmrout, 'r')
-        previous_target = ''
-        for line in in_file:
-                fields=line.split(' ') #Field in the hmmr tblout format are separated by spaces. 
-                fields = [x for x in fields if x]
-                target = fields[0]
-                query = fields[2]
-                taccess = fields[1]
-                DEvalue = fields[7]
-                current_target = taccess
-                if float(DEvalue) <= float(expectation):
-                        if previous_target !=current_target:
-                                myOut.write('\n')
-                                myOut.write("#%s_%s" %(taccess, target))
-                                myOut.write(',' + query)
-                                previous_target = taccess
-                        else:
-                                myOut.write(','+query)
 
 def clusters(blastout, expectation):
         """This function take two arguments: 1) the blast csv output, and 2) an E Value threshold for the formation of clusters. The output is text file with the identifiers of the sequenes clustered  on a single line, a hidden parameter in this function is the alignment lenght, Im using 50 but can be  modified."""
@@ -143,16 +122,16 @@ if __name__ == "__main__":
 			print 'Minimum taxa filtering started'
 			redundant(clustFile, args.minTaxa)
                         if args.reference:
-                                from Get_fasta_from_Ref import Retrieve_Fasta
+                                import Get_fasta_from_Ref as GFR
                                 try:
-                                        Retrieve_Fasta("ClustR_m%d.txt" % args.minTaxa, 'ClusteRs', 'bcl', args.reference)
+                                        GFR.main("ClustR_m%d.txt" % args.minTaxa, 'clustR_e%s_m%d' % (args.expectation, args.minTaxa), 'bcl', args.reference)
                                 except:
                                         pass
                 else:
 			non_redundant(clustFile, args.minTaxa)
                         if args.reference:
-                                from Get_fasta_from_Ref import Retrieve_Fasta
+                                import Get_fasta_from_Ref as GFR
                                 try:
-                                        Retrieve_Fasta('ClustNR_m%d.txt' %args.minTaxa,'ClusterSC', 'bcl', args.reference)
+                                        GFR.main('ClustNR_m%d.txt' %args.minTaxa,'clustSC_e%s_m%d'  % (args.expectation, args.minTaxa), 'bcl', args.reference)
                                 except:
                                         pass     

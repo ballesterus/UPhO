@@ -19,11 +19,11 @@
 ######################################################################
 
 #Program specific commands. User should modify this accordingly.
-mafft_cmd="mafft --anysymbol --auto --quiet --thread 4"
+mafft_cmd="mafft --anysymbol --auto --quiet --thread 2"
 trimal_cmd="trimal -fasta -gappyout"
 raxml_cmd="raxmlHPC -f a -p 767 -x 97897 -#100 -m PROTGAMMAJTTX"
-fasttree_cmd="fasttree -nt"
-Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 25"
+fasttree_cmd="fasttree -slownni -wag"
+Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 0"
 
 export mafft_cmd
 export trimal_cmd

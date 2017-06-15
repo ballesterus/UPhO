@@ -6,7 +6,6 @@ from math import fsum
 import argparse
 
 
-
 #GLOBAL VARIABLES. MODIFY IF NEEDED
 sep='|'
 gsep=re.escape(sep)
@@ -265,6 +264,6 @@ if __name__ == "__main__":
         main_wTrees()
     OrtList.close()
     if args.Reference != None:
-        from Get_fasta_from_Ref import Retrieve_Fasta
+        import Get_fasta_from_Ref as GFR
         print "Proceeding to create a fasta file for each ortholog"    
-        Retrieve_Fasta('UPhO_orthogroups.csv','UPhO_Seqs','upho', args.Reference)
+        GFR.main('UPhO_orthogroups.csv','UPhO_Seqs','upho', args.Reference)
