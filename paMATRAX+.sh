@@ -22,6 +22,7 @@
 mafft_cmd="mafft --anysymbol --auto --quiet --thread 2"
 trimal_cmd="trimal -fasta -gappyout"
 raxml_cmd="raxmlHPC -f a -p 767 -x 97897 -#100 -m PROTGAMMAJTTX"
+iqtree_cmd="iqtree-omp -st AA -bb 1000  -nt AUTO"
 fasttree_cmd="fasttree -slownni -wag"
 Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 0"
 
@@ -30,14 +31,14 @@ export trimal_cmd
 export raxml_cmd
 export Al2Phylo_cmd
 export fasttree_cmd
-
+export iqtree_cmd
 #Initialize variables
 EXT="fasta"
 AFLAG=1
 TFLAG=1
 SFLAG=1
 CFLAG=0
-TinEXT='.fa'
+TinEXT='.al'
 TREE_BUILDER=0
 
 usage() {
@@ -57,7 +58,8 @@ Please cite the appropriate programs used on each step.
 -s  |  Stop after sanitation
 -c  |  Sanitize trimmed alignments with Al2Phylo.py
 -f  |  Use FastTree for building trees (default raxml).
-
+-q  |  Use IQ-Tree for building trees
+    
 These are the default parameters for each program. Modify accordingly:
 
     mafft:    $mafft_cmd
@@ -65,11 +67,11 @@ These are the default parameters for each program. Modify accordingly:
  Al2Phylo:    $Al2Phylo_cmd
     raxml:    $raxml_cmd
  fasttree:    $fasttree_cmd
-
+   iqtree:    $iqtree_cmd
 EOF
 }
 
-while getopts "he:atscf" opt; do
+while getopts "he:atscfq" opt; do
 
     case "$opt" in
 	h)
@@ -85,17 +87,22 @@ while getopts "he:atscf" opt; do
 	t)
 	    TFLAG=0
 	    ;;
-	s) SFLAg=0
+	s)
+	    SFLAg=0
 	    ;;
-	c) CFLAG=1
+	c)
+	    CFLAG=1
 	    ;;
 	f)
 	    TREE_BUILDER=1
 	    ;;
-	?)
-	    usage >&2
-	    exit 1
+	q)
+	    TREE_BUILDER=2
 	    ;;
+	?)
+	usage >&2
+	exit 1
+	;;
     esac
 
 done
@@ -106,21 +113,19 @@ main () {
     printf "\nAll alignemnets are completed. Alignments files writen with extension with extension .al"
     if [ $AFLAG -eq 0 ]
     then
-	printf "\nPipeline stopped after alignement."
+	printf "\nPipeline stopped after alignment."
 	exit 0
     else
-	printf "\n\nStarting trimming."
-	parallel --env trimal_cmd  -j+0 'if [ ! -e {.}.fa  ]; then $trimal_cmd -in {} -out {.}.fa; fi' ::: *.al;     
-	printf "\nAll alignments were trimmed. Trimmed alignments written with extension .fa"
-	if [ $TFLAG -eq 0 ]
+	if [ $CFLAG -eq 1 ]	
 	then
-	    printf "\nPipeline stoped after trimming."
-	    exit 0
-	else
-	
-	    if [ $CFLAG -eq 1 ]
-		
+	    printf "\n\nStarting trimming using trimal."
+	    parallel --env trimal_cmd  -j+0 'if [ ! -e {.}.fa  ]; then $trimal_cmd -in {} -out {.}.fa; fi' ::: *.al;     
+	    printf "\nAll alignments were trimmed. Trimmed alignments written with extension .fa"
+	    if [ $TFLAG -eq 0 ]
 	    then
+		printf "\nPipeline stoped after trimming."
+		exit 0
+	    else
 		printf "\n\nStarting cleaning"
 		parallel --env Al2Phylo_cmd -j+0 'if [[ ! -e {.}_clean.fa && ! -e {= s:_clean\.fa::; =}_clean.fa ]]; then $Al2Phylo_cmd -in {} >> Al2Phylo.log; fi' ::: *.fa; 
 		TinEXT='_clean.fa'
@@ -130,19 +135,23 @@ main () {
 	    if [ $SFLAG -eq 0 ]
 	    then
 		printf "\nPipeline stopped after sanitation."
-		exit 0
-	    else		
-		if [ $TREE_BUILDER -eq 0 ]
-		then
-		    printf "\n\nStarting tree estimation with raxml"
-		    parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n {.}.out 2>> raxml.log; fi' ::: *$TinEXT;
-		else
-		    printf "\n\nStarting tree estimation with FastTree"
-		    parallel --env fasttree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $fasttree_cmd  {} > {.}.tre  2>> fasttree.log; fi' ::: *$TinEXT;
-		fi
+		exit 0		
 	    fi
-	fi	
-    fi
+	fi
+	if [ $TREE_BUILDER -eq 2 ]
+	then
+	    printf "\n\nStarting tree estimation using iqtree"
+	    parallel --env iqtree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $iqtree_cmd  -s {}  2>> iqtree.log; fi' ::: *$TinEXT;
+	else if [ $TREE_BUILDER -eq 1 ]
+	     then
+		 printf "\n\nStarting tree estimation using FastTree"
+		 parallel --env fasttree_cmd -j+0 'if [ ! -e {.}.tre  ]; then  $fasttree_cmd  {} > {.}.tre  2>> fasttree.log; fi' ::: *$TinEXT;
+	     else
+		 printf "\n\nStarting tree estimation using raxml"
+		 parallel --env raxml_cmd -j+0 'if [ ! -e RAxML_info.{.}.out  ]; then  $raxml_cmd -s {} -n {.}.out 2>> raxml.log; fi' ::: *$TinEXT;
+	     fi
+	fi
+    fi	
 }
 	    
 
