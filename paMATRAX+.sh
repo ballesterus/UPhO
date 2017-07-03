@@ -12,7 +12,8 @@
 #
 #  *gnu-parallel
 #  *raxmlHPC 
-#  *trimal 
+#  *trimal
+#  *iqtree
 #  *FastTree  
 #  *mafft 
 #  *Al2Phylo.py
@@ -21,7 +22,7 @@
 #Program specific commands. User should modify this accordingly.
 mafft_cmd="mafft --anysymbol --auto --quiet --thread 2"
 trimal_cmd="trimal -fasta -gappyout"
-raxml_cmd="raxmlHPC -f a -p 767 -x 97897 -#100 -m PROTGAMMAJTTX"
+raxml_cmd="raxmlHPC-PTHREADS-AVX -f a -p $RANDOM -x $RANDOM -#100 -m PROTGAMMAAUTO -T 4"
 iqtree_cmd="iqtree-omp -st AA -bb 1000  -nt AUTO"
 fasttree_cmd="fasttree -slownni -wag"
 Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 0"
@@ -46,8 +47,8 @@ cat <<EOF
 
 usage: $0 <options>
 
-This script runs the phylogetic pipeline Align -> Trim-> Sanitize-> Tree
-on all sequences in the cwd. It calls  gnu-parallel, mafft, trimAL, RAxML or
+This script runs the phylogenetic pipeline: Align -> Trim-> Sanitize-> Tree
+on all sequences in the current working directory. It calls  gnu-parallel, mafft, trimAL, RAxML or
 FastTree. If an output file is found it would be skipped.
 Please cite the appropriate programs used on each step.
 
@@ -56,9 +57,9 @@ Please cite the appropriate programs used on each step.
 -a  |  Stop after alignment
 -t  |  Stop after trimming
 -s  |  Stop after sanitation
--c  |  Sanitize trimmed alignments with Al2Phylo.py
+-c  |  Trim (trimAl) and sanitize trimmed alignments (Al2Phylo)
 -f  |  Use FastTree for building trees (default raxml).
--q  |  Use IQ-Tree for building trees
+-q  |  Use IQ-Tree or building trees
     
 These are the default parameters for each program. Modify accordingly:
 
