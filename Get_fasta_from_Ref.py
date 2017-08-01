@@ -51,7 +51,7 @@ def main(query, outdir, prefix, reference):
                 Counter += 1
             for seqId in qlist:
                 OG_outfile.write(FastaRetriever(seqId, seqSource))
-	        print "Successfully created file: %s" % OG_filename
+	    print "Successfully created file: %s" % OG_filename
 	    OG_outfile.close()
                                 
 
