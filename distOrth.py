@@ -308,3 +308,14 @@ def tree_plot(phylo, Bsize = 1.0):
         nstyle["size"] = n.Total * Bsize
         n.set_style(nstyle)
     return ts
+
+def write_newick_asBS(Phylo, outF_name):
+    T = Phylo
+    for node in T.traverdse('postorder'):
+        try:
+            node.support = node.Total
+        except:
+            print "Verify Phylo object is annotataed"
+    T.write(outfile=outF_name, format=2)
+        
+                
