@@ -20,7 +20,7 @@ def mcl_abc(blastout, expectation):
 	in_file = open(blastout, 'r')
 	for line in in_file:
                 (queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
-                if int(alnLength) >= 50 and float(eVal) <= float(expectation):
+                if int(alnLength) >= 50 and float(eVal) <= float(expectation) and float(percIdentity) >= 50.00:
                         string ="%s\t%s\t%s\n"%(queryId, subjectId, eVal)
                         myOut.write(string)
         in_file.close()
@@ -36,16 +36,17 @@ def clusters(blastout, expectation):
 	for line in in_file:
 		(queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
 		current_query = queryId
-		if (int(alnLength) >= 50) and float(eVal) <= float(expectation):
+		if (int(alnLength) >= 100) and float(eVal) <= float(expectation):
 			if previous_query != current_query:
-				myOut.write(','.join(set(Homolog)) + '\n')
+				myOut.write(','.join(Homolog) + '\n')
 				previous_query = current_query
 				Homolog=[]
                                 Homolog.append(queryId)
                                 Homolog.append(subjectId)
 			else:
-				Homolog.append(subjectId)
-	myOut.write(','.join(set(Homolog)) + '\n')
+                                if subjectId not in Homolog:
+				        Homolog.append(subjectId)
+	myOut.write(','.join(Homolog) + '\n')
 
 
 def non_redundant(cluster, minTaxa):
@@ -76,11 +77,11 @@ def redundant(cluster, minTaxa):
 	outFile =open("ClustR_m%d.txt" %minTaxa, "w" )
         SetsInspected = []
         for line in inFile:
-		SeqIds = sorted(line.strip('\n').split(','))
+		SeqIds = (line.strip('\n').split(','))
 		spp = spp_in_list(SeqIds,sep)
                 nr = set(spp)
                 if len(nr) >= int(minTaxa) and SeqIds not in SetsInspected:
-                        SetsInspected.append(SeqIds)
+                        SetsInspected.append(sorted(SeqIds))
                         outFile.write(line)
         outFile.close()
 
