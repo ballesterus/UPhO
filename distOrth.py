@@ -150,26 +150,6 @@ def No_Same_OG_Intesec(File):
     F.close()
     Out.close()
     Log.close()
-    
-#DEPRECATED
-# def line_writer(P_attern):
-#     '''Creates OG summary file, for Tree orthology annotation from FASTA files in current working directory.'''
-#     Output = open('OG_summary.csv', 'w')
-#     Output.write('OGnumber,Species_code,Seq_Id\n')
-#     for file in glob.glob('*%s' % P_attern):
-#         Handle = open(file, 'r')
-#         OrtG = file.strip('%s' % P_attern)
-#         for Line in Handle:
-#             if re.search (r'^>', Line):
-#                 Line = Line.strip('\n')
-#                 Line = re.sub(' ', Separator, Line) # unique sequence identifiers should not contain spaces and this data will not be included in the annotation.
-#                 Div = re.sub('>','',Line).split(Separator)
-#                 OutLine = '%s,%s,%s\n' % (OrtG, Div[0], Div[1])
-#                 Output.write(OutLine)
-#         Handle.close()
-#     Output.close()
-#
-
 
 def OG_summary_maker(P_attern):
     """"Inspects all files with extension P_attern in the current directory and writes a files with sequence indentifiers as a list. The name of the file is the fisrts element identified with #"""
@@ -233,16 +213,7 @@ def tree_ortho_annotator(summary,phylo):
             if OG_num not in CCompo: # conditional to avoid count twice the same orthogroup per leaf, which occurs when there are inParalogs
                 CCompo.append(OG_num)
                 CNode.add_feature('OgCompo', CCompo)
-    # DEPRECATEDelse:
-    #     if not re.search('^OGnumber', line):
-    #         items= line.split(',')
-    #         Sp_Code = items[1]
-    #         OG_num = items[0]
-    #         CNode = T&Sp_Code #get leaf node
-    #         CCompo = CNode.OgCompo 
-    #         if OG_num not in CCompo: 
-    #             CCompo.append(OG_num)
-    #             CNode.add_feature('OgCompo', CCompo)
+
     I_node = 0 #initialize counter to use as node name
     for node in T.traverse():
         if node.is_leaf() == False and node.is_root() == False:
@@ -311,7 +282,7 @@ def tree_plot(phylo, Bsize = 1.0):
 
 def write_newick_asBS(Phylo, outF_name):
     T = Phylo
-    for node in T.traverdse('postorder'):
+    for node in T.traverse('postorder'):
         try:
             node.support = node.Total
         except:
