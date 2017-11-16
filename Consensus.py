@@ -7,8 +7,8 @@ from sys import argv
 
 #Globals
 
-NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N', '-')
-AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X', '-', '*')
+NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N', '-', '?')
+AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X', '-', '*', '?')
 
 #dictionary of ambiguity:
 Ambigs = {
@@ -79,18 +79,23 @@ def Fasta_to_Dict(File):
 def make_Consensus(Dict, T):
     '''This functiom returns the sites where all the aligemnet positions match on the same nucleotide. this is a T% consensus, for AA seqs, the most common aminoacid equal or greater than the threshold will be used, and ambiguities replaced by  "?" '''
     Type = Is_NT_or_AA(Dict)
+    ignore=['-', '?']
     Consensus=''
     for i in range(0, len(Dict[Dict.keys()[0]])):
         compo = [seq[i] for seq in Dict.itervalues()]
-        MFB = max(set(compo), key=compo.count)
-        G = compo.count(MFB)
-        if float(G)/len(Dict.keys()) >= T:
-            Consensus+=MFB
-        elif Type == 'NT':
-            AmbC = return_amb(compo)
-            Consensus+=str(AmbC)
+        if set(compo) == {'-'} or set(compo) == {'?'}:
+            Consensus+=compo[0]
         else:
-            Consensus += '?'
+            compo = [x for x in compo if x not in ignore]
+            MFB = max(set(compo), key=compo.count)
+            G = compo.count(MFB)
+            if float(G)/len(compo) >= T:
+                Consensus+=MFB
+            elif Type == 'NT':
+                AmbC = return_amb(compo)
+                Consensus+=str(AmbC)
+            else:
+                Consensus += 'X'
     return Consensus
 
 def Good_Blocks(Consensus, M):
@@ -98,9 +103,9 @@ def Good_Blocks(Consensus, M):
     GoodBlocks =''
     block = ''
     for site in Consensus:
-        if site not in  ['-','N']:
+        if site not in  ['-','N', '?']:
             block+=site
-        elif site in ['-','N' ] and len(block)>0:
+        elif site in ['-','N', '?' ] and len(block)>0:
             if len(block) >= M:
                 GoodBlocks += block.upper() + site
                 block = ''
@@ -130,14 +135,15 @@ if __name__ =='__main__':
     for File in arguments.alignments:
         F = Fasta_to_Dict(File)
         Con = make_Consensus(F, T)
-        print Con
-        if M > 0:
-            Out = open ('Good_Blocks.fasta', 'w')
-            Res = Good_Blocks(Con, M)
-            if re.search(r'[ACGT]+', Res):
-                print 'Consensus from orthogroup %s have conserevd regions' % FileName[0]
-                Out.write('>' + FileName[0] + '\n')
-                Out.write(Res + '\n')
-            else:
-                print 'Consensus from orthogroup %s does not look promissing' % FileName[0]
-                Out.close()
+        with open ("%s_consensus.fasta" % File.split('.')[0], 'w') as out:
+            out.write('>%s consensus sequence\n%s\n' % (File, Con)) 
+            if M > 0:
+                Out = open ('Good_Blocks.fasta', 'w')
+                Res = Good_Blocks(Con, M)
+                if re.search(r'[ACGT]+', Res):
+                    print 'Consensus from orthogroup %s have conserevd regions' % FileName[0]
+                    Out.write('>' + FileName[0] + '\n')
+                    Out.write(Res + '\n')
+                else:
+                    print 'Consensus from orthogroup %s does not look promissing' % FileName[0]
+                    Out.close()

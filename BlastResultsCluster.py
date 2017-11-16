@@ -36,7 +36,7 @@ def clusters(blastout, expectation):
 	for line in in_file:
 		(queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
 		current_query = queryId
-		if (int(alnLength) >= 100) and float(eVal) <= float(expectation):
+		if (int(alnLength) >= 20) and float(eVal) <= float(expectation):
 			if previous_query != current_query:
 				myOut.write(','.join(Homolog) + '\n')
 				previous_query = current_query
@@ -46,6 +46,8 @@ def clusters(blastout, expectation):
 			else:
                                 if subjectId not in Homolog:
 				        Homolog.append(subjectId)
+                else:
+                        print "FAILED\n: %s" % line 
 	myOut.write(','.join(Homolog) + '\n')
 
 

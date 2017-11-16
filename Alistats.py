@@ -14,9 +14,10 @@ def aln_stats(Dict):
     AT = Allseq.count('A') + Allseq.count('T')
     GC = Allseq.count('G') + Allseq.count('C')
     Gaps = Allseq.count('-')
+    Missing=Allseq.count('?')
     sites = len(Allseq)
     avgSeqL = float(sites)/numSeqs
-    return [ numSeqs, len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites, avgSeqL]
+    return [ numSeqs, len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps+Missing)/sites, avgSeqL]
 
 #MAIN
 if __name__=='__main__':
