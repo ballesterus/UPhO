@@ -83,10 +83,10 @@ def make_Consensus(Dict, T):
     Consensus=''
     for i in range(0, len(Dict[Dict.keys()[0]])):
         compo = [seq[i] for seq in Dict.itervalues()]
-        if set(compo) == {'-'} or set(compo) == {'?'}:
-            Consensus+=compo[0]
+        compo = [x for x in compo if x not in ignore]
+        if  len(compo) < 1:
+            Consensus+='-'
         else:
-            compo = [x for x in compo if x not in ignore]
             MFB = max(set(compo), key=compo.count)
             G = compo.count(MFB)
             if float(G)/len(compo) >= T:

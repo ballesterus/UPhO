@@ -17,7 +17,9 @@ def aln_stats(Dict):
     Missing=Allseq.count('?')
     sites = len(Allseq)
     avgSeqL = float(sites)/numSeqs
-    return [ numSeqs, len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps+Missing)/sites, avgSeqL]
+    
+#    print "missing: %f" % (float(Missing)/sites)
+    return [ numSeqs, len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites, float(Missing)/sites, avgSeqL]
 
 #MAIN
 if __name__=='__main__':
@@ -29,16 +31,18 @@ if __name__=='__main__':
     #Global variables
     delim = arguments.delimiter 
     with open('alns_stats.tsv', 'w') as out:
-        out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapperr\tambigperc\tidentpe\tConsensus\n")
+        out.write("File\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapperr\tMissingPerc\tambigperc\tidentpe\tConsensus\n")
         for F in arguments.Alignments:
             Al = Fasta_to_Dict(F)
-            numSeq, numSpp, ATper, GCper, Gapper,avgSeqL = aln_stats(Al)
+            numSeq, numSpp, ATper, GCper, Gapper,Missper,avgSeqL = aln_stats(Al)
+            C = make_Consensus(Al, arguments.threshold)
             try:
                 C = make_Consensus(Al, arguments.threshold)
                 AlnL = len(C)
-                Ident = (C.count('A') + C.count('T') + C.count('C') + C.count('G')) / float(AlnL)
+                Ident = (AlnL - C.count('-') - C.count('?')) / float(AlnL)
                 Ambper = ((AlnL - C.count('-')) / float(AlnL)) - Ident
-                out.write("%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, numSeq, numSpp, AlnL, ATper, GCper, Gapper, Ambper, Ident, C))
+                out.write("%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, numSeq, numSpp, AlnL, ATper, GCper, Gapper, Missper, Ambper, Ident, C))
             except:
+                print "Cant make consensus, probably not an alignement"
                 out.write("%s\t%d\t%d\t%f\t%f\t%f\n"  % (F, numSeq, numSpp, avgSeqL, ATper, GCper))
         print "Summary stats written to alns_stats.tsv"
