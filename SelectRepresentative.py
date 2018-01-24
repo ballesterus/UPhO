@@ -31,7 +31,7 @@ def main(fastaFile, treeFile, criterion):
     newick_str=T.readline()
     T.close()
     P=UPhO.myPhylo(newick_str)
-    OutFile=open('%s_rep.fasta' %fastaFile.split('.')[0], 'w+')
+    OutFile=open('%s_rep.fasta' % fastaFile.split('.')[0], 'w+')
     collapsible=[]
     collapsed=[]
     for S in P.splits:
@@ -57,10 +57,8 @@ def main(fastaFile, treeFile, criterion):
     OutFile.close()
             
                 
-    
-
     ######MAIN######
-parser = argparse.ArgumentParser(description="Script for selecting a represemnatitve sequence in a FASTA file for groups of sequences of the same species forming monophyletic groups in a reference tree. Two criterions are enabled: longest and strict consensus sequences. NOTE: the script assumes leave and sequence names are identical in sequence and tree files and sequecnes must be aligned for using the consensus option.")
+parser = argparse.ArgumentParser(description="Script for selecting a representative sequence in a FASTA file for groups of sequences of the same species forming monophyletic groups in a reference tree. Two criterions are enabled: longest and strict consensus sequences. NOTE: the script assumes leave and sequence names are identical in sequence and tree files.  Sequences must be aligned for using the consensus option.")
 parser.add_argument('-s', dest = 'fasta', type = str, help = 'Sequence file in FASTA format')  
 parser.add_argument('-t', dest = 'tree', type = str,  help = 'Tree File in NEWICK format.') 
 parser.add_argument('-c', dest = 'criterion', type = str, default = 'longest', help= 'Criterion for selecting one representaive sequence. Options: longest (default), consensus. Note: for the consensus option, the sequence input files must be aligned')

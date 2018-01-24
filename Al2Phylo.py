@@ -4,15 +4,6 @@ import argparse
 import re
 from sys import argv
 
-parser = argparse.ArgumentParser(description="This  script returns alignments processed for phylogenetic analyses. It  performs a basic sanitation on the input files removing poorly overlapping  sequences from the alignment. A sequence is considered 'poor' when it shows less than 'm' unambiguous sites or the length of unambiguous sites  extends less than a proportion 'p' of the total alignment length. It can additionally output MSA with only one sequence per OTU, removing additional sequence identifiers and retaining only the longest sequence. Unless a new threshold is provided (-t) the cleaned alignments have the same taxon composition as the input.")
-parser.add_argument('-in', dest = 'input', type = str, nargs= '+',  help = 'Files to process(fasta alignment)')  
-parser.add_argument('-m', dest = 'minalnL', type = int, default= 0,  help = 'Minimum alignment length.') 
-parser.add_argument('-p', dest = 'percentage', type = float, default = 0.0, help= 'Minimum alignment relative overlap (float 0-1).')
-parser.add_argument('-d', dest = 'delimiter', type = str, default= '|',  help = 'Custom character separating fields of sequence identifier.')
-parser.add_argument('-t', dest ='minTax', type=int, default = 1, help ='Minimum Taxa in cleaned alignment')
-parser.add_argument('-r', dest ='representative', action='store_true', default = False, help ='When the flag is present, one representative sequence per species(the longest) retained in the alignment.')
-args, unknown = parser.parse_known_args()
-
 #print args
 
 ###Function definitions
@@ -83,7 +74,17 @@ def Sanitize_aln(Dict):
         return Cleaned
 
 ######MAIN######
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    parser = argparse.ArgumentParser(description="This  script returns alignments processed for phylogenetic analyses. It  performs a basic sanitation on the input files removing poorly overlapping  sequences from the alignment. A sequence is considered 'poor' when it shows less than 'm' unambiguous sites or the length of unambiguous sites  extends less than a proportion 'p' of the total alignment length. It can additionally output MSA with only one sequence per OTU, removing additional sequence identifiers and retaining only the longest sequence. Unless a new threshold is provided (-t) the cleaned alignments have the same taxon composition as the input.")
+    parser.add_argument('-in', dest = 'input', type = str, nargs= '+',  help = 'Files to process(fasta alignment)')  
+    parser.add_argument('-m', dest = 'minalnL', type = int, default= 0,  help = 'Minimum alignment length.') 
+    parser.add_argument('-p', dest = 'percentage', type = float, default = 0.0, help= 'Minimum alignment relative overlap (float 0-1).')
+    parser.add_argument('-d', dest = 'delimiter', type = str, default= '|',  help = 'Custom character separating fields of sequence identifier.')
+    parser.add_argument('-t', dest ='minTax', type=int, default = 1, help ='Minimum Taxa in cleaned alignment')
+    parser.add_argument('-r', dest ='representative', action='store_true', default = False, help ='When the flag is present, one representative sequence per species(the longest) retained in the alignment.')
+    args, unknown = parser.parse_known_args()
+
+    
     problematica=[]
     for File in  args.input:
         FileName= File.split('.')

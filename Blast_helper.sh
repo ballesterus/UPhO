@@ -3,7 +3,8 @@
 #Usage:
 #
 # Blast_helper.sh <input.fasta> <query.fasta>
-#
+# Note: To produce comaparable results the effective  database size set to 34355436272, the number 
+#aminoacids in uniprot release  2017_12 of 20-Dec-201
 #Requires:
 #
 #    -gnu-parallel
@@ -41,7 +42,7 @@ AllvsAll ()
     echo 'Starting BLAST search' $query 'vs.' $input 'using' $type.
     if [ ! -e BLAST_results_${query%.*}.csv ]
     then
-	cat $query | parallel --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - > BLAST_results_${query%.*}.csv
+	cat $query | parallel --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -dbsize 34355436272 -query - > BLAST_results_${query%.*}.csv
     else
 	echo 'A BLAST output file matching the query name exist in the wd.'
 	#Lets try to restart the BLAST search from where it was left.
@@ -52,7 +53,7 @@ AllvsAll ()
 	sed -i -e "/^"$last"/d" BLAST_results_${query%.*}.csv
 	#start from previous last query
 	echo "Re-starting from line:" $qline "=" $last 
-	tail -n +$qline $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -query - >> BLAST_results_${query%.*}.csv
+	tail -n +$qline $query | parallel  --block 100k --pipe --recstart '>' $type -evalue 0.001 -outfmt 10 -db local_db/localDB -dbsize 34355436272  -query - >> BLAST_results_${query%.*}.csv
     fi
 }
 
