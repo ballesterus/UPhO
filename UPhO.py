@@ -78,7 +78,7 @@ def split_decomposition(Tree):
     missBval = 0
     for Key in P.iterkeys(): # This extracs splits deduced from the parenthetical notation ussing mappings in dictionary P.
         r_vec=newick[P[Key][0]: P[Key][1]]
-        print r_vec
+#        print r_vec
         vec = sorted(get_leaves(r_vec))
         covec = sorted(complement(vec, Tree.leaves)) #Complementary splits are inferred as the set of leaves not included in the parenthesis grouping.
         if vec not in Inspected and covec not in Inspected:
