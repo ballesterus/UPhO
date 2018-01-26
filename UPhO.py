@@ -70,7 +70,7 @@ def split_decomposition(Tree):
             idc = ids
             while idc in closed and idc != 0:
                 idc = idc-1
-            P[idc].append(Pos)
+            P[idc].append(Pos+1)# ensure the string incldues the closing parenthesis
             closed.append(idc)
         Pos+=1
 #Part II: Where we use string operations to identify components parts of each split.
@@ -78,6 +78,7 @@ def split_decomposition(Tree):
     missBval = 0
     for Key in P.iterkeys(): # This extracs splits deduced from the parenthetical notation ussing mappings in dictionary P.
         r_vec=newick[P[Key][0]: P[Key][1]]
+        print r_vec
         vec = sorted(get_leaves(r_vec))
         covec = sorted(complement(vec, Tree.leaves)) #Complementary splits are inferred as the set of leaves not included in the parenthesis grouping.
         if vec not in Inspected and covec not in Inspected:
@@ -107,15 +108,6 @@ def split_decomposition(Tree):
             except:
                 missBval+=1
             Tree.splits.append(mySplits)
-        else:
-            exp = re.escape(leaf) + r'\:([0-9\.]+)'
-            BranchVal =  re.findall(exp, Tree.newick)
-            for s in Tree.splits:
-                if vec in s.vecs:
-                    if s.branch_length != BranchVal[0]:
-                        nval=float(s.branch_length) + float(BranchVal[0])
-                        print nval
-                        s.branch_length=str(nval)
 #    print '%d edges in the tree missed branch values.'  %missBval
 
 def LargestBox(LoL):
@@ -149,6 +141,7 @@ def orthologs(Phylo, minTaxa, bsupport):
             for i_split in S.vecs:
                 Otus = spp_in_list(i_split)
                 cCount = fsum(Phylo.costs[i] for i in i_split)
+#                print "%s:%f" % (','.join(Otus), cCount) 
                 if len(set(Otus)) == cCount and cCount >= minTaxa:
                     if i_split not in OrthoBranch:
                         OrthoBranch.append(i_split)
