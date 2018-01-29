@@ -14,7 +14,7 @@ gsep =re.escape(sep)
 #Function definitions
 
 def mcl_abc(blastout, expectation):
-        """Create input file abc for mcl,from a csv blast out and a expectation file """
+        """Creates an abc file to use as input for  mcl. Its argumenst are a file with BLAST tresults in csv format and a expectation value threshold."""
         outName = 'mcl_%s.abc' % str(expectation)
 	myOut = open(outName, 'w')
 	in_file = open(blastout, 'r')
@@ -28,17 +28,18 @@ def mcl_abc(blastout, expectation):
 
 
 def clusters(blastout, expectation):
-        """This function take two arguments: 1) the blast csv output, and 2) an E Value threshold for the formation of clusters. The output is text file with the identifiers of the sequenes clustered  on a single line, a hidden parameter in this function is the alignment lenght, Im using 50 but can be  modified."""
+        """This function takes two arguments: 1) the blast csv output, and 2) an E Value threshold for the formation of clusters. The output is text file with the identifiers of the sequenes clustered on a single line, a hidden parameter in this function is the alignment lenght, I am using 50 but can be  modified."""
 	myOut = open("clusters_%s.txt"  % expectation, 'w')
 	in_file = open(blastout, 'r')
 	previous_query = ''
-	Homolog=[]
+	Homolog=[] 
 	for line in in_file:
 		(queryId, subjectId, percIdentity, alnLength, mismatchCount, gapOpenCount, queryStart, queryEnd, subjectStart, subjectEnd, eVal, bitScore) = line.split(",")
 		current_query = queryId
-		if (int(alnLength) >= 20) and float(eVal) <= float(expectation):
-			if previous_query != current_query:
-				myOut.write(','.join(Homolog) + '\n')
+		if (int(alnLength) >= 50) and float(eVal) <= float(expectation):
+			if previous_query !=  current_query:
+                                if len(Homolog) >2:
+				        myOut.write(','.join(Homolog) + '\n')
 				previous_query = current_query
 				Homolog=[]
                                 Homolog.append(queryId)
@@ -46,8 +47,8 @@ def clusters(blastout, expectation):
 			else:
                                 if subjectId not in Homolog:
 				        Homolog.append(subjectId)
-                else:
-                        print "FAILED\n: %s" % line 
+                # else:
+                #         print "FAILED\n: %s" % line
 	myOut.write(','.join(Homolog) + '\n')
 
 
