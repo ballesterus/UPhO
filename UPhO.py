@@ -84,7 +84,7 @@ def split_decomposition(Tree):
         if vec not in Inspected and covec not in Inspected:
             mySplits = split()
             mySplits.vecs = [vec, covec]
-            exp = re.escape(r_vec) + r'\)([0-9\.]*:[0-9\.]+)'
+            exp = re.escape(r_vec) + r'([0-9\.]*:[0-9\.]+)'
             BranchVal=re.findall(exp, Tree.newick)
             try: 
                 mySplits.branch_length = BranchVal[0].split(':')[1]
