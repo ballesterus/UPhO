@@ -23,9 +23,9 @@
 mafft_cmd="mafft --anysymbol --auto --quiet --thread 2"
 trimal_cmd="trimal -fasta -gappyout"
 raxml_cmd="raxmlHPC-PTHREADS-AVX -f a -p $RANDOM -x $RANDOM -#100 -m PROTGAMMAAUTO -T 4"
-iqtree_cmd="iqtree-omp -st AA -bb 1000  -nt AUTO"
+iqtree_cmd="iqtree -st AA -fast -mset LG,WAG,JTT,DAYHOFF  -lbp 1000 -nt AUTO"
 fasttree_cmd="fasttree -slownni -wag"
-Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.25 -t 0"
+Al2Phylo_cmd="Al2Phylo.py -m 50 -p 0.50 -t 4"
 
 export mafft_cmd
 export trimal_cmd
