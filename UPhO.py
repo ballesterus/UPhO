@@ -3,6 +3,7 @@ import re
 import os
 from sys import argv
 from math import fsum
+import distOrth
 import argparse
 
 
@@ -255,6 +256,13 @@ if __name__ == "__main__":
         main()
     else:
         main_wTrees()
+    print "Removing redundancies. Ambiguous orthology assignments will favor larger orthogroup."
+    distOrth.No_OG_subsets("UPhO_orthogroups.csv")
+    distOrth.No_Same_OG_Intesec("OG_no_subsets.txt")
+    os.remove("OG_no_subsets.txt")
+    os.rename("OG_no_intersec.txt", "UPhO_nr_orthogroups.csv")
+    print "Non redundant orthougroups written to UPhO_nr_orthogroups.csv. Dont forget to filter redundant orthobranches if subtrees were produced."
+    os.remove("demofile.txt")
     OrtList.close()
     if args.Reference != None:
         import Get_fasta_from_Ref as GFR
