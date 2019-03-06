@@ -126,7 +126,7 @@ def No_Same_OG_Intesec(File):
     Independent = []
     for Line in F:
         A = Line.strip('\n').split(',')  
-        Pattern = re.findall("#[a-zA-Z0-9]+_[0-9]+",A[0])
+        Pattern = re.sub("_[0-9]+$", "",A[0])
         if Pattern == Current:
             for i in Independent:
                 if A  not in Independent:
@@ -136,8 +136,7 @@ def No_Same_OG_Intesec(File):
                         Independent.append(Winner)
                         Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
                         print Log_st
-                        Log.write(Log_st)
-                        
+                        Log.write(Log_st)                       
                     else:
                         Independent.append(A)
         else:
