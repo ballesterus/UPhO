@@ -262,7 +262,6 @@ if __name__ == "__main__":
     os.remove("OG_no_subsets.txt")
     os.rename("OG_no_intersec.txt", "UPhO_nr_orthogroups.csv")
     print "Non redundant orthougroups written to UPhO_nr_orthogroups.csv. Dont forget to filter redundant orthobranches if subtrees were produced."
-    os.remove("demofile.txt")
     OrtList.close()
     if args.Reference != None:
         import Get_fasta_from_Ref as GFR
