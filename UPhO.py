@@ -3,7 +3,6 @@ import re
 import os
 from sys import argv
 from math import fsum
-import distOrth
 import argparse
 
 
@@ -109,7 +108,68 @@ def split_decomposition(Tree):
             except:
                 missBval+=1
             Tree.splits.append(mySplits)
-#    print '%d edges in the tree missed branch values.'  %missBval
+
+def No_OG_subsets(File):
+    '''Takes a UPho_orthogroups.csv. It writes a similar formated file with one orthologroup per line but without subsets'''
+    Log = open('OG_no_subsets.log', 'w')
+    Out = open('OG_no_subsets.txt', 'w')
+    M_List = open(File).readlines()
+    F = open(File, 'r')
+    TotalSubsets=0
+    print 'Master list contains %d elements' % len(M_List)
+    F = open(File, 'r')
+    for Line in F:
+        Score = 0
+        A = Line.strip('\n').split(',')
+        Aid = A.pop(0)
+        for B in M_List:
+            B = B.strip('\n').split(',')
+            Bid = B.pop(0)
+            #print B
+            if set(A).issubset(B) and A != B:
+                Log.write('SUBSET: Ortho group %s is a subset of Orthogroup %s\n' %(Aid, Bid))
+                Score +=1
+                TotalSubsets += 1
+        if Score < 1:
+            Out.write(Line)
+    Log.write(str(TotalSubsets)+' subsets processed')
+    Log.close()
+    Out.close()
+    F.close()
+
+def No_Same_OG_Intesec(File):
+    Log = open('OG_no_intersec.log', 'w')
+    Out = open('OG_no_intersec.txt', 'w')
+    F = open(File, 'r')
+    Current =''
+    Independent = []
+    for Line in F:
+        A = Line.strip('\n').split(',')  
+        Pattern = re.sub("_[0-9]+$", "",A[0])
+        if Pattern == Current:
+            for i in Independent:
+                if A  not in Independent:
+                    if len(set(A)&set(i)) > 0:
+                        Independent.remove(i)
+                        Winner= max([A,i], key=len)
+                        Independent.append(Winner)
+                        Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
+                        print Log_st
+                        Log.write(Log_st)                       
+                    else:
+                        Independent.append(A)
+        else:
+            print 'The tree %s has %d independent orthogroups' % (Current, len(Independent))
+            for i in Independent:
+                Out.write(','.join(i) + '\n')
+            Current = Pattern
+            Independent = []
+            Independent.append(A)
+    for i in Independent:
+        Out.write(','.join(i) + '\n')
+    F.close()
+    Out.close()
+    Log.close()
 
 def LargestBox(LoL):
     '''Takes a list of lists (lol) and returns a lol where no list is a subset of the others, retaining only the largest'''
@@ -257,8 +317,9 @@ if __name__ == "__main__":
     else:
         main_wTrees()
     print "Removing redundancies. Ambiguous orthology assignments will favor larger orthogroup."
-    distOrth.No_OG_subsets("UPhO_orthogroups.csv")
-    distOrth.No_Same_OG_Intesec("OG_no_subsets.txt")
+    OrtList.close()
+    No_OG_subsets("UPhO_orthogroups.csv")
+    No_Same_OG_Intesec("OG_no_subsets.txt")
     os.remove("OG_no_subsets.txt")
     os.rename("OG_no_intersec.txt", "UPhO_nr_orthogroups.csv")
     print "Non redundant orthougroups written to UPhO_nr_orthogroups.csv. Dont forget to filter redundant orthobranches if subtrees were produced."
