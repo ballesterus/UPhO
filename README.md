@@ -2,7 +2,7 @@
 
 <img src="/misc/UPhO_logo.png" width="250" align="left"> UPhO finds orthologs with and without inparalogs from input gene family trees. Refer to the Documentation.pdf for more detailed explanations on its usage, installation and dependencies. Type UPhO.py -h for help.
 
-The only input requierement for UPhO is a tree (or trees) in Newick format in which the leaves are named with a species idenfifier, a field separator, and sequence identifier. By default, the field separator is the character "|"  but custom delimiters can be defined. Examples of trees to test UPhO are provided in the TestData folder.
+The only input requierement for UPhO is a tree (or trees) in NEWICK format in which the leaves are named with a species identifier, a field separator, and sequence identifier. By default, the field separator is the character "|"  but custom delimiters can be defined. Examples of trees to test UPhO are provided in the TestData folder.
 
 Additional scripts are provided for a variety of task including:
 
