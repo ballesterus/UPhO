@@ -214,8 +214,12 @@ def aggregate_splits(small,large):
     aggregate=large
     contents = get_leaves("(%s)" %small)
     placeholder= contents.pop()
+    aggregate=aggregate.replace("%s," % placeholder, "@@@,")
+    aggregate=aggregate.replace("%s)" % placeholder, "@@@)")
+    placeholder="@@@"
     for i in contents: #remove from aggregate all leaves in small except the placeholder
         aggregate=aggregate.replace('%s,' %i , "")
+        aggregate=aggregate.replace('%s)' %i , ")")
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
