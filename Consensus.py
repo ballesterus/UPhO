@@ -66,6 +66,8 @@ def Fasta_to_Dict(File):
     '''Creates a dictionary of FASTA sequences in a File, with seqIs as key to the sequences.'''
     with open(File, 'r') as F:
         Records = {}
+        Seqid='null'
+        Records['null']=''
         for Line in F:
             if Line.startswith('>'):
                 Seqid = Line.strip('>').strip('\n')
