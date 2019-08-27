@@ -47,8 +47,11 @@ def Is_NT_or_AA(Fasta_Dict):
     elif all(string_type(Fasta_Dict[key]) == 'AA' for key in Fasta_Dict.iterkeys()):
         return 'AA'
     else:
-        print "ERROR: Non IUPAC symbol"
-
+        for k in Fasta_Dict.iterkeys():
+            for i in Fasta_Dict[k]:
+                if i not in AA:
+                    print i
+                    
 def return_amb(list_of_nuc):
     """Returns a  one letter ambiguity code form a list of nucleotides. """
     for code in Ambigs.iterkeys():
@@ -75,7 +78,8 @@ def Fasta_to_Dict(File):
                 Records[Seqid] = Seq
             else:
                 Seq = Records[Seqid] + Line.strip('\n')
-                Records[Seqid] = Seq.upper() 
+                Records[Seqid] = Seq.upper()
+        del Records['null']
         return Records
 
 def make_Consensus(Dict, T):
@@ -83,7 +87,7 @@ def make_Consensus(Dict, T):
     Type = Is_NT_or_AA(Dict)
     ignore=['-', '?']
     Consensus=''
-    for i in range(0, len(Dict[Dict.keys()[0]])):
+    for i in range(0, len(Dict[Dict.keys()[1]])):
         compo = [seq[i] for seq in Dict.itervalues()]
         compo = [x for x in compo if x not in ignore]
         if  len(compo) < 1:
