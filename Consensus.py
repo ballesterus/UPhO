@@ -54,8 +54,10 @@ def Is_NT_or_AA(Fasta_Dict):
                     
 def return_amb(list_of_nuc):
     """Returns a  one letter ambiguity code form a list of nucleotides. """
+    nts=[Ambigs[x] for x in list_of_nuc]
+    nts=[u for x in nts for u in x]
     for code in Ambigs.iterkeys():
-        if set(Ambigs[code]) == set(list_of_nuc) - set(['-']):
+        if set(Ambigs[code]) == set(nts):
             return code
 
 def is_ID(Line):
@@ -87,7 +89,7 @@ def make_Consensus(Dict, T):
     Type = Is_NT_or_AA(Dict)
     ignore=['-', '?']
     Consensus=''
-    for i in range(0, len(Dict[Dict.keys()[1]])):
+    for i in range(0, len(Dict[Dict.keys()[0]])):
         compo = [seq[i] for seq in Dict.itervalues()]
         compo = [x for x in compo if x not in ignore]
         if  len(compo) < 1:
