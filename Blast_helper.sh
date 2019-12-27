@@ -16,7 +16,7 @@
 
 ldb_path='local_db'
 db_type='prot'
-type='blastp'
+type=''
 input=''
 query=''
 
@@ -70,9 +70,9 @@ query unless otherwise specified trough -q.  GNU parallel and BLAST+
 should be in installed and properly cited when using this script.
 
 -h   |  Print this help
--i   |  The input FASTA file to build a BLASTDB   
+-i   |  The input FASTA file (aminoacids) to build a BLASTDB   
 -q   |  Specify a query file, otherwise all vs. all will be performed using the "-i" file.
--p   |  Use psiblast instead of blastp
+-t   |  Specify the blast algorithm to use:  blastp (defaukt), blastx, or psiblast
 
 
 EOF
@@ -80,9 +80,9 @@ EOF
 
 ### Main
 OPTIND=1
-while getopts "hepq:i:" opt; do
+while getopts "ht:q:i:" opt; do
 
-    case "$opt" in
+    case "${opt}" in
 	h)
 	    usage
 	    exit 0
@@ -96,8 +96,8 @@ while getopts "hepq:i:" opt; do
 	    query=$OPTARG
 	    ;;
 	
-	p)
-	    type='psiblast'
+	t)
+	    type=$OPTARG
 	    ;;
 
 	'?')
@@ -118,8 +118,11 @@ then
     query=$input
 fi
 
-echo $query vs $input
-echo $type
+if [ "$type" = "" ]
+then
+    type="blastp"
+fi
+
 
 if [ "$input" != "" ]
 then
