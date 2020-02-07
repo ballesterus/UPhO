@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import re
@@ -8,9 +8,9 @@ from Consensus import *
 delim = '|'
 
 def aln_stats(Dict):
-    typeseq=string_type(Dict[Dict.keys()[0]])
+    typeseq=string_type(Dict[list(Dict.keys())[0]])
     numSeqs = len(Dict.keys())
-    Spp = set([i.split(delim)[0] for i in Dict.iterkeys()])
+    Spp = set([i.split(delim)[0] for i in Dict.keys()])
     Allseq = ''.join(Dict.values())
     sites = len(Allseq)
     Gaps=0
@@ -18,21 +18,21 @@ def aln_stats(Dict):
     ambig=0
     AT=0
     GC=0
-    if typeseq == "NT":
-        for i in Allseq:
-            if i == "-":
-                Gaps +=1
-            elif i =="?":
-                Missing +=1
-            elif i in ["A", "T"]:
+    for i in Allseq:
+        if i == "-":
+            Gaps +=1
+        elif i =="?":
+            Missing +=1
+        if typeseq == "NT":
+            if i in ["A", "T"]:
                 AT+=1
             elif i in ["G", "C"]:
                 GC+=1
             else:
-                ambig+=1
-    else:
-        if i == "X":
-            ambig +=1
+                ambig += 1
+        else:
+            if i == "X":
+                ambig += 1
 
     avgSeqL = float(sites)/numSeqs
 #    print "missing: %f" % (float(Missing)/sites)
@@ -68,6 +68,6 @@ if __name__=='__main__':
                 Ident = (AlnL - cambig) / float(AlnL)
                 out.write("%s\t%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, typeseq, numSeq, numSpp, AlnL, ATper, GCper, Gapper, Missper, Ambigperc, Ident, C))
             except:
-                print "Cant make consensus, probably not an alignement"
+                print ("Cant make consensus, probably not an alignement")
                 out.write("%s\t%s\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n"  % (F, typeseq, numSeq, numSpp, avgSeqL, ATper, GCper, Gapper, Missper, Ambigperc))
-        print "Summary stats written to alns_stats.tsv"
+        print ("Summary stats written to alns_stats.tsv")
