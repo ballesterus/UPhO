@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import re
@@ -34,7 +34,7 @@ def Fasta_Parser(File):
 
 def OneOTU(SppDict):
     rSpp={}
-    for oldkey in SppDict.iterkeys():
+    for oldkey in SppDict.keys():
         newkey = oldkey.split(args.delimiter)[0]
         if newkey not in rSpp.keys():
             rSpp[newkey] = SppDict[oldkey]
@@ -52,9 +52,9 @@ def spp_in_list(alist, delim):
 
 def Aln_L(Dict):
     """Returns the lenght of the alignment or  zero if the sequences in the dict are nor the same length or if squences are of zero lenght, thus probably not aligned."""
-    Ref = Dict.keys()[0]
+    Ref = list(Dict.keys())[0]
     Len= len(Dict[Ref]) # obtain a reference from the 1st dict entry.                                           
-    if all(Len == len(Dict[key]) for key in Dict.iterkeys()):
+    if all(Len == len(Dict[key]) for key in Dict.keys()):
         return Len
     else:
         return 0
@@ -64,13 +64,13 @@ def Sanitize_aln(Dict):
     Cleaned = {}
     AlnL= Aln_L(Dict)
     if AlnL != False:
-        print "The aligmnment to clean is %d long" % AlnL
-        for otu in Dict.iterkeys():
+        print ("The aligmnment to clean is %d long" % AlnL)
+        for otu in Dict.keys():
             SeL=seq_leng_nogaps(Dict[otu])
             if float(SeL)/AlnL > args.percentage and SeL > args.minalnL:
                 Cleaned[otu] = Dict[otu]
             else:
-                print "Sequence %s is shorter than the thresholds (%d sites) and will be removed from the alignment." % (otu, SeL)
+                print("Sequence %s is shorter than the thresholds (%d sites) and will be removed from the alignment." % (otu, SeL))
         return Cleaned
 
 ######MAIN######
@@ -88,11 +88,11 @@ if __name__ == "__main__":
     problematica=[]
     for File in  args.input:
         FileName= File.split('.')
-        print '\nWorking on %s' %File
+        print ('\nWorking on %s' %File)
         try:
             F = Fasta_Parser(File)
         except:
-            print "ERROR: This does not seem to be a fasta file."
+            print ("ERROR: This does not seem to be a FASTA file.")
         if Aln_L(F) < 1:
             problematica.append(File)
         else:
@@ -100,27 +100,27 @@ if __name__ == "__main__":
                 SppinAln = args.minTax
             else:
                 SppinAln = len(set(spp_in_list(F.keys(), args.delimiter)))
-            print "Min spp for clean: %d"  % SppinAln
+            print ("Min. spp for clean: %d"  % SppinAln)
             if args.percentage > 0.0 or args.minalnL > 0:        
-                print '\tSanitizing alignment %s by removing sequences with less than %d sites or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage)
+                print ('\tSanitizing alignment %s by removing sequences with less than %d sites or less than %.2f percent occupancy.' % (FileName[0], args.minalnL, args.percentage))
                 F = Sanitize_aln(F)
                 if not F:
-                    print "\tAlert: Not a single  clean sequence was found in %s" %File
+                    print ("\t\u001b[31;1m ALERT: \u001b[0m Not a single  clean sequence was found in %s" %File)
             if args.representative:
-                print '''\tSelecting one representative sequence per species'''
+                print ('''\tSelecting one representative sequence per species''')
                 F =OneOTU(F)
             SppinCleaned =  len(set(spp_in_list(F.keys(), args.delimiter)))
             if SppinCleaned >= SppinAln:
                 OutName = FileName[0] + '_clean.' + FileName[-1]
-                print '\tCleaned alignment written to %s' % OutName
+                print ('\tCleaned alignment written to %s' % OutName)
                 Out = open(OutName, 'w')
-                for Rec in F.iterkeys():
+                for Rec in F.keys():
                     Out.write('>%s\n' % Rec)
                     Out.write(F[Rec] + '\n')
                 Out.close()
             else:
-                print '\tAlert: The cleaned alignment contains less species than required and wont be written to a clean file.'
+                print ('\t\u001b[31;1m ALERT: \u001b[0m The cleaned alignment contains less species than required and wont be written to a clean file.')
     if len(problematica) > 0:
-        print '*' * 20
-        print "Error: The following files were not processed. Either these are empty alignments or contain unaligned sequences. You may want to inspect them before proceeding."
-        '\n'.join(i for i in problematica )
+        print ('*' * 20)
+        print ("Error: The following files were not processed. Either these are empty alignments or contain unaligned sequences. You may want to inspect them before proceeding.")
+        print('\n'.join(i for i in problematica ))
