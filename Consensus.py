@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import re
@@ -42,21 +42,21 @@ def string_type(string):
 
 def Is_NT_or_AA(Fasta_Dict):
     ''' Returns NT is the sequence is composed of Nucleotide symbols or AA if symbols are aminoacids'''
-    if all(string_type(Fasta_Dict[key]) == 'NT' for key in Fasta_Dict.iterkeys()):
+    if all(string_type(Fasta_Dict[key]) == 'NT' for key in Fasta_Dict.keys()):
         return 'NT'
-    elif all(string_type(Fasta_Dict[key]) == 'AA' for key in Fasta_Dict.iterkeys()):
+    elif all(string_type(Fasta_Dict[key]) == 'AA' for key in Fasta_Dict.keys()):
         return 'AA'
     else:
-        for k in Fasta_Dict.iterkeys():
+        for k in Fasta_Dict.keys():
             for i in Fasta_Dict[k]:
                 if i not in AA:
-                    print i
+                    print (i)
                     
 def return_amb(list_of_nuc):
     """Returns a  one letter ambiguity code form a list of nucleotides. """
     nts=[Ambigs[x] for x in list_of_nuc]
     nts=[u for x in nts for u in x]
-    for code in Ambigs.iterkeys():
+    for code in Ambigs.keys():
         if set(Ambigs[code]) == set(nts):
             return code
 
@@ -89,8 +89,8 @@ def make_Consensus(Dict, T):
     Type = Is_NT_or_AA(Dict)
     ignore=['-', '?']
     Consensus=''
-    for i in range(0, len(Dict[Dict.keys()[0]])):
-        compo = [seq[i] for seq in Dict.itervalues()]
+    for i in range(0, len(Dict[list(Dict.keys())[0]])):
+        compo = [seq[i] for seq in Dict.values()]
         compo = [x for x in compo if x not in ignore]
         if  len(compo) < 1:
             Consensus+='-'
@@ -149,9 +149,9 @@ if __name__ =='__main__':
                 Out = open ('Good_Blocks.fasta', 'w')
                 Res = Good_Blocks(Con, M)
                 if re.search(r'[ACGT]+', Res):
-                    print 'Consensus from orthogroup %s have conserevd regions' % FileName[0]
+                    print ('Consensus from orthogroup %s have conserevd regions' % FileName[0])
                     Out.write('>' + FileName[0] + '\n')
                     Out.write(Res + '\n')
                 else:
-                    print 'Consensus from orthogroup %s does not look promissing' % FileName[0]
+                    print ('Consensus from orthogroup %s does not look promissing' % FileName[0])
                     Out.close()
