@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 import re
 import os
 from sys import argv
@@ -76,7 +76,7 @@ def split_decomposition(Tree):
 #Part II: Where we use string operations to identify components parts of each split.
     Inspected= []
     missBval = 0
-    for Key in P.iterkeys(): # This extracs splits deduced from the parenthetical notation ussing mappings in dictionary P.
+    for Key in P.keys(): # This extracs splits deduced from the parenthetical notation ussing mappings in dictionary P.
         r_vec=newick[P[Key][0]: P[Key][1]]
 #        print r_vec
         vec = sorted(get_leaves(r_vec))
@@ -116,7 +116,7 @@ def No_OG_subsets(File):
     M_List = open(File).readlines()
     F = open(File, 'r')
     TotalSubsets=0
-    print 'Master list contains %d elements' % len(M_List)
+    print ('Master list contains %d elements' % len(M_List))
     F = open(File, 'r')
     for Line in F:
         Score = 0
@@ -154,12 +154,12 @@ def No_Same_OG_Intesec(File):
                         Winner= max([A,i], key=len)
                         Independent.append(Winner)
                         Log_st= 'The groups %s (%d seqs) and %s (%d seqs) share %d sequences\n' % (i[0], len(i)-1, A[0], len(A) -1 , len(set(A)&set(i)))
-                        print Log_st
+                        print (Log_st)
                         Log.write(Log_st)                       
                     else:
                         Independent.append(A)
         else:
-            print 'The tree %s has %d independent orthogroups' % (Current, len(Independent))
+            print ('The tree %s has %d independent orthogroups' % (Current, len(Independent)))
             for i in Independent:
                 Out.write(','.join(i) + '\n')
             Current = Pattern
@@ -202,7 +202,7 @@ def orthologs(Phylo, minTaxa, bsupport):
             for i_split in S.vecs:
                 Otus = spp_in_list(i_split)
                 cCount = fsum(Phylo.costs[i] for i in i_split)
-#                print "%s:%f" % (','.join(Otus), cCount) 
+#                print ("%s:%f" % (','.join(Otus), cCount))
                 if len(set(Otus)) == cCount and cCount >= minTaxa:
                     if i_split not in OrthoBranch:
                         OrthoBranch.append(i_split)
@@ -270,13 +270,13 @@ def main_wTrees ():
                     else:
                         branch = subNewick(group, P)
                     OrtBranch.write(branch + '\n')
-                    print "subtree  written to: %s_%s.tre" %(name,ortNum)
+                    print ("subtree  written to: %s_%s.tre" %(name,ortNum))
                     count += 1
                     Total += 1
                     ortNum += 1
                     OrtBranch.close()
-        print "%d orthogroups were found in the tree file %s" % (count, tree)
-    print 'Total  orthogroups found: %d' % Total
+        print ("%d orthogroups were found in the tree file %s" % (count, tree))
+    print ('Total  orthogroups found: %d' % Total)
                             
 def main():
     '''Main program execution when trees are not written'''
@@ -296,8 +296,8 @@ def main():
                     count += 1
                     Total += 1
                     ortNum += 1
-        print "%d orthogroups were found in the tree file %s" % (count, tree)
-    print 'Total  orthogroups found: %d' % Total
+        print ("%d orthogroups were found in the tree file %s" % (count, tree))
+    print ('Total  orthogroups found: %d' % Total)
 
 #MAIN
 if __name__ == "__main__":
@@ -314,21 +314,21 @@ if __name__ == "__main__":
     gsep=re.escape(sep)
     OrtList = open('UPhO_orthogroups.csv', 'a')
 
-    print  "Begining orthology assesment. Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs) 
+    print  ("Begining orthology assesment. Support threshold = %1.2f; inparalogs = %s" % (args.Support, args.inParalogs))
 
     if not args.out_trees:
         main()
     else:
         main_wTrees()
-    print "Removing redundancies. Ambiguous orthology assignments will favor larger orthogroup."
+    print ("Removing redundancies. Ambiguous orthology assignments will favor larger orthogroup.")
     OrtList.close()
     No_OG_subsets("UPhO_orthogroups.csv")
     No_Same_OG_Intesec("OG_no_subsets.txt")
     os.remove("OG_no_subsets.txt")
     os.rename("OG_no_intersec.txt", "UPhO_nr_orthogroups.csv")
-    print "Non redundant orthougroups written to UPhO_nr_orthogroups.csv. Dont forget to filter redundant orthobranches if subtrees were produced."
+    print ("Non redundant orthougroups written to UPhO_nr_orthogroups.csv. Dont forget to filter redundant orthobranches if subtrees were produced.")
     OrtList.close()
     if args.Reference != None:
         import Get_fasta_from_Ref as GFR
-        print "Proceeding to create a fasta file for each ortholog"    
+        print ("Proceeding to create a fasta file for each ortholog")    
         GFR.main('UPhO_orthogroups.csv','UPhO_Seqs','upho', args.Reference)
