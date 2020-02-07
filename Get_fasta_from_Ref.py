@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 
 import os
@@ -8,18 +8,22 @@ import argparse
 
 
 #Function definitions
+
 def Fasta_to_Dict(File):
     '''Creates a dictionary of FASTA sequences in a File, with seqIs as key to the sequences.'''
     with open(File, 'r') as F:
         Records = {}
+        Seqid='null'
+        Records['null']=''
         for Line in F:
             if Line.startswith('>'):
-                Seqid = Line.split(' ')[0].strip('>').strip('\n')
+                Seqid = Line.strip('>').strip('\n')
                 Seq= ''
                 Records[Seqid] = Seq
             else:
                 Seq = Records[Seqid] + Line.strip('\n')
-                Records[Seqid] = Seq.upper() 
+                Records[Seqid] = Seq.upper()
+        del Records['null']
         return Records
 
 def FastaRetriever(seqId, FastaDict):
@@ -28,22 +32,22 @@ def FastaRetriever(seqId, FastaDict):
         seq=FastaDict[seqId]
         return ">%s\n%s\n" %(seqId,seq)
     except:
-        print "\x1b[1;31;40mALERT: The sequence ID:  %s  was not found in the source Fasta file.\x1b[0m" % seqId
+        print ("\x1b[1;31;40mALERT: The sequence ID:  %s  was not found in the source Fasta file.\x1b[0m" % seqId)
 
 def main(query, outdir, prefix, reference):
     handle = open(query, 'r')
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     else:
-        print 'The output dir already exist!'
+        print ('The output dir already exist!')
     Counter = 0
     seqSource = Fasta_to_Dict(reference)
     for line in handle:
-	if len(line) > 0: # do not process empty lines
+        if len(line) > 0: # do not process empty lines
             line = line.replace(' ', '' ) # remove white spaces
-	    qlist = line.strip('\n').split(',')
+            qlist = line.strip('\n').split(',')
             qlist = [i for i in qlist if i != ""]
-            if line.startswith('#'): #means that filenames are provided in the input this being the fisrt field in the csv.
+            if line.startswith('#'): #means that filenames are provided in the input this being the first field in the csv.
                 Name = qlist.pop(0)
                 OG_filename = Name.strip('#') + '.fasta'
                 OG_outfile = open(outdir + '/' + OG_filename, 'w')
@@ -56,12 +60,11 @@ def main(query, outdir, prefix, reference):
                 try:
                     OG_outfile.write(seq)
                 except:
-                    print "There is a problem retrieving the seqID: %s. Verify the seqID is the exactly same in query and source files.\n" % seqId
-                    exit(1) 
-	    print "Successfully created file: %s" % OG_filename
-	    OG_outfile.close()
-                                
-
+                    print ("There is a problem retrieving the seqID: %s. Verify the seqID is the exactly same in query and source files.\n" % seqId)
+                    exit(1)
+            print ("Successfully created file: %s" % OG_filename)
+            OG_outfile.close()
+    handle.close()
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='This script creates fasta files from a list of sequence idetifiers. It takes as input a file in which each line is  list of of sequence identifiers to be written in multi-fasta file; and a Reference file, which contains the identifiers and their sequences. Fasta id in query and Reference should be identical. The output files are named with using a user defined prefix and a counter, or if a name defined by the user is preferred, this should be given as the first element of the list and identified by starting with  "#" ')
