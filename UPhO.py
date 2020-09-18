@@ -223,6 +223,11 @@ def aggregate_splits(small,large):
     aggregate = aggregate.replace(placeholder, small) 
     return aggregate
 
+
+def leaf_len(string):
+    L=get_leaves(string)
+    return len(L)
+
 def subNewick(alist, myPhylo):
     '''This function takes a list of leaves forming a branch and a source tree, returning the newick subtree'''
     relevant = []
@@ -239,8 +244,9 @@ def subNewick(alist, myPhylo):
                     rep =  "(%s)%s:%s" %(','.join(vec), str(split.support), str(split.branch_length))
                     relevant.append(rep)
     partial = seed
-    relevant = sorted(relevant, key=len, reverse=True) # order is important
+    relevant = sorted(relevant, key=leaf_len, reverse=True) # order is important
     for e in relevant:
+#        print (e)
         partial = aggregate_splits(e, partial)
     partial = re.sub('None:', ':', partial)
     partial = re.sub(':None', ':1', partial)
