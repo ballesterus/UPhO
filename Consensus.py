@@ -8,7 +8,7 @@ from sys import argv
 #Globals
 
 NT= ('A','C','G','T','U','R','Y','K','M','S','W','B','D','H','V','N', '-', '?')
-AA =('A','B','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','U','V','W','Y','Z','X', '-', '*', '?')
+AA =('A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','X', '-', '*', '?')
 
 #dictionary of ambiguity:
 Ambigs = {

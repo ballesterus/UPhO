@@ -7,36 +7,46 @@ from Consensus import *
 
 delim = '|'
 
+def count_char(char,string):
+    n=0
+    for i in string:
+        if i == char:
+            n+=1
+    return n
+
+def count_alphabet(datstring, setAlpha):
+    msize=len(datstring)
+    result=[]
+    for i in list(AA):
+        result.append(count_char(i,datstring)/msize)
+    return result
+
+
+def seqTypefreq(datastring):
+    check=[i for i in datastring if i not in ['-', '?']]
+    denom=len(check)
+    freqs = count_alphabet(check, ["A", "C", "G", "T"])
+    nutsprop = sum(freqs)/denom
+    if  all (i in NT for i in list(datastring)) and nutsprop >= 0.5: 
+        result=count_alphabet(datastring, AA)
+        return ["NT"] + result
+    elif  all (i in AA for i in list(datastring)):
+        result=count_alphabet(datastring, AA)
+        return ["AA"] + result
+    else:
+        return 'ERROR: NOT AA or NT'
+    
+
 def aln_stats(Dict):
-    typeseq=string_type(Dict[list(Dict.keys())[0]])
     numSeqs = len(Dict.keys())
     Spp = set([i.split(delim)[0] for i in Dict.keys()])
     Allseq = ''.join(Dict.values())
+    freqs= seqTypefreq(Allseq)
+    typeseq= freqs.pop(0)
     sites = len(Allseq)
-    Gaps=0
-    Missing=0
-    ambig=0
-    AT=0
-    GC=0
-    for i in Allseq:
-        if i == "-":
-            Gaps +=1
-        elif i =="?":
-            Missing +=1
-        if typeseq == "NT":
-            if i in ["A", "T"]:
-                AT+=1
-            elif i in ["G", "C"]:
-                GC+=1
-            else:
-                ambig += 1
-        else:
-            if i == "X":
-                ambig += 1
-
     avgSeqL = float(sites)/numSeqs
 #    print "missing: %f" % (float(Missing)/sites)
-    return [ typeseq,numSeqs, len(Spp), float(AT)/sites, float (GC)/sites, float(Gaps)/sites, float(Missing)/sites, float(ambig)/sites, avgSeqL]
+    return [ typeseq, numSeqs, len(Spp), sites, avgSeqL ] + freqs
 
 #MAIN
 if __name__=='__main__':
@@ -48,15 +58,16 @@ if __name__=='__main__':
     #Global variables
     delim = arguments.delimiter 
     with open('alns_stats.tsv', 'w') as out:
-        out.write("File\tType\tnumSeq\tnumSpp\tAlnLen\tATper\tGCper\tGapperr\tMissingPerc\tambigperc\tidentpe\tConsensus\n")
+        header=["File", "seqType", "numSeqs", "numSpp", "numSites", "avgSeqLen"] + list(AA) + ["consAmbi", "conIdent", "ConsSeq"]
+        out.write("%s\n" % "\t".join(header))
         for F in arguments.Alignments:
             Al = Fasta_to_Dict(F)
-            typeseq,numSeq, numSpp, ATper, GCper, Gapper,Missper,Ambigperc,avgSeqL = aln_stats(Al)
+            alstat= aln_stats(Al)
             cambig=0
             try:
                 C = make_Consensus(Al, arguments.threshold)
                 AlnL=len(C)
-                if typeseq == "NT":
+                if alstat[0] == "NT":
                     for c in C:
                         if c not in  ['A', 'C', 'G', 'T']:
                             cambig+=1
@@ -66,8 +77,9 @@ if __name__=='__main__':
                             cambig+=1
                     
                 Ident = (AlnL - cambig) / float(AlnL)
-                out.write("%s\t%s\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%s\n"  % (F, typeseq, numSeq, numSpp, AlnL, ATper, GCper, Gapper, Missper, Ambigperc, Ident, C))
+                Ambigperc = cambig/ float(AlnL)
+                out.write("%s\t%s\t%s\t%s\t%s\n" % (F, "\t".join(map(str,alstat)),Ambigperc, Ident, C))
             except:
                 print ("Cant make consensus, probably not an alignement")
-                out.write("%s\t%s\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n"  % (F, typeseq, numSeq, numSpp, avgSeqL, ATper, GCper, Gapper, Missper, Ambigperc))
+                out.write("%s\t%s\n" % (F, "\t".join(map(str,alstat))))
         print ("Summary stats written to alns_stats.tsv")
